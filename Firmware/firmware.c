@@ -338,10 +338,10 @@ void *io_buffer_thread(void* arg) {
 
         FIRMWARE_IO_PRINTF("Waiting for input...\n");
 
-        unsigned char packet_type;
+        Packet_type packet_type;
         unsigned short size;
         unsigned short tag;
-        read(i_pipe, &packet_type, 4);
+        read(i_pipe, &packet_type, sizeof(Packet_type));
         read(i_pipe, &size, 2);
         read(i_pipe, &tag, sizeof(unsigned short));
         read(i_pipe, buffer, size);
