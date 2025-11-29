@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include "../audio_firmware.h"
@@ -15,19 +16,14 @@ int main() {
     firmwareStartAudio();
     printf("firmwareStartAudio() returned.\n");
 
-    // 2. Test Playback (using 'p' prefix for direct play, assuming file exists or just testing the call)
-    // We'll use a dummy file or try to play something we know exists, or just verify it attempts to call HAL.
-    // Since we can't easily verify sound output programmatically without a mic, we'll rely on return code 
-    // and console output (HAL prints).
-    
-    // Let's try to play a non-existent file to see if HAL handles it, 
-    // or better, generate a small wav if possible? 
-    // For now, let's just send a "p" command.
-    
-    char test_cmd[] = "ptest_audio"; // p + filename (without .wav)
+    // 2. Test Playback (using 'p' prefix for direct play)
+    // firmwarePlayAudio expects heap-allocated string and will free() it
+    char* test_cmd = strdup("ptest_audio"); // p + filename (without .wav)
     
     printf("Calling firmwarePlayAudio with '%s'...\n", test_cmd);
     int result = firmwarePlayAudio(test_cmd);
+    
+    // Note: firmwarePlayAudio calls free() on the input, so we don't free test_cmd here
     
     printf("firmwarePlayAudio returned: %d\n", result);
 
