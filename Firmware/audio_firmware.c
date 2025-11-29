@@ -1,3 +1,11 @@
+/* This code is for the audio firmware for the Hampod Program
+* Written by Brendan Perez
+* Last modified on 10/23/2023
+* Updated for Raspberry Pi USB HAL on 11/29/2025
+*/
+
+#include "audio_firmware.h"
+#include "hal/hal_audio.h"
 
 extern pid_t controller_pid;
 unsigned char audio_running = 1;
@@ -81,22 +89,27 @@ void audio_process() {
             chdir("/tmp");
             sprintf(buffer, "echo '%s' | text2wave -o output.wav", remaining_string);
             system_result = system(buffer);
-            system_result = system("aplay output.wav");
+            // system_result = system("aplay output.wav");
+            system_result = hal_audio_play_file("output.wav");
             chdir(default_directory);
         } else if(audio_type_byte == 's') {
             AUDIO_PRINTF("Festival tts %s with saving file\n", remaining_string);
 	    chdir("../Firmware/pregen_audio");
             sprintf(buffer, "echo '%s' | text2wave -o '%s.wav'", remaining_string, remaining_string);
             system_result = system(buffer);
-            sprintf(buffer, "aplay '%s.wav'", remaining_string);
-            system(buffer);
+            // sprintf(buffer, "aplay '%s.wav'", remaining_string);
+            // system(buffer);
+            sprintf(buffer, "%s.wav", remaining_string);
+            system_result = hal_audio_play_file(buffer);
             chdir(default_directory);
         } else if(audio_type_byte == 'p') {
-            strcpy(buffer, "aplay '");
-            strcat(remaining_string, ".wav'");
-            strcat(buffer, remaining_string);
-            AUDIO_PRINTF("Now playing %s with aplay\n", remaining_string);
-            system_result = system(buffer);
+            // strcpy(buffer, "aplay '");
+            // strcat(remaining_string, ".wav'");
+            // strcat(buffer, remaining_string);
+            sprintf(buffer, "%s.wav", remaining_string);
+            AUDIO_PRINTF("Now playing %s with HAL\n", remaining_string);
+            // system_result = system(buffer);
+            system_result = hal_audio_play_file(buffer);
         } else {
             AUDIO_PRINTF("Audio error. Unrecognized packet data %s\n", requested_string);
             system_result = -1;
@@ -114,6 +127,8 @@ void audio_process() {
     destroy_queue(input_queue);
     close(input_pipe_fd);
     close(output_pipe_fd); //Graceful closing is always nice :)
+    
+    hal_audio_cleanup();
     return;
 }
 
@@ -177,6 +192,13 @@ void firmwareStartAudio(){
         // kill(controller_pid, SIGINT);
         exit(1);
     }
+    
+    // Initialize HAL
+    if (hal_audio_init() != 0) {
+        AUDIO_PRINTF("Failed to initialize audio HAL\n");
+    } else {
+        AUDIO_PRINTF("Audio HAL initialized: %s\n", hal_audio_get_impl_name());
+    }
 }
 
 int firmwarePlayAudio(void* text){
@@ -197,23 +219,28 @@ int firmwarePlayAudio(void* text){
             chdir("/tmp");
             sprintf(buffer, "echo '%s' | text2wave -o output.wav", remaining_string);
             system_result = system(buffer);
-            system_result = system("aplay output.wav");
+            // system_result = system("aplay output.wav");
+            system_result = hal_audio_play_file("output.wav");
             chdir(default_directory);
         } else if(audio_type_byte == 's') {
             AUDIO_PRINTF("Festival tts %s with saving file\n", remaining_string);
 	    chdir("../Firmware/pregen_audio");
             sprintf(buffer, "echo '%s' | text2wave -o '%s.wav'", remaining_string, remaining_string);
             system_result = system(buffer);
-            sprintf(buffer, "aplay '%s.wav'", remaining_string);
-            system(buffer);
+            // sprintf(buffer, "aplay '%s.wav'", remaining_string);
+            // system(buffer);
+            sprintf(buffer, "%s.wav", remaining_string);
+            system_result = hal_audio_play_file(buffer);
             chdir(default_directory);
         } else if(audio_type_byte == 'p') {
             //strcpy(buffer, "aplay '");
             //strcat(buffer, remaining_string);
             //strcat(buffer, ".wav'");
-            sprintf(buffer, "aplay '%s.wav'", remaining_string);
-            AUDIO_PRINTF("Now playing %s with aplay\n", remaining_string);
-            system_result = system(buffer);
+            // sprintf(buffer, "aplay '%s.wav'", remaining_string);
+            sprintf(buffer, "%s.wav", remaining_string);
+            AUDIO_PRINTF("Now playing %s with HAL\n", remaining_string);
+            // system_result = system(buffer);
+            system_result = hal_audio_play_file(buffer);
         } else {
             AUDIO_PRINTF("Audio error. Unrecognized packet data %s\n", incomingText);
             system_result = -1;
@@ -223,3 +250,5 @@ int firmwarePlayAudio(void* text){
         free(incomingText);
         return system_result;
 }
+
+
