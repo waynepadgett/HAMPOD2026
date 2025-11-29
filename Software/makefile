@@ -1,7 +1,7 @@
 # Compiler flags
 CC = gcc
 CFLAGS = -rdynamic  -Wall -g -lm
-LDFLAGS = -lpthread -lhamlib -lwiringPi 
+LDFLAGS = -lpthread -lhamlib 
 # Files
 HEADERS := $(wildcard Modes/*.h) $(wildcard HamlibWrappedFunctions/*.h) $(wildcard APIObjects/*.h) $(wildcard ConfigSettings/*.h) 
 LIB_SRCS := $(wildcard Modes/*.c) $(wildcard HamlibWrappedFunctions/*.c) $(wildcard APIObjects/*.c) $(wildcard ConfigSettings/*.c)
