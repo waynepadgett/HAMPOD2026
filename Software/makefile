@@ -36,7 +36,7 @@ $(LIB_NAME): $(LIB_SRCS) $(HEADERS)
 
 # Build executable
 $(EXEC_NAME): $(EXEC_SRC) $(LIB_NAME)
-	$(CC) $(CFLAGS) -rdynamic -o $(EXEC_NAME) $(EXEC_SRC) -I. -L. -l:$(LIB_NAME) -ldl $(LDFLAGS) -Wl,-rpath,'$$ORIGIN'
+	$(CC) $(CFLAGS) -rdynamic -o $(EXEC_NAME) $(EXEC_SRC) -I. -L. -l:$(LIB_NAME) -ldl $(LDFLAGS) -Wl,-rpath,'$$ORIGIN' ../Firmware/hal/hal_audio_usb.o ../Firmware/hal/hal_keypad_usb.o
 
 # Clean
 clean:
