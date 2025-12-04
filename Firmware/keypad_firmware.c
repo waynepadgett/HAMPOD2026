@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 
+#include "keypad_firmware.h"
 #include "hampod_queue.h"
 #include "hampod_firm_packet.h"
 #include "hal/hal_keypad.h"
