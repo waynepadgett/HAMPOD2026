@@ -54,8 +54,8 @@
 #include "../Firmware/audio_firmware.h"
 
 
-#define INPUT_PIPE "Firmware_i"
-#define OUTPUT_PIPE "Firmware_o"
+#define INPUT_PIPE "../Firmware/Firmware_i"
+#define OUTPUT_PIPE "../Firmware/Firmware_o"
 
 #ifdef TESTING
     #define SIMULATEOUTPUT 1

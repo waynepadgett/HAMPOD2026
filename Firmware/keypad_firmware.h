@@ -18,8 +18,8 @@
 #include "hampod_queue.h"
 #include "hampod_firm_packet.h"
 
-#define KEYPAD_O "Keypad_o"
-#define KEYPAD_I "Keypad_i"
+#define KEYPAD_O "../Firmware/Keypad_o"
+#define KEYPAD_I "../Firmware/Keypad_i"
 
 #define KEYPAD_THREAD_COLOR "\033[0;97mKeypad - Main: "
 #define KEYPAD_IO_THREAD_COLOR "\033[0;96mKeypad - IO: "

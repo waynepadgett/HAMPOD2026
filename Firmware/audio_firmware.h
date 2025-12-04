@@ -19,8 +19,8 @@
 #define MAXSTRINGSIZE 512
 #define STRING_COUNT 16
 #define TABLE_SIZE 0x1000
-#define AUDIO_O "Speaker_o"
-#define AUDIO_I "Speaker_i"
+#define AUDIO_O "../Firmware/Speaker_o"
+#define AUDIO_I "../Firmware/Speaker_i"
 
 #define AUDIO_THREAD_COLOR "\033[0;34mAudio - Main: "
 #define AUDIO_IO_THREAD_COLOR "\033[0;32mAudio - IO: "
