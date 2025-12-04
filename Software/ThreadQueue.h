@@ -48,7 +48,9 @@ void Threadenqueue(Thread_queue* queue, pthread_t thread);
 Thread_queue* createThreadQueue();
 pthread_t ThreadDequeue(Thread_queue* queue);
 void destroyThreadQueue(Thread_queue* queue);
-bool  ThreadQueueIsEmpty(Thread_queue* queue);
+bool ThreadQueueIsEmpty(Thread_queue* queue);
 
+#ifndef SHAREDLIB
 #include "ThreadQueue.c"
+#endif
 #endif
