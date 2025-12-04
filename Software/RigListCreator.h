@@ -12,7 +12,7 @@
 #define SERIAL_PORT "/dev/ttyUSB0"
 
 void removeTextFiles();
-int callback(struct rig_caps *caps, rig_ptr_t rigp); 
+int callback(const struct rig_caps *caps, void *rigp); 
 int createRigLists(); 
 
 #ifndef SHAREDLIB
