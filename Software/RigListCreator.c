@@ -1,4 +1,10 @@
 // Might move to GeneralFunctions later. 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+#include <hamlib/rig.h>
+
 void replaceSlashWithDash(char *str, size_t size) {
     while (*str && size > 1) {
         if (*str == '/') {
@@ -49,6 +55,21 @@ void createTextFileList() {
         fprintf(file, "%s\n", companyName);
       }
     }
+    closedir(d);
+  }
+
+  fclose(file);
+}
+
+int callback(const struct rig_caps *caps, void *rigp) {
+  
+  // Create the rig once
+  RIG *rig = (RIG *) rigp;
+  rig = rig_init(caps->rig_model);
+  if (!rig)
+  {
+    fprintf(stderr, "Unknown rig num: %u\n", caps->rig_model);
+    fprintf(stderr, "Please check riglist.h\n");
     exit(1);
   }
   const char *port = "/dev/pts/3";
