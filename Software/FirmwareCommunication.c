@@ -7,6 +7,9 @@ pthread_mutex_t thread_lock;
 
 HashMap* audioHashMap;
 HashMap* stringDictinary;
+int firmware_input_fd = -1;
+int firmware_output_fd = -1;
+
 //this starts up the communication of the firmware
 void firmwareCommunicationStartup(){
     if(pthread_mutex_init(&thread_lock, NULL) != 0) {
@@ -15,6 +18,46 @@ void firmwareCommunicationStartup(){
     }
     setupAudioHashMap();
     setupDictinaryHashMap();
+
+    printf("Software: Connecting to Firmware pipes\n");
+    firmware_input_fd = open(INPUT_PIPE, O_WRONLY);
+    if(firmware_input_fd == -1) {
+        perror("Failed to open Firmware_i");
+    }
+    firmware_output_fd = open(OUTPUT_PIPE, O_RDONLY);
+    if(firmware_output_fd == -1) {
+        perror("Failed to open Firmware_o");
+    }
+    printf("Software: Connected to Firmware pipes\n");
+}
+
+int readNumPad() {
+    if(firmware_input_fd == -1 || firmware_output_fd == -1) {
+        return '-';
+    }
+
+    pthread_mutex_lock(&thread_lock);
+    
+    unsigned char cmd = 'r';
+    Inst_packet* packet = create_inst_packet(KEYPAD, 1, &cmd, 0);
+    write(firmware_input_fd, packet, 8);
+    write(firmware_input_fd, packet->data, 1);
+    destroy_inst_packet(&packet);
+
+    // Read response
+    Packet_type type;
+    unsigned short size;
+    unsigned short tag;
+    char key;
+    
+    read(firmware_output_fd, &type, sizeof(Packet_type));
+    read(firmware_output_fd, &size, sizeof(unsigned short));
+    read(firmware_output_fd, &tag, sizeof(unsigned short));
+    read(firmware_output_fd, &key, sizeof(char));
+    
+    pthread_mutex_unlock(&thread_lock);
+    
+    return (int)key;
 }
 
 // Wrapper for firmwarePlayAudio to match pthread_create signature

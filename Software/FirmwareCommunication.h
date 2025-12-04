@@ -52,6 +52,7 @@
 #include "GeneralFunctions.h"
 #include "APIObjects/HashMap.h"
 #include "../Firmware/audio_firmware.h"
+#include "../Firmware/hampod_firm_packet.h"
 
 
 #define INPUT_PIPE "../Firmware/Firmware_i"
