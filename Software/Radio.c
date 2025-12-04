@@ -1,3 +1,5 @@
+#include "Radio.h"
+
 #define SERIAL_PORT_S0 "/dev/ttyS0"
 #define SERIAL_PORT_S1 "/dev/ttyS1"
 #define SERIAL_PORT_USB0 "/dev/ttyUSB0"

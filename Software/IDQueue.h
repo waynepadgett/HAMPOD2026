@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 typedef struct IDNode {
     int id; 
     struct IDNode* next;
@@ -20,5 +21,7 @@ ID_queue* create_IDqueue();
 int IDdequeue(ID_queue* queue);
 void destroy_IDqueue(ID_queue* queue);
 bool IDcontains(ID_queue* queue, int value);
+#ifndef SHAREDLIB
 #include "IDQueue.c"
+#endif
 #endif
