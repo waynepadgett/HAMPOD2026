@@ -17,7 +17,7 @@ HAL_OBJS = $(HAL_SRCS:.c=.o)
 all: firmware.elf hampod_firm_packet.o audio_firmware.o keypad_firmware.o
 
 # Main firmware build
-firmware.elf: firmware.o $(HAL_OBJS)
+firmware.elf: firmware.o hampod_firm_packet.o audio_firmware.o keypad_firmware.o $(HAL_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 firmware.o: firmware.c keypad_firmware.h audio_firmware.h hampod_queue.h hampod_firm_packet.h
