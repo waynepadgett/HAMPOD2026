@@ -49,21 +49,6 @@ void createTextFileList() {
         fprintf(file, "%s\n", companyName);
       }
     }
-    closedir(d);
-  }
-
-  fclose(file);
-}
-
-int callback(struct rig_caps *caps, rig_ptr_t rigp) {
-  
-  // Create the rig once
-  RIG *rig = (RIG *) rigp;
-  rig = rig_init(caps->rig_model);
-  if (!rig)
-  {
-    fprintf(stderr, "Unknown rig num: %u\n", caps->rig_model);
-    fprintf(stderr, "Please check riglist.h\n");
     exit(1);
   }
   const char *port = "/dev/pts/3";

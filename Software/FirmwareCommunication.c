@@ -17,6 +17,12 @@ void firmwareCommunicationStartup(){
     setupDictinaryHashMap();
 }
 
+// Wrapper for firmwarePlayAudio to match pthread_create signature
+void* firmwarePlayAudioWrapper(void* text) {
+    firmwarePlayAudio(text);
+    return NULL;
+}
+
 /**
  * Creates the speeker output and puts it onto the qeueu asycronusly 
  * Return a string
@@ -90,7 +96,7 @@ char* sendSpeakerOutput(char* textIn){
     PRINTFLEVEL2("SOFTWARE Locking up speakout output to send out %s\n", outputText);
     pthread_mutex_lock(&thread_lock);
     PRINTFLEVEL2("SOFTWARE Creating the thread\n");
-    result = pthread_create(&speakerThread, NULL, firmwarePlayAudio, (void*) outputText);
+    result = pthread_create(&speakerThread, NULL, firmwarePlayAudioWrapper, (void*) outputText);
     PRINTFLEVEL2("SOFTWARE sing if the result was good\n");
     if (result) {
         fprintf(stderr, "Error creating thread: %d\n", result);
@@ -167,7 +173,7 @@ char* sendSpeakerOutputWithConditions(char* textIn, bool filterBypass, bool verb
         firmwarePlayAudio((void*)outputText);
         result = 0;
     }else{
-        result = pthread_create(&speakerThread, NULL, firmwarePlayAudio, (void*) outputText);
+        result = pthread_create(&speakerThread, NULL, firmwarePlayAudioWrapper, (void*) outputText);
     }
     PRINTFLEVEL2("SOFTWARE sing if the result was good\n");
     if (result) {
