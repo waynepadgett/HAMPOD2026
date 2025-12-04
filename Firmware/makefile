@@ -4,7 +4,7 @@
 
 # Compiler and flags
 CC = cc
-CFLAGS = -Wall
+CFLAGS = -Wall -DSHAREDLIB
 LDFLAGS = -lpthread -lasound
 
 # HAL sources and objects
@@ -14,7 +14,7 @@ HAL_OBJS = $(HAL_SRCS:.c=.o)
 # Main targets
 .PHONY: all clean debug install
 
-all: firmware.elf
+all: firmware.elf hampod_firm_packet.o audio_firmware.o keypad_firmware.o
 
 # Main firmware build
 firmware.elf: firmware.o $(HAL_OBJS)
@@ -22,6 +22,16 @@ firmware.elf: firmware.o $(HAL_OBJS)
 
 firmware.o: firmware.c keypad_firmware.h audio_firmware.h hampod_queue.h hampod_firm_packet.h
 	$(CC) $(CFLAGS) -c firmware.c -o firmware.o $(LDFLAGS)
+
+# Individual object files for Software layer linkage
+hampod_firm_packet.o: hampod_firm_packet.c hampod_firm_packet.h
+	$(CC) $(CFLAGS) -c hampod_firm_packet.c -o hampod_firm_packet.o
+
+audio_firmware.o: audio_firmware.c audio_firmware.h hal/hal_audio.h
+	$(CC) $(CFLAGS) -c audio_firmware.c -o audio_firmware.o
+
+keypad_firmware.o: keypad_firmware.c keypad_firmware.h hal/hal_keypad.h
+	$(CC) $(CFLAGS) -c keypad_firmware.c -o keypad_firmware.o
 
 # HAL object files
 hal/%.o: hal/%.c hal/hal_keypad.h hal/hal_audio.h
