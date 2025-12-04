@@ -1,3 +1,13 @@
+#include <stdlib.h>
+#include "IDQueue.h"
+
+
+ID_queue* create_IDqueue(){
+    ID_queue* new = malloc(sizeof(ID_queue));
+        if(!new) {
+            perror("Queue memory allocation failed");
+            exit(1);
+        }
         new->head = NULL;
         new->tail = NULL;
         return new;
