@@ -1,4 +1,14 @@
-        new->head = NULL;
+#include <stdlib.h>
+#include "ThreadQueue.h"
+
+
+Thread_queue* createThreadQueue(){
+        Thread_queue* new = malloc(sizeof(Thread_queue));
+        if(!new) {
+            perror("Queue memory allocation failed");
+            exit(1);
+        }
+        new->head =  NULL;
         new->tail = NULL;
         return new;
 }
