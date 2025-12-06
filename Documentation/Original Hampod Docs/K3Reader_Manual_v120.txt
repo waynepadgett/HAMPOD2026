@@ -1,0 +1,448 @@
+HamPod K3 Reader
+Revised 07/19/2021
+Firmware: v1.20
+
+OVERVIEW
+  The HAMPod series of Amateur Radio station accessories are stand-alone, micro-processor based text-to-speech devices designed to provide speech output and accessibility to common station equipment such as transceivers, antenna controllers and rotor controllers, SWR/Power meters and other equipment capable of serial data exchange. The voice synthesizer utilizes the popular "DoubleTalk" voice synthesizer and is customizable to your personal preferences.
+
+  The HAMPod K3 Reader has been specifically designed to work with the Elecraft K3/K3S and KX2/KX3 transceivers to provide as much capability and accessibility to the radios as possible. With the K3 Reader you will have access to the "MENU/CONFIG" menus of the K3/KX3 and be able to read the various display elements and use your transceivers with a high degree of capability. All without the need for a connected station computer or help from a fellow ham or long-suffering partner!
+
+  There are several options that determine how the HamPod K3 Reader performs and interacts with your K3/K3S and KX2/KX3 and all options are stored in EEPROM and retain their settings when powered off. The HamPod K3 reader can be set to automatically report changes as you operate your K3/KX3 or can be configured to be silent and only report information when requested by you with a key press on the HamPod K3 Readers 16 button keypad. The keypad is used to configure the HamPod K3 Reader and to request information from your transceiver as well as to conveniently and more efficiently perform direct frequency entry.
+
+
+GENERAL DESCRIPTION
+  The rear of the HamPod K3 Reader has two male DE9 serial ports and a DC power jack. The serial ports are identified as serial port 1 and serial port 2. The connector located next to the power jack is port 1. With the HamPod K3 Reader, you can connect two K3/K3S or KX2/KX3 transceivers and switch between them by using the keypad as described later in this manual. Serial port 1 is also used to connect to a computer serial port using a null modem cable to flash the firmware in the HamPod K3 Reader when an upgrade is available. See Appendix C for upgrade instructions. The power jack accepts 9 to 16 volts dc and has a positive center pin. On the right side is a 3.5mm stereo headphone jack. While it is a 3 wire stereo jack, the output from the speech synthesizer is mono. The output circuit from the audio amplifier utilizes a differential output circuit and cannot be referenced to ground. If you want to patch this output to a mixer or other outboard audio device, it must not be connected to ground which it very common. If you do this, use an audio isolation transformer inline to isolate the amplifier output circuit. Headphones or ear buds are not a problem. There is also a small hole at the lower left corner of the speaker grill which provides access to a reset button inside the enclosure. This hole is located within the very bottom groove of the speaker grill and about one quarter of an inch from the left end of the groove. You can use a paper clip to reach into the box to push this button. The button is about one inch below the top cover. Be careful not to poke through the speaker cone if you happen to be somewhere above the very bottom  groove of the speaker grill area. This button will reboot the HamPod K3 Reader without changing any configuration settings. Removing and connecting the power to the HamPod will accomplish the same reset and is probably easier to do. This does not reset or effect your transceiver.
+
+
+CONNECTING THE HamPod K3 READER
+IMPORTANT!
+A.  Do not apply power to the HamPod until you have connected it to your K3/K3S or KX2/KX3 transceiver. This is because the serial port jacks on the rear of the HamPod are male connectors and it is possible to short one of these pins to the grounded shell while trying to engage the female end of the serial cable into this connector.
+B.  Use a straight through, all pins wired serial cable.
+1. Connect the female end of the supplied serial cable to the RS-232 serial port on the rear of the K3 Reader using the connector closest to the DC power jack.
+2. Connect the other end of the cable to the RS-232 serial connector on the rear of your K3 transceiver. This is the DB9 jack located on the upper corner of the back panel closest to the middle of the radio. If connecting to a K3S, you will need the RJ-45 to DE-9S serial adapter cable (Elecraft part number E980297). If connecting to a KX2 or KX3, you need the optional RS-232 serial data cable which is also supplied by Elecraft. This cable has a 3.5mm stereo plug which connects to the "ACC1" connector on the left side of the KX3 which is next to the power connector. On the KX2, it is connected to the ACC jack on the left side which is the jack closest to the rear. The other end of this cable can plug directly into the rear of the HamPod. You may also use the six foot serial cable supplied with the HamPod as an extension cable if you wish.
+3. Connect the supplied 9 volt DC, 800MA wall power unit to the HamPod . This is a center pin positive 2.1mm x 5.5mm coaxial power connector. You may also connect this using your own cable to your shack 12 volt DC power distribution system if desired. There is no on/off switch as the HamPod draws minimal current when not in use.
+
+  The K3 Reader communicates with the K3/K3S/KX2/KX3 transceiver at a baud rate of 38,400. When powered up, the K3 Reader will announce "Ham Pod" and then will look for a connected K3/K3S or KX2/KX3 radio. When found, the K3 Reader will simply announce the model detected letting you know it has established a connection with your radio. The K3 Reader continuously polls for the transceiver at 38,400 baud and also at 4800 baud every tenth poll in case the radio has been reset and is operating at the default 4800 baud rate. If found at 4800 baud, the radio will be automatically changed to 38,400 baud for best serial performance.
+
+
+KEYPAD
+  The layout  of the first 12 keys of the 16 button keypad is similar to a standard 12 key telephone keypad with an additional column of 4 keys to the right. The 16 push buttons keys are arranged as 4 rows of 4 columns and each key is capable of two different functions depending on the current mode of the HamPod. They are operated with both a standard push or an extended longer push and hold action. With the addition of a "SHIFT" key and optionally a 2nd press of the "SHIFT" key, each key can generate up to six unique operations. A synopsis of the switches and their functions are listed in Appendix A for reference. As previously mentioned, the first three columns of keys are labeled identically to a standard 12 key telephone keypad and  are similar to the main key area of the K3 transceiver located to the right of the LCD display. The fourth column of keys are primarily configuration and modifier keys.
+
+  In this document, the key labels are enclosed within square brackets. For reference, left to right, top to bottom, the keys are labeled:
+
+Row 1: [1], [2], [3], [A]
+Row 2: [4], [5], [6], [B]
+Row 3: [7[, [8], [9], [C]
+Row 4: [*], [0], [#], [D]
+
+  The keys are always pushed individually. Never is more than one key pressed at a time to perform any function.
+
+  There are four modes of operation for the keypad and are as follows:
+1. Normal Mode. Standard user operation.
+2. Frequency Entry Mode. Convenient frequency entry for your K3.
+3. DTMF Mode. Turns the HamPod into a 16 key DTMF tone generator. 
+4. Configuration Mode. This allows setup of the HamPod voice parameters as well as K3 Reader options.
+
+
+1. NORMAL MODE
+Note that for clarity, in this mode, the [A] key (upper right corner key) is also referred to as the [Shift] key.
+  In the list below are  the assigned functions for each key. Most keys have two potential functions by either simply pressing the key, or pressing and continue holding the key down for an additional .5 second. If you proceed that key with a press of the [SHIFT] key, we can obtain four possible functions. Then by adding a second [Shift] key press, we can then get up to six unique functions for each key. Key function assignments were programmed on the HamPod K3 Reader to try to mimic the related key functions on the K3 transceiver whenever practical.
+
+  A note about how the K3 Reader announces a frequency.To decrease chatter and increase efficiency  when speaking a frequency value, trailing zero beyond the 1 Kilohertz position are not spoken. For example, you will hear seven point two four zero instead of  seven point two four zero dot zero zero zero. Also note that the second decimal point if present, is spoken as "dot" instead of "point". This also helps to better comprehend the frequency being announced.
+
+In normal mode, the keys and their associated functions are listed below.
+
+[1]  - VFO 'A' Frequency: Announce  the frequency of VFO 'A'.
+[1] , Hold - VFO B Frequency: Announce  the frequency of VFO 'B'.
+[SHIFT] , [1] - VFO Information: Announce  which VFO is assigned to transmit along with its lock and linked status.
+[SHIFT] , [1] , Hold - VOX and QSK status
+2nd [SHIFT] , [1] - Miscellaneous Status: Reports the status of the following conditions (only those conditions which are on or enabled are announced).
+  in Transmit  TEST mode?
+  in MilliWatt Power out mode?
+  Message Bank 1 or 2?
+  Is Message Playing?
+  Preset 1 or 2?
+  Diversity Receive Mode? (K3/K3S only)
+  Sub Receiver on K3/K3S, or Dual Watch on KX2/KX3
+  Main RF Squelch?
+  Sub RF Squelch? (K3/K3S Only)
+  OFS or VFO B LED Status (KX2/KX3 only)
+
+[2] - Read VFO 'A' Screen: Announce contents of VFO 'A' area of LCD screen.
+[2] , Hold - Read VFO 'B' Screen: Announce contents of VFO 'B' area of LCD screen.
+[SHIFT],  [2] - Read VFO 'A' Screen Letter By Letter: Announce contents of VFO 'A' display area of LCD screen one character at a time. This is useful when the contents of the display are read in such a way that it's hard to determine what is being said.
+[SHIFT] , [2] , Hold - Read VFO 'B' Screen Letter By Letter: Announce contents of VFO 'B' display area of LCD screen one character at a time. This is useful when the contents of the display are read in such a way that it's hard to determine what is being said.
+2nd [SHIFT] , [2] - CW/DATA Status: Reports the status of the following conditions (only those conditions which are on or enabled are announced. If nothing is on or enabled, the message "nominal" is reported).
+  DPB or APF status
+  Dual Tone Filter status
+  FSK Polarity
+  Sync DATA status
+  Text-to-Terminal status
+2nd [SHIFT] , [2] Hold - Voice Status: Reports the status of the following conditions (only those conditions which are on or enabled are announced. If nothing is on or enabled, the message "nominal" is reported).
+  ESSB status
+  Noise Gate status
+  AM Sync status
+  FM PL Tone status
+  Repeater Offset Polarity if enabled
+
+[3] - Split Mode Status: Announce status of Split Mode.
+[3] , Hold - Watch both VFO 'A' and VFO 'B' Displays: This puts the HamPod K3 Reader into a special mode where it continuously monitors both the VFO 'A' and VFO 'B' areas of the LCD screen and announces that data when it changes. Press any key to exit this mode. This can be very useful when scrolling through pre-programmed memory channels to read both the frequency and channel label or number. Also sometimes useful to see what the K3 is reporting at certain times while you are manipulating the radio and you are not sure what is happening.
+[SHIFT] , [3] - Watch VFO 'A' Display: This puts the K3 Reader into a special mode where it continuously monitors the VFO 'A' area of the LCD screen and announces that data when it changes. Press any key to exit this mode. This can be very useful when using the radio and you want to know what the VFO 'A' display area is reporting.
+[SHIFT] , [3] , Hold - Watch VFO 'B' Display: This puts the K3 Reader into a special mode where it continuously monitors the VFO 'B' area of the LCD screen and announces that data when it changes. Press any key to exit this mode. This can be very useful when using the K3 and you want to know what the VFO 'B' display area is reporting especially since the K3 often displays status or error messages here for a brief period when certain events occur.
+
+
+[A] - Shift  and Shift2 on/off: This toggles the "Shift" and "2nd Shift" keypad function on and off. This key cycles through Shift, Shift2, and Shift off allowing two shift states for each number key.
+[A] , Hold - Volume Up: Shortcut key to increase volume of the HamPod.
+[SHIFT] , [A] - Not assigned.
+[SHIFT] , [A] , Hold - Not assigned.
+
+[4] - PreAmp: Status of PreAmp in main receiver.
+[4] , Hold - Sub PreAmp: Status of PreAmp in sub receiver.
+[SHIFT] , [4] - Attenuation: Status of attenuator in main receiver.
+[SHIFT] , [4] , Hold -Sub Attenuation: Status of attenuator in sub receiver.
+
+[5] - AGC setting: Status of current AGC setting.
+[5] , Hold - Previous SWR result (K3S/K3 Only)
+[SHIFT] , [5] - Not assigned.
+[SHIFT] , [5] , Hold - SWR: Reads SWR reading at antenna 1 port while sending 5 watts on a K3/K3S or 2.5 watts on a KX2/KX3, with internal antenna tuner in bypass. Since the tuner is bypassed, this will result in reading the SWR of your antenna system and not the matched SWR that is achieved by the internal tuner. The sequence of events that the HamPod automatically perform is as follows:
+A.  Test that the radio is not in Menu/Config mode.
+B.  Test that the radio is not in transmit mode.
+C.  Check for a decimal point is in VFO B Text display before starting to verify the radio is in a normal state.
+D.  Get and save initial antenna tuner and power level settings.
+E.  Put the antenna tuner into bypass mode.
+F.  Reduce power to 5 watts on a K3/K3S or 2.5 watts on a KX2/KX3 for testing.
+G.  Activate the tune button for one half second.
+H.  Announce the SWR as seen on the display.
+I.  Deactivate the tune button .
+J.  Return the power level to its previous states.
+K.  Return the antenna tuner to its previous states.
+Send one final command for safety to put the radio back into receive in case it got stuck in transmit.
+  If the HamPod K3 Reader is unable to prepare the radio for the SWR test, an error message is announced. If this occurs, verify that the K3/KX3 is in a normal operating condition. Also be sure that the load under test is connected to antenna port 1 which is the upper SO-239 connector on the rear panel of the K3/K3S.
+2nd [SHIFT] , [5] , Hold - SWR Watch: This puts the K3 Reader into a special mode where it continuously monitors the SWR and announces that data when it changes. For efficiency, the SWR reading is truncated to the significant part of the value. So for example, an SWR of 1.4 to 1 will only be voiced as 1.4. . Press any key to exit this mode. This can be useful when attempting to achieve the best match to your antenna. Such as adjusting the tuning capacitor on a loop antenna. 
+
+[6] - Filter BW and I F Shift: Announce the current  bandwidth and I.F. Shift frequency of main receiver.
+[6] , Hold - Sub Filter BW and I F Shift: Announce the current  bandwidth and I.F. Shift frequency of sub receiver.
+[SHIFT] , [6] - Crystal Filter Number: Announce the currently selected crystal filter in main receiver.
+[SHIFT] , [6] , Hold - Sub Crystal Filter Number: Announce the currently selected crystal filter in sub receiver.
+
+[B] - Quick Band Change : Press this key followed by one of the number keys [0 - 9] to immediately change to its assign band. (1=160m, 2=80m, 3=60m, 4=40m, 5=20m, 6=17m, 7=15m, 8=12m, 9=10m, 0=6m)
+[B] , Hold - Volume Down: Shortcut key to decrease volume of the HamPod.
+[SHIFT] , [B] - Not assigned.
+[SHIFT] , [B] , Hold - Not assigned.
+
+[7] - Noise Blanker Level; Announce status and setting of Noise Blanker in main receiver. Not available while bSet is  on.
+[7] , Hold - Sub Noise Blanker Level: Announce status and setting of Noise Blanker in sub receiver. Not available while bSet is  on.
+[SHIFT] , [7] - Antenna Selection; Announce status of active antenna port.
+[SHIFT] , [7] , Hold - Sub Antenna Selection (K3 only).
+
+[8] - Noise Reduction status: Announce status and Noise Reduction filter type. Main and Sub RX use the same setting even though the manual says they are independent.
+[8] , Hold - Mic Gain Level: Announce current setting of microphone gain level.
+[SHIFT] , [8] - Keyer Speed: Announce current setting of keyer speed.
+[SHIFT] , [8] , Hold - Not assigned.
+ 
+[9] - Notch Filter status: Announce status and setting of Notch Filter.
+[9] , Hold - Power  Level: Announce current Power Level setting.
+[SHIFT] , [9] - Compression  Level: Announce current Compression Level setting.
+[SHIFT] , [9] , Hold - Monitor Level: Announce current Monitor Level setting.
+
+[C] - Frequency Announcement Delay Verbosity on/disable: Enables and disables the automatic delayed announcement of frequency once a VFO encoder control has stopped moving.
+[C] , Hold - Configuration Mode: Enters Configuration Mode of the HamPod K3 Reader.
+[SHIFT] , [C] - Not assigned.
+[SHIFT] , [C] , Hold - Not assigned.
+
+[*] - S Meter: Announce current value of S Meter for main receiver.
+[*] , Hold - Sub S Meter: Announce current value of S Meter for sub receiver.
+[SHIFT] , [*] - Read Bar Graph: Announce current value of Bar Graph display on LCD screen. This is usually the same bar graph as the S Meter but in raw format. The bar graph can also be assigned to the RF power or ALC meter when the K3 is set to show these values with the bar graph. If the K3 is set this way, you can read the value of this meter while transmitting if you time your key press just right.
+[SHIFT] , [*] , Hold - Not assigned.
+
+[0] - Mode: Announce the current Mode of the main receiver.
+[0] , Hold - Sub Mode: Announce the current Mode of the sub receiver.
+[SHIFT] , [0] - RIT/XIT Status: Announce the current status of the RIT and XIT and their offsets if enabled.
+[SHIFT] , [0] , Hold - Text Buffer read mode on/off: When the radio is configured to decode either Morse Code or any of the data modes, the HamPod K3 Reader will read out the decoded text as it scrolls across the display on the radio. This key toggles this function on and off. Also note that when a character is received but cannot be decoded, the radio will replace that character with and asterisk symbol. If Verbosity Mode is enabled on the HamPod, that asterisk will be spoken. To help eliminate chatter, it will not be spoken if Verbosity Mode is disabled.
+2nd [SHIFT] , [0] - vfo A Snap to Zero on 1 KHz boundry
+2nd [SHIFT] , [0] , Hold - vfo B Snap to Zero on 1 KHz boundry
+
+[#] - VFO 'A' OR VFO 'B' Select for frequency entry: Pressing this key prepares the K3 Reader to accept direct frequency entry values. Repeated pressing of this key selects between VFO 'A' and VFO 'B'.
+[#] , Hold - Time: Announces the time as set on the K3 transceiver.
+[SHIFT] , [#] - ReCall last frequency entered or saved
+[SHIFT] , [#] , Hold - Read current frequency from radio and save for Recall
+
+[D] - Verbosity on/disable: Enable and disable the automatic announcement of keys and controls of the transceiver as they are manipulated when available.
+[D] , Hold - Switch between serial ports 1 and 2 of the HamPod K3 Reader or exit DTMF Mode.
+[SHIFT] , [D] - Enter DTMF Mode.
+[SHIFT] , [D] , Hold - Enter DTMF Mode.
+
+
+
+2. FREQUENCY ENTRY MODE
+Note that for clarity, in this mode, the following keys have alternative labels:
+the [*] key is also referred to as the [DECIMAL POINT] key. (Same as the K3 transceiver)
+The [#[ key is referred to as the [ENTER] key . (Same as the K3 transceiver)
+
+ENTERING A FREQUENCY
+  Pressing the [#] key will prepare the HamPod K3 Reader to accept a frequency from the keypad. If you have previously entered a frequency, the same VFO will again be the selected VFO for this new entry. Repeated pressing of the [#] key toggles between VFO 'A' and VFO 'B' in preparation for a frequency for that VFO. After choosing a VFO, enter your desired frequency inserting a decimal point where needed and press the [ENTER] key to send it to your K3/KX3. Frequency entry format is the same as used when entering a frequency directly on the radio itself.
+
+A few special notes here:
+1. A second press of the [DECIMAL POINT] key will clear your entry and return the HamPod K3 Reader to the normal mode.
+2. Once you initiate frequency entry, the [D] key functions as a clear key.
+3. If the Keypad Timeout option is enabled, the HamPod K3 Reader will clear the partial entry and return to normal mode it you exceed the timeout duration.
+4. There are two special frequencies you can enter which will perform the following functions:
+A.  enter a frequency of 777 for either VFO and press the [ENTER] key. This will announce the product information and the firmware version number currently installed.
+B.  enter a frequency of 999 for either VFO and press the [ENTER] key. This will restore the HamPod EEPROM to the factory default settings and perform a reset. You can do this if the settings ever get scrambled or if you just want to restore to the default settings.
+
+
+3. DTMF MODE
+  This mode allows you to place the HamPod into a mode that turns the 16 keys into a DTMF tone generator. This is helpful when you need to send a DTMF tone sequence to control a remote device such as a repeater controller. To enter the DTMF mode, use the Shift [D] Hold key sequence. If you have key beeps enabled, they will be muted while this mode is in operation. Place your microphone near the HamPod speaker while pressing HamPod keys to generate the tones. To exit DTMF Mode, perform a [D] Hold key press. 
+
+
+4. CONFIGURATION MODE
+  This mode allows changes to the various voice settings as well as modifying the options which effect how the  HamPod operates and interacts with your transceiver. To enter Configuration Mode, press and hold the [C] key for 1 second. When you enter the configuration menu, you are placed at the option you last viewed when you previously exited the configuration menu.
+
+In Configuration Mode the keypad switches perform the following functions:
+[A]: Step forward through the configuration options.
+[B]: Step backward through the configuration options.
+[C]: Increment the parameter values.
+[D]: Decrement the parameter values.
+These are circular menus and will cycle through once  the first or last choice has been passed.
+
+To exit and save your changes, press and hole the [C] key for 1 second. The settings are stored in EEPROM and will remain even when power is removed.
+
+To exit without saving your changes, press and hold the [D] key for 1 second. Any changes you may have made will not be stored in EEPROM but those changes will still remain in effect until you power off or reset the HamPod. If the key timeout function is active and you don't press a key before the timeout occurs, you will exit configuration mode without saving to EEPROM.
+
+
+HamPod K3 READER CONFIGURATION OPTIONS
+1. Key beep: enable or disable. This sounds a beep when a key is pressed.
+
+2. Key Timeout Duration: disable / 5 - 30 Seconds:  When disabled, no key time out will occur. When set to 5 - 30, in both Frequency and Configuration Modes, this sets a time out  period when a key is pressed which will return the HamPod to Normal Mode if another key is not pressed before the set time out period expires.
+
+3. Verbosity: on/disable Some keys and controls on the K3 transceiver generate serial data when manipulated by the user and if this option is enabled, the HamPod K3 Reader will automatically announce that data as you operate the radio. This might be useful at times but can get pretty chatty. Automatic Announcement of VFO frequency when changing frequency by use of the VFO encoder controls are not controlled by this option. But this option does allow frequency announcement when the frequency changes due to a band change.
+
+4. Frequency Announcement: on/disable When enabled, this will announce the VFO frequency if changed with an encoder and the frequency has stopped changing after the time delay period expires. This is useful when you are tuning the band and want to automatically hear the frequency after you have stopped tuning for a specified period of time.
+
+5. Frequency Announcement Delay: 12-50 in .1 second steps This setting sets the period of time before the frequency will be automatically announced after manual tuning has stopped. The setting range is adjustable between 1.2 seconds to 5.0 seconds. Note that the time delay setting is only approximate because of timing issues between the program and the radio.
+
+6. AF and RF Announcement: on/disable When both this option and verbosity are enabled, the K3 Reader will announce the values for the AF and RF encoders whenever you manipulate them. There are occasions when you want verbosity on but don't want to hear the values for these controls since they are used often and the values are usually irrelevant anyway. So you can disable the readout for these controls while still allowing other controls and actions that are enabled with the verbosity option to continue to announce.
+
+7. Frequency Plus Mode: on/disable When enabled and you perform a keypad query for the VFO frequency of choice, an additional letter will be appended to the read out depicting the current operating mode for that VFO. The possible letters are:
+"L" for LSB
+"U" for USB
+"C" for CW
+"F" for FM
+"A" for AM
+"D" for DATA
+"CR" for CW Reverse,
+"DR" for DATA Reverse
+
+7. Communications Timeout: 5-20 This is an internal HamPod value that dictates how long the K3 Reader will wait for a response from the transceiver before generating a time out error message. Smaller values allows slightly better performance but can result in more time outs occurring than if larger values are selected. Choose the smallest number that works reliably with your setup
+
+8. DTMF Tone Duration:  (200Milliseconds) The range is from 100 to 500 Milliseconds. This sets how long the tone will sound when pressing a key while in DTMF mode.
+
+9. Power On To Port:  (default is port 1) Selects which serial port is active when the K3 Reader is powered on.
+
+10. Reset or Flash: Used to reset the HamPod or prepare for flashing. When at this option, you can press either the [C] or [D] keys to alternate between enabling or disabling the opportunity to reset or flash. When the HamPod informs you to "Enter to Reset", you can then press the [Enter] key to initiate the reset. If you do choose to reset, the HamPod will perform a 3 second countdown before performing the reset process. This is useful when you want to coordinate the reset with the application running on your PC for the purpose of updating the firmware. This reset only occurs to the HamPod and not the transceiver. You are also given the option to press the [*] key to cause the HamPod to set itself up for flashing. See appendix C for additional flashing instructions.
+
+HamPod  DoubleTalk VOICE PARAMETERS
+  There are nine parameters which effect the voice synthesizer output.
+Volume: 0 to 9. Default is 5.
+Speed: 0 to 13. Default is 5.
+Pitch: 0 to 99. Default is 50.
+Articulation: 0 to 9. Default is 3.
+Expression: 0 to 9. Default is 3.
+Reverb: 0 to 9. Default is 0.
+Formant Frequency: 0 to 99. Default is 50.
+Tone: 0 to 2. Default is 1.
+Voice: 0 to 10. Default is 0.
+
+The last parameter in the above list is the "Voice" parameter and are predefined voice configurations. Please note that many of these predefined "Voices" will override some of the voice parameters such as pitch, tone, and reverb settings that you may have already modified and will be changed when you select one of these alternate "Voices".
+
+A list of all configuration parameters and their range of acceptable values are found in Appendix B.
+
+
+   APPENDIX A
+
+K3 Reader Key Pad Assignments
+
+  There are 6 possible assignments to most keys. To invoke these actions you do one of the following:
+1.  Perform a normal press of the desired key.
+2.  Press and continue to hold the desired key for an additional .5 second.
+3.  Press the Shift key followed by a normal press of the desired key.
+4.  Press Shift then press and hold the desired key for an additional .5 second.
+5.  Press the Shift key twice followed by a normal press of the desired key.
+6.  Press Shift twice then press and hold the desired key for an additional .5 second.
+
+
+Key assignments are listed below:
+[1]  - VFO 'A' Frequency
+[1] , Hold - VFO B Frequency
+[SHIFT] , [1] - VFO Information
+[SHIFT] , [1] , Hold - VOX and QSK status
+2nd [SHIFT] , [1] - Miscellaneous Status
+
+[2] - Read VFO 'A' Screen
+[2] , Hold - Read VFO 'B' Screen
+[SHIFT] , [2] - Read VFO 'A' Screen Letter By Letter
+[SHIFT] , [2] , Hold - Read VFO 'B' Screen Letter By Letter
+2nd [SHIFT] , [2] - CW/DATA Status
+2nd [SHIFT] , [2] , Hold - Voice Status
+
+[3] - Split Mode Status
+[3] , Hold - Watch both VFO 'A' and VFO 'B' Displays
+[SHIFT] , [3] - Watch VFO 'A' Display
+[SHIFT] , [3] , Hold - Watch VFO 'B' Display
+
+
+[A] - Shift  and Shift2 on/off
+[A] , Hold - Volume Up
+[SHIFT] , [A] - Not assigned.
+[SHIFT] , [A] , Hold - Not assigned.
+
+[4] - PreAmp
+[4] , Hold - Sub PreAmp
+[SHIFT] , [4] - Attenuation
+[SHIFT] , [4] , Hold -Sub Attenuation
+
+[5] - AGC setting
+[5] , Hold - Previous SWR result (K3S/K3 Only)
+[SHIFT] , [5] - Not assigned.
+[SHIFT] , [5] , Hold - SWR
+2nd [SHIFT] , [5] , Hold - SWR Watch
+[6] - Filter BW and I F Shift
+[6] , Hold - Sub Filter BW and I F Shift
+[SHIFT] , [6] - Crystal Filter Number
+[SHIFT] , [6] , Hold - Sub Crystal Filter Number
+
+[B] - Quick Band Change
+[B] , Hold - Volume Down
+[SHIFT] , [B] - Not assigned.
+[SHIFT] , [B] , Hold - Not assigned.
+
+[7] - Noise Blanker Level; Announce status and setting of Noise Blanker in main receiver.
+[7] , Hold - Sub Noise Blanker Level
+[SHIFT] , [7] - Antenna Selection; Announce status of active antenna port.
+[SHIFT] , [7] , Hold - Sub Antenna Selection (K3 only).
+
+[8] - Noise Reduction status
+[8] , Hold - Mic Gain Level
+[SHIFT] , [8] - Keyer Speed
+[SHIFT] , [8] , Hold - Not assigned.
+ 
+[9] - Notch Filter status
+[9] , Hold - Power  Level
+[SHIFT] , [9] - Compression  Level
+[SHIFT] , [9] , Hold - Monitor Level
+
+[C] - Frequency Announcement Delay Verbosity on/disable
+[C] , Hold - HamPod Configuration Mode
+[SHIFT] , [C] - Not assigned.
+[SHIFT] , [C] , Hold - Not assigned.
+
+[*] - S Meter
+[*] , Hold - Sub S Meter
+[SHIFT] , [*] - Read Bar Graph
+[SHIFT] , [*] , Hold - Not assigned.
+
+[0] - Mode
+[0] , Hold - Sub Mode
+[SHIFT] , [0] - RIT/XIT Status
+[SHIFT] , [0] , Hold - Text Buffer read mode on / off
+2nd [SHIFT] , [0] - vfo A Snap to Zero on 1 KHz boundry
+2nd [SHIFT] , [0] , Hold - vfo B Snap to Zero on 1 KHz boundry
+
+[#] - VFO 'A' OR VFO 'B' Select for frequency entry
+[#] , Hold - Time
+[SHIFT] , [#] - ReCall last frequency entered or saved
+[SHIFT] , [#] , Hold - Read current frequency from radio and save for Recall
+
+[D] - Verbosity on/disable
+[D] , Hold - Switch between serial ports 1 and 2 of the HamPod K3 Reader or exit DTMF Mode.
+[SHIFT] , [D] - Enter DTMF Mode. 
+[SHIFT] , [D] , Hold - Enter DTMF Mode.
+
+
+APPENDIX B
+
+Configuration parameter and value ranges:
+
+Volume: 0-9
+Speed: 0-13
+Pitch: 0-99
+Articulation: 0-9
+Expression: 0-9
+Reverb: 0-9
+Formant Frequency: 0-99
+Tone: 0-2
+Voice: 0-10
+Key Beep: on/disable
+Key Timeout Duration: disable / 5 - 30 Seconds
+Verbosity: on/disable
+Frequency Announcement: on/disable
+Frequency Announcement Delay: 12-50 in .1 second steps
+AF and RF announcement: on/disable
+Frequency Plus Mode: on/disable
+Communications Timeout: 5-20
+Power On To Port: 1-2
+Reset or Flash: Used to reset the HamPod or prepare for flashing. When at this option, you can press either the [C] or [D] keys to alternate between enabling or disabling the opportunity to reset or flash. When the HamPod informs you to "Enter to Reset", you can then press the [Enter] key to initiate the reset. If you do choose to reset, the HamPod will perform a 3 second countdown before performing the reset process. This is useful when you want to coordinate the reset with the application running on your PC for the purpose of updating the firmware. This reset only occurs to the HamPod and not the transceiver. You are also given the option to press the [*] key to cause the HamPod to set itself up for flashing. See appendix for additional flashing instructions.
+
+
+APPENDIX C
+
+The procedure to flash the firmware is standard practice as with other devices that utilize a bootloader. There are basically two components used for this procedure:
+1.  The bootloader which is already resident within your HamPod.
+2.  A Windows based computer running an application that communicates with the bootloader and sends the new firmware to the HamPod.
+
+The bootloader is a special application that resides within the HamPod and runs every time the device is either reset or  powered on. This special application looks for a unique command sequence over serial port 1 of the HamPod which is connected to your computer which is running the companion Windows flash loader  application. Once the bootloader begins, you have approximately 1.5 seconds to initiate the flash loader application running on the computer. During that first 1.5 second window of opportunity,the bootloader is in control of the HamPod and is looking for a connection from the computer over the serial port. When a valid connection is established between the HamPod and the application running on the computer, the flash loader application then sends the new firmware to the HamPod. If no connection can be established, the bootloader times out and the HamPod starts running as usual.
+
+  An improved method to flash the HamPod has been added to the configuration menu. This greatly simplifies the required timing synchronization  between the HamPod and the flashing application running on the computer.
+All previous methods for flashing the HamPod still exist but this new method is much easier to perform since it automatically restarts the HamPod for you.
+
+The following steps will walk you through the flashing process:
+1.  Important! You must use a null modem serial cable for this connection. Connect a null modem serial cable between serial port 1 of the HamPod (the connector nearest the DC Power jack), and a serial comm port on your personal computer. The comm port on your computer can be any serial port from COM1: to COM8:. The existing straight wired serial cable provided with your HamPod can be used provided you also use the included null modem adapter in addition to this cable.
+ 2.  Download and extract the ZIP archive update  firmware file to any directory of your choosing on your computer. You may over write any existing files with a new firmware update if you have previously performed this update before. This file can be found from the appropriate page on the HamPod web site at the following URL:
+http://www.HAMPod.com
+
+The files contained within the ZIP archive are:
+ds30LoaderConsole.exe : The command line flash loader application.
+Flash_1.bat : Batch file when using comm port 1 on PC.
+Flash_2.bat : Batch file when using comm port 2 on PC.
+Flash_3.bat : Batch file when using comm port 3 on PC.
+Flash_4.bat : Batch file when using comm port 4 on PC.
+Flash_5.bat : Batch file when using comm port 5 on PC.
+Flash_6.bat : Batch file when using comm port 6 on PC.
+Flash_7.bat : Batch file when using comm port 7 on PC.
+Flash_8.bat : Batch file when using comm port 8 on PC.
+***.hex : the firmware file to flash to the HamPod (this file name varies depending on your connected devices)
+Other informational text files
+
+3.  Once you extract the files into a directory of your choosing, simply run the appropriate batch file for the comm port number on your PC that you have connected to the HamPod. The batch file contains the command to launch the flash loader  application and also set some necessary parameters for the program. When you start the batch file, the file will open a DOS window, validate the new hex firmware file, and prepare to flash the HamPod but will stop and wait for any key to be pressed on the PC before actually initiating the flashing process. The text written into this DOS window by the flashing application should be readable by most screen readers such as JAWS or Window EYES and will inform you of its progress.
+
+4.  Once the application on the computer pauses and is waiting for a key press, enter the configuration menu on the HamPod with a long press of the [C] key. Scroll through the menu items using the [A] or [B] keys until you reach the "Reset and Flashing Disabled" menu item. Press either the [C] or [D] key to enable this item and you will hear, "Enter to Reset or Star to Flash Firmware". Press the [*] key and the HamPod will enter flash mode with the prompt, "Waiting for Firmware, Any Key to Abort". The HamPod is now waiting and watching for the application on the computer to begin sending the new firmware. At this point, if you press any key on the HamPod, it will exit flash mode and reset itself. To initiate the new firmware transfer from the computer, press any key such as the Space Bar on the computer and it will begin sending the firmware to the HamPod. When you pressed the Space Bar key on the PC, the flash loader application tries to establish a connection with the bootloader within the HamPod and if found, the HamPod will respond with a "Flashing" announcement. This will take about 30 to 45 seconds to complete. DO NOT power off the HamPod while the update is in progress!When finish, the HamPod may restart on its own but sometimes you may need to power cycle the HamPod yourself. The flash loader application on the PC will write a series of period characters to the screen as it transfers the firmware file to the HamPod, When finished, it will report the status of the update and wait for a final key press on the PC to terminate the flash application and close the DOS window.
+
+Note for users of older firmware:
+  If you are using an older version of firmware, this new flashing method will not be available and you must use one of the previous methods of synchronizing the HamPod with the PC by performing an manual reset of the HamPod.  The easiest way to do this that usually works is to start the flash loader application on the computer and press any key when prompted to initiate the firmware download. You then have about 20 seconds to reset the HamPod while the PC application continues to look for the bootloader to start running on the HamPod. So at this point, you need to quickly reset the HamPod by use of the reset button, reset configuration menu item, or removing and applying power to the HamPod. In some cases an erroneous character will be sent to the PC by the HamPod during the reset which might confuse the application running on the computer and it will fail. If this happens, just try the procedure again or use one of the alternative methods to reset the HamPod. 
+
+5.  After a successful update, you can verify the new firmware has been installed by requesting the product information from the HamPod as specified in the user manual for your specific connected device.
+6.   Disconnect from the PC and reconnect the HamPod to your equipment and enjoy the new benefits and features of the firmware!
+
+
+APPENDIX D
+
+A note to blind users:
+  It has been found helpful to have a better descriptive understanding of some visual aspects of the K3 transceiver. Obviously, the LCD display is something that can't be learned by feel so a mental image of the display and how it works is helpful to understand how to best use the K3 Reader to acquire the information you want.What follows is an attempt to describe the display and what you should know about what goes on there.
+  There are three primary areas of the LCD display which by the way, has an orange color backlight:
+
+1. On the left end are the various bar graph meters. During receive, it is one long bar graph meter for the S Meter reading. During transmit, it is divided into two shorter bar graphs which either display SWR and RF Power, or Compression and ALC depending on the state of the METER key on the K3 transceiver. Below these bar graphs is a graphical representation of the filter width in use.
+
+2. The upper section of the display is known as the VFO 'A' display area and consists of 8 large alpha-numeric characters. This normally displays the frequency of VFO 'A'. It also is used to display configuration settings for menu options when in the configuration menu.
+
+3. The lower right area of the display is known as the VFO 'B' text display. It consists of 8 smaller alpha-numeric characters which normally display the frequency of VFO 'B'. As with the VFO 'A' display, this display also shows typically abbreviated menu information while in the configuration menu. It is also the display where messages, alerts and warnings appear for a brief period of time when they occur. It can also be used to display status information such as the clock, temps, voltage and current readings when the user invokes the DISPlay key which is the top key just to the left of the LCD display.
+
+There are also various icons and text labels that appear as options are enabled so a sighted user can see at a glance the status of the radio.
+
+Now for the relevance of this knowledge and how it can help you as it pertains to the operation of the HamPod K3 Reader. For example, let's say you want to view the status information shown when you invoke the DISPlay key to check on the temperatures or voltage or current draw. There are a couple ways to do this. One way is to first press the DISPlay key on the K3 transceiver to put this status data into the VFO 'B' text area. Then you can read this display with a keypad query from the HamPod K3 Reader by pressing the [2[ key and holding it down for more than a half second. You scroll through the various readings of the radio by turning the VFO 'B' encoder. So in this way you can alternate by turning the VFO 'B' encoder a bit then follow that up with a query from the K3 Readers keypad to speak the data in that display. Another way to do this is by putting the HamPod K3 Reader into "Watch VFO B Display" by pressing the [SHIFT] key followed with a long press if the [3] key. This instructs the K3 Reader to monitor that display and announce what appears there whenever it changes. So now you can just turn the VFO 'b' encoder scrolling through the status items and the K3 Reader will automatically announce the data as it changes. Press any key on the HamPod K3 Reader to exit this mode. This demonstrates how you can use the HamPod K3 Reader to help determine what is going on when you are attempting to do something and all you hear is a warning beep. You can now watch this area of the display and possibly get a clue as to what is happening with the radio.
+
+Another notable bit of knowledge concerning the display:
+  Since the number of characters in both display areas are limited, many messages primarily within the "MENU/CONFIG" menus are at times very abbreviated and therefore cryptic. You will probably have a difficult time trying to decipher what is being spoken. To help with this, the ability to read the display a character at a time was added and is helpful but ultimately, you need to spend time with the owners manual to understand what the radio is displaying during the operation you are trying to perform so what you hear will be relevant and make sense.
+
+73 and Have fun with your HAMPod K3 Reader!
+
+Special thanks to G3YXX, David W. Wood, for assistance with this manual!

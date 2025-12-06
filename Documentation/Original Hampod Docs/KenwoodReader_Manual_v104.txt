@@ -1,0 +1,392 @@
+HAMPod Kenwood Reader 
+Revised 01/16/2019
+Firmware: v1.04
+
+
+OVERVIEW
+  The HamPod series of Amateur Radio station accessories are stand-alone, micro-processor based text-to-speech devices designed to provide speech output and accessibility to common station equipment such as transceivers, antenna controllers and rotor controllers, SWR/Power meters and other equipment capable of serial data exchange. The voice synthesizer utilizes the popular "Double Talk" voice synthesizer and is customizable to your personal preferences.
+
+  The HamPod Kenwood Reader has been specifically designed to work with the TS-2000 transceiver to provide as much capability and accessibility to the radio as possible. With the Kenwood Reader you will have access to read most of the commonly used items with enhanced functionality providing a high degree of capability. All without the need for a connected station computer or help from a fellow ham or long-suffering partner!
+       
+  There are several options that determine how the HamPod Kenwood Reader performs and interacts with your transceiver and all options are stored in EEPROM within the HamPod and retain their settings when powered off. The 16 button keypad is used to configure the HamPod and for accessing the Power Master 2 meter.  Many of these keys also perform queries to retrieve information from your Kenwood transceiver when desired with your choice of either a verbose or less chatty terse mode.
+
+
+GENERAL DESCRIPTION
+  The rear of the HamPod Power Master 2 MeterReader has two male DB9 serial ports and a DC power jack. The serial ports are identified as serial port 1 and serial port 2. The connector located next to the power jack is port 1. Depending on the firmware loaded in your HamPod, you can possibly connect a Kenwood on each port, or  connect the Kenwood on port 2 and another device on port 1. Serial port 1 is also used to connect to a computer serial port using a null modem cable to flash the firmware in the HamPod when an upgrade is available. See Appendix C for upgrade instructions. The power jack accepts 9 to 15 volts dc and has a positive center pin.  There is also a small hole at the lower left corner of the speaker grill which provides access to a reset button inside the enclosure.  This hole is located within the very bottom groove of the speaker grill and about one quarter of an inch from the left end of the groove. You can use a paper clip to reach into the box to push this button. The button is about one inch below the top cover. Be careful not to poke through the speaker cone if you happen to be somewhere above the very bottom  groove of the speaker grill area. This button will reboot the HamPod without changing any configuration settings.
+
+
+CONNECTING THE HamPod Kenwood Reader
+CAUTION! Do not apply power to the HamPod until you have connected it to your transceiver. This is because the serial port jacks on the rear of the HamPod are male connectors and it is possible to short one of these pins to the grounded shell while trying to engage the female end of the serial cable into this connector.
+1.    Connect a female end of the serial cable to the RS-232 DB-9 serial port on the rear of your Kenwood transceiver.
+2.  Connect the female DB-9 on the other end of the cable to Port 2 on the rear of the HamPod unless your HamPod has firmware to allow multiple types of devices in which case the transceiver is usually connected to port 1.
+3. Connect power to your transceiver if needed.
+4.  Connect the supplied 9 volt DC, 800MA wall power unit to the HamPod . This is a center pin positive 2.1mm x 5.5mm coaxial power connector. You may also connect this using your own cable to your shack 12 volt DC power distribution system if desired. There is no on/off switch on the HamPod as it draws minimal current when not in use.
+5. Be sure to select the correct Port you  have connected your transceiver on the HamPod by pressing and holding the [D] key on the HamPod.
+  The HamPod Kenwood Reader communicates with your Kenwood transceiver at a baud rate of 9,600. When powered up, the Kenwood Reader will announce "Ham Pod" followed by "Kenwood" if the Power Master 2 is correctly connected and is communicating with the HamPod.
+
+
+KEYPAD
+  The layout  of the first 12 keys of the 16 button keypad is similar to a standard 12 key telephone keypad with an additional column of 4 keys to the right.  The 16 push buttons keys are arranged as 4 rows of 4 columns and each key is capable of up to two different functions operated by both a standard push or an extended longer push and hold action. With the addition of a "Shift" key, each key can generate up to four unique operations or six with a second level use of the shift key. A synopsis of the switches and their functions are listed in Appendix A for reference. As previously mentioned, the first three columns of keys are labeled identically to a standard 12 key telephone keypad. The fourth column of keys are primarily configuration and modifier keys.
+
+  In this document, the key labels are enclosed within square brackets. For reference, left to right, top to bottom, the keys are labeled:
+
+Row 1: [1], [2], [3], [A]
+Row 2: [4], [5], [6], [B]
+Row 3: [7[, [8], [9], [C]
+Row 4: [*], [0], [#], [D]
+
+  The keys are always pushed individually. Never is more than one key pressed simultaneously to perform any function.
+
+  There are five modes of operation for the keypad and are as follows:
+1. Normal Mode. Standard user operation.
+2. Frequency Entry Mode. Convenient frequency entry for your Kenwood.
+3. Memory Mode. Allow recall and inspection of Memory Bank and Channel data and automatically copy to VFO.
+4. DTMF Mode. Use the HamPod keypad to generate touch tone audio. 
+5. Configuration Mode. This allows setup of DoubleTalk voice parameters as well as HamPod Kenwood or additional device Reader options.
+
+
+1.  NORMAL MODE  - Features and Operation
+Currently, most of the common day to day functions of your TS-2000 are accessible from the HamPod keypad. Nore functions will be implemented as time permits.  See the key assignment list below for all HamPod key functions for use with your Kenwood transceiver.
+
+
+  Listed below are  the assigned functions for each key. Note that for clarity, in normal mode, the [A] key (upper right corner key) is also referred to as the [Shift] key.
+Most keys have two potential functions by either simply pressing the key, or pressing and continue holding the key down for an additional .5 second. And that combined with the [Shift] key, we can then get up to four unique functions for each key or six with a double press of the [Shift] key.
+
+In normal mode, the keys have been assigned the following functions:
+
+[1] - VFO A Frequency 
+[1] , Hold - VFO B Frequency 
+[SHIFT] , [1] - VFO Information 
+[SHIFT] , [1] , Hold - VOX and QSK BreakIn Status
+[SHIFT2] , [1] - MULTI/ CH control frequency steps
+[SHIFT2] , [1] , Hold - current Menu A' or B selection
+
+[2] - VFO C Frequency  (VHF/UHF)
+[2] , Hold - CTCSS Status and Frequency
+[SHIFT] , [2] - PL Tone status and Frequency
+[SHIFT] , [2] , Hold - Offset status and Frequency
+
+[3] - Split Mode Status
+[3] , Hold - Satellite Status
+[SHIFT] , [3] - n/a
+[SHIFT] , [3] , Hold - n/a
+
+[A] - SHIFT On, Shift 2 On, Shift Off
+[A] , Hold - Volume Up
+[SHIFT] , [A] - n/a
+[SHIFT] , [A] , Hold - n/a
+
+[4] - PreAmp status
+[4] , Hold - Attenuation status
+[SHIFT] , [4] - Attenuation status (here as well for consistency)
+[SHIFT] , [4] , Hold - n/a
+
+[5] - AGC setting 
+[5] , Hold - Read number of dots displayed on Meter for Compression
+[SHIFT] , [5] - Read number of dots displayed on Meter for ALC 
+[SHIFT] , [5] , Hold - Read SWR (press while sending carrier)
+
+[6] - DSP Filter Width, I.F. Shift
+[6] , Hold - I.F. Shift (CW Mode only)
+[SHIFT] , [6] - n/a
+[SHIFT] , [6] , Hold - n/a
+
+[B] - Band Change Mode on/off. TS-590 use keypad for direct band selection. Others use [C] for Up, and [D] for down. (n/a on TS-570)
+[B] , Hold - Volume Down
+[SHIFT] , [B] - n/a
+[SHIFT] , [B] , Hold - n/a 
+
+[7] - Noise Blanker status and Level 
+[7] , Hold - Beat Canceller status and manual setting
+[SHIFT] , [7] - Antenna Selection 
+[SHIFT] , [7] , Hold - Antenna Tuner status
+
+[8] - Noise Reduction status 
+[8] , Hold - Mic Gain Level
+[SHIFT] , [8] - Keyer Speed 
+[SHIFT] , [8] , Hold - n/a
+
+[9] - Notch Filter status and level
+[9] , Hold - Power  Level
+[SHIFT] , [9] - processor status and Level
+[SHIFT] , [9] , Hold - Monitor Level 
+[SHIFT2] , [9] - Carrier Gain Level
+[SHIFT2] , [9] , Hold - n/a 
+
+[C] - Band Up in Band Mode. change value in Configuration Mode. Frequency Announcement Delay Verbosity on/disable: Enables and disables the automatic delayed announcement of frequency once a VFO encoder control has stopped moving.
+[C] , Hold - Enter Configuration Mode
+[SHIFT] , [C] - Enter Memory Mode
+[SHIFT] , [C] , Hold - Voice Guide  On/Off (not available on TS-570) 
+
+[*] - Read S Meter 
+[*] , Hold - Read Sub S Meter 
+[SHIFT] , [*] - Read S Meter  (2)
+[SHIFT] , [*] , Hold - Read Sub S Meter  (2)
+
+[0] - Read Mode 
+[0] , Hold - n/a
+[SHIFT] , [0] - RIT/XIT Status 
+[SHIFT] , [0] , n/a 
+
+[#] - VFO A/B /CSelect for frequency entry 
+[#] , Hold - n/a 
+[SHIFT] , [#] - ReCall to VFO A or B (currently selected by the [#] key) last frequency entered or saved from HamPod memory
+[SHIFT] , [#] , Hold - Save current VFO A or B frequency (currently selected by the [#] key) to temporary HamPod memory
+
+[D] - Verbosity on/disable: Enable and disable the automatic announcement of keys and controls of the transceiver as they are manipulated when available. Band Down in Band Mode. 
+[D] , Hold - Switch between HamPod serial ports 1 and 2, Exit DTMF Mode 
+[SHIFT] , [D] - Enter into DTMF Mode 
+[SHIFT] , [D] , Hold - n/a
+
+
+2. FREQUENCY ENTRY MODE
+Note that for clarity, in this mode, the following keys have alternative labels:
+the [*] key is also referred to as the [DECIMAL POINT] key. 
+The [#[ key is referred to as the [ENTER] key . 
+
+ENTERING A FREQUENCY
+  Pressing the [#] key will prepare the HamPod Kenwood Reader to accept a frequency from the keypad. If you have previously entered a frequency, the same VFO will again be the selected VFO for this new entry. Repeated pressing of the [#] key toggles between VFO 'A' and VFO 'B' (TS-2000 also has VFO 'C' for VHF/UHF second receiver) in preparation for a frequency for that VFO. After choosing a VFO, enter your desired frequency inserting a decimal point where needed and press the [ENTER] key to send it to your Kenwood. Frequency entry format is the same as used when entering a frequency directly on the radio itself.
+
+A few special notes here:
+1. A second press of the [DECIMAL POINT] key will clear your entry and return the HamPod Reader to the normal mode.
+2. Once you initiate frequency entry, the [D] key functions as a clear key.
+3. If the Keypad Timeout option is enabled, the HamPod Reader will clear the partial entry and return to normal mode it you exceed the timeout duration.
+4. You don't need to enter trailing zero's. For example, entering just 7 will take you to 7.000MHz or 7.2 will take you to 7.200MHz. For some frequencies, you may not even need to use a decimal point as in 7123 takes you to 7.123MHz. 
+5. There are two special frequencies you can enter which will perform the following functions:
+A.  enter a frequency of 777 for any VFO and press the [ENTER] key. This will announce the product information and the firmware version number currently installed.
+B.  enter a frequency of 999 for any VFO and press the [ENTER] key. This will restore the HamPod EEPROM to the factory default settings and perform a reset. You can do this if the settings ever get scrambled or if you just want to restore to the default settings.
+
+
+3.  Memory MODE  - Features and Operation
+  This mode allows you to access a memory channel by either typing in the channel number or scrolling up and down through the channels. When you access a memory channel, the bank and channel numbers are spoken, then the alpha numeric text label is spoken if available, followed by the RX frequency stored within the channel data. Verbosity mode on the HamPod will limit some spoken headings to reduce chatter if desired. Once a channel has been selected, you can copy that memory channel data to either the A VFO or the B VFO and you will automatically exit the memory mode. The VFO you select for the transfer will be the current VFO once the function is completed.
+
+To enter Memory Mode from normal keypad mode, you perform a [Shift] [C] key sequence. The current memory channel data will automatically be spoken.  The following key assignments are then available in Memory Mode:
+[A]: Increment the Bank and Channel number.
+[B]: Decrement the Bank and Channel number.
+[0] to [9]: Enter up to a 3 digit Bank / Channel number followed by the [#] key to directly access that channel.  If you try to enter an invalid channel number, you will hear an error beep and the entry will be cleared.
+[*] and [D]: Clear any data input in progress or Exit Memory Mode if no data has been entered or has been previously cleared.
+To copy the selected memory channel data to a VFO:
+[C]: Toggles between the A VFO and the B VFO to choose the VFO to receive the memmory channel data.
+[#]: Performs the transfer and exit Memory Mode. Note that the VFO you selected will be the active transmit and receive VFO upon completion of the transfer.
+
+
+4.  DTMF MODE 
+You can now place the HamPod into DTMF Mode to generate touch  tones . You can then place the microphone near the HamPod when you need to send tones to
+activate remote equipment. 
+
+[Shift], [D] : enter DTMF Mode 
+[All Keys] : Generate related touch tones 
+[D], Hold : Exit DTMF Mode 
+
+
+5.  CONFIGURATION MODE
+  This mode allows changes to the various voice settings as well as modifying the options which effect how the  HamPod Kenwood Reader interacts with your transceiver. To enter Configuration Mode, press and hold the [C] key for 1 second. When you enter the configuration menu, you are placed at the option you last viewed when you previously exited the configuration menu.
+
+In Configuration Mode the keypad switches perform the following functions:
+[A]: Step forward through the configuration options.
+[B]: Step backward through the configuration options.
+[C]: Increment the parameter values.
+[C] , Hold: Exit Configuration Mode and save changes to EEPROM
+[D]: Decrement the parameter values.
+[D] , Hold: Exit Configuration Mode without saving changes to EEPROM. Any changes made will still be in effect until powered off or changed again. 
+When changing values,  these are circular menus and will cycle through once  the first or last choice has been passed.
+
+To exit and save your changes, press and hole the [C] key for 1 second. The settings are stored in EEPROM and will remain even when power is removed.
+
+To exit without saving your changes, press and hold the [D] key for 1 second. Any changes you may have made will not be stored in EEPROM but those changes will still remain in effect until you power off or reset the HamPod. If the key timeout function is active and you don't press a key before the timeout occurs, you will also exit the configuration mode without saving to EEPROM.
+
+
+HamPod Kenwood Reader CONFIGURATION OPTIONS
+1. Key beep: on/disable. This sounds a beep when a key is pressed.
+
+2. Key Time out Duration: Disable / 5-30 Seconds You can either disable this option or set the time out duration from 5 to 30 seconds. When set to a value, this sets the length of time for the key time out period.  If an action to be performed requires multiple key presses and you fail to fully input the sequence, a time out will occur after the set time duration and the HamPod will abort the current partial keypad entry.
+
+3. Verbosity: on/disable. When enabled, some responses will announce additional information such as labels and prompts along with the data returned from the transceiver.
+
+4. VS-3 Volume:  Sets the volume of the VS-3 speech output in the transceiver
+
+5. Power On To Port:  1/2 Selects which serial port is active when the HamPod is powered on.
+
+6. Reset Now?: Used to reset the HamPod or prepare for flashing with new firmware. When at this option, you can press either the [C] or [D] keys to alternate between enabling or disabling the opportunity to reset or flash. When the HamPod informs you to "Enter to Reset", or "star to flash", you can then either press the [Enter] key to initiate the reset or [Star] to prepare for flashing. If you do choose to reset, the HamPod will perform a 3 second countdown before performing the reset process. This reset only occurs on the HamPod and not your transceiver.
+
+HamPod DoubleTalk VOICE PARAMETERS
+  There are nine parameters which effect the voice synthesizer output.
+Volume: 0 to 9. Default is 5.
+Speed: 0 to 13. Default is 5.
+Pitch: 0 to 99. Default is 50.
+Articulation: 0 to 9. Default is 3.
+Expression: 0 to 9. Default is 3.
+Reverb: 0 to 9. Default is 0.
+Formant Frequency: 0 to 99. Default is 50.
+Tone: 0 to 2. Default is 1.
+Voice: 0 to 10. Default is 0.
+
+The last parameter in the above list is the "Voice" parameter and are predefined voice configurations. Please note that many of these predefined "Voices" will override some of the voice parameters such as pitch, tone, and reverb settings that you may have already modified and will be changed when you select one of these alternate "Voices".
+
+A list of all configuration parameters and their range of acceptable values are found in Appendix B.
+
+
+   APPENDIX A
+
+HamPod Kenwood Reader Key Pad Assignments
+
+  There are up to six possible assignments to most keys. To invoke these actions you do one of the following:
+1.  Perform a normal press of the desired key.
+2.  Press and continue to hold the desired key for an additional .5 second.
+3.  Press the Shift key followed by a normal press of the desired key.
+4.  Press Shift then press and hold the desired key for an additional .5 second.
+5.  Press the Shift key twice followed by a normal press of the desired key.
+6.  Press Shift twice then press and hold the desired key for an additional .5 second.
+
+Every key with all potential assignments are listed below:
+
+In the listing below, each key is enclosed in square brackets.
+
+[1] - VFO A Frequency 
+[1] , Hold - VFO B Frequency 
+[SHIFT] , [1] - VFO Information 
+[SHIFT] , [1] , Hold - VOX and QSK BreakIn Status
+[SHIFT2] , [1] - MULTI/ CH control frequency steps
+[SHIFT2] , [1] , Hold - current Menu A' or B selection
+
+[2] - VFO C Frequency  (VHF/UHF)
+[2] , Hold - CTCSS Status and Frequency
+[SHIFT] , [2] - PL Tone status and Frequency
+[SHIFT] , [2] , Hold - Offset status and Frequency
+
+[3] - Split Mode Status
+[3] , Hold - Satellite Status
+[SHIFT] , [3] - n/a
+[SHIFT] , [3] , Hold - n/a
+
+[A] - SHIFT On, Shift 2 On, Shift Off
+[A] , Hold - Volume Up
+[SHIFT] , [A] - n/a
+[SHIFT] , [A] , Hold - n/a
+
+[4] - PreAmp status
+[4] , Hold - Attenuation status
+[SHIFT] , [4] - Attenuation status (here as well for consistency)
+[SHIFT] , [4] , Hold - n/a
+
+[5] - AGC setting 
+[5] , Hold - Read number of dots displayed on Meter for Compression
+[SHIFT] , [5] - Read number of dots displayed on Meter for ALC 
+[SHIFT] , [5] , Hold - Read SWR (press while sending carrier) 
+
+[6] - DSP Filter Width, I.F. Shift
+[6] , Hold - I.F. Shift (CW Mode only)
+[SHIFT] , [6] - n/a
+[SHIFT] , [6] , Hold - n/a
+
+[B] - Band Change Mode on/off (n/a on (TS-570)
+[B] , Hold - Volume Down
+[SHIFT] , [B] - n/a
+[SHIFT] , [B] , Hold - n/a 
+
+[7] - Noise Blanker status and Level 
+[7] , Hold - Beat Canceller status and manual ssetting
+[SHIFT] , [7] - Antenna Selection 
+[SHIFT] , [7] , Hold - Antenna Tuner status
+
+[8] - Noise Reduction status 
+[8] , Hold - Mic Gain Level
+[SHIFT] , [8] - Keyer Speed 
+[SHIFT] , [8] , Hold - n/a
+
+[9] - Notch Filter status and level
+[9] , Hold - Power  Level
+[SHIFT] , [9] - processor status and Level
+[SHIFT] , [9] , Hold - Monitor Level 
+[SHIFT2] , [9] - Carrier Gain Level
+[SHIFT2] , [9] , Hold - n/a 
+
+[C] - Band Up in Band Mode, change value in Configuration Mode. Frequency Announcement Delay Verbosity on/disable
+[C] , Hold - Enter Configuration Mode or exit and save while in configuration mode
+[SHIFT] , [C] - Enter Memory Mode
+[SHIFT] , [C] , Hold - Voice Guide  On/Off (not available on TS-570)
+
+[*] - Read S Meter 
+[*] , Hold - Read Sub S Meter 
+[SHIFT] , [*] - Read S Meter  (2)
+[SHIFT] , [*] , Hold - Read Sub S Meter  (2)
+
+[0] - Read Mode 
+[0] , Hold - n/a
+[SHIFT] , [0] - RIT/XIT Status 
+[SHIFT] , [0] , n/a 
+
+[#] - VFO A/B/C Select for frequency entry. VFO C only available on TS-2000.
+[#] , Hold - n/a 
+[SHIFT] , [#] - ReCall to VFO A or B (currently selected by the [#] key) last frequency entered or saved from HamPod memory
+[SHIFT] , [#] , Hold - Save current VFO A or B frequency (currently selected by the [#] key) to temporary HamPod memory
+
+[D] - Verbosity On/Off, Band Down in Band Mode, change value in Configuration Mode 
+[D] , Hold - Switch between HamPod serial ports, or exit without saving while in Configuration Mode, or exit DTMF Mode
+[SHIFT] , [D] - Enter into DTMF Mode 
+[SHIFT] , [D] , Hold - n/a
+
+
+
+APPENDIX B
+
+Configuration parameter and value ranges:
+
+Volume: 0-9
+Speed: 0-13
+Pitch: 0-99
+Articulation: 0-9
+Expression: 0-9
+Reverb: 0-9
+Formant Frequency: 0-99
+Tone: 0-2
+Voice: 0-10
+Key Beep: on / disable
+Key Timeout Duration: disabled / 5-30 Seconds
+Verbosity: on/disable
+Various Kenwood HamPod options to be described here when finished
+Power on to Port: 1 / 2
+Reset or Flash: Used to reset the HamPod or prepare it for flashing
+
+
+APPENDIX C
+
+FIRMWARE UPGRADE OVERVIEW
+The procedure to flash the firmware is standard practice as with other devices that utilize a bootloader. There are basically two components used for this procedure:
+1.  The bootloader which is already resident within your HamPod.
+2.  A Windows based computer running an application that communicates with the bootloader and sends the new firmware to the HamPod.
+
+The bootloader is a special application that resides within the HamPod and runs every time the device is either reset or  powered on. This special application looks for a unique command sequence over serial port 1 of the HamPod which is connected to your computer which is running the companion Windows flash loader  application. Once the bootloader begins, you have approximately 1.5 seconds to initiate the flash loader application running on the computer. During that first 1.5 second window of opportunity,the bootloader is in control of the HamPod and is looking for a connection from the computer over the serial port. When a valid connection is established between the HamPod and the application running on the computer, the flash loader application then sends the new firmware to the HamPod. If no connection can be established, the bootloader times out and the HamPod starts running as usual.
+
+  An improved method to flash the HamPod has been added to the configuration menu. This greatly simplifies the required timing synchronization  between the HamPod and the flashing application running on the computer.
+All previous methods for flashing the HamPod still exist but this new method is much easier to perform since it automatically restarts the HamPod for you.
+
+The following steps will walk you through the flashing process:
+1.  Important! You must use a null modem serial cable for this connection. Connect a null modem serial cable between serial port 1 of the HamPod (the connector nearest the DC Power jack), and a serial comm port on your personal computer. The comm port on your computer can be any serial port from COM1: to COM8:. The existing straight wired serial cable provided with your HamPod can be used provided you also use the included null modem adapter in addition to this cable.
+ 2.  Download and extract the ZIP archive update  firmware file to any directory of your choosing on your computer. You may over write any existing files with a new firmware update if you have previously performed this update before. This file can be found from the appropriate page on the HamPod web site at the following URL:
+http://www.HAMPod.com
+
+The files contained within the ZIP archive are:
+ds30LoaderConsole.exe : The command line flash loader application.
+Flash_1.bat : Batch file when using comm port 1 on PC.
+Flash_2.bat : Batch file when using comm port 2 on PC.
+Flash_3.bat : Batch file when using comm port 3 on PC.
+Flash_4.bat : Batch file when using comm port 4 on PC.
+Flash_5.bat : Batch file when using comm port 5 on PC.
+Flash_6.bat : Batch file when using comm port 6 on PC.
+Flash_7.bat : Batch file when using comm port 7 on PC.
+Flash_8.bat : Batch file when using comm port 8 on PC.
+***.hex : the firmware file to flash to the HamPod (this file name varies depending on your connected devices)
+Other informational text files
+
+3.  Once you extract the files into a directory of your choosing, simply run the appropriate batch file for the comm port number on your PC that you have connected to the HamPod. The batch file contains the command to launch the flash loader  application and also set some necessary parameters for the program. When you start the batch file, the file will open a DOS window, validate the new hex firmware file, and prepare to flash the HamPod but will stop and wait for any key to be pressed on the PC before actually initiating the flashing process. The text written into this DOS window by the flashing application should be readable by most screen readers such as JAWS or Window EYES and will inform you of its progress.
+
+4.  Once the application on the computer pauses and is waiting for a key press, enter the configuration menu on the HamPod with a long press of the [C] key. Scroll through the menu items using the [A] or [B] keys until you reach the "Reset and Flashing Disabled" menu item. Press either the [C] or [D] key to enable this item and you will hear, "Enter to Reset or Star to Flash Firmware". Press the [*] key and the HamPod will enter flash mode with the prompt, "Waiting for Firmware, Any Key to Abort". The HamPod is now waiting and watching for the application on the computer to begin sending the new firmware. At this point, if you press any key on the HamPod, it will exit flash mode and reset itself. To initiate the new firmware transfer from the computer, press any key such as the Space Bar on the computer and it will begin sending the firmware to the HamPod. When you pressed the Space Bar key on the PC, the flash loader application tries to establish a connection with the bootloader within the HamPod and if found, the HamPod will respond with a "Flashing" announcement. This will take about 30 to 45 seconds to complete. DO NOT power off the HamPod while the update is in progress!When finish, the HamPod may restart on its own but sometimes you may need to power cycle the HamPod yourself. The flash loader application on the PC will write a series of period characters to the screen as it transfers the firmware file to the HamPod, When finished, it will report the status of the update and wait for a final key press on the PC to terminate the flash application and close the DOS window.
+
+Note for users of older firmware:
+  If you are using an older version of firmware, this new flashing method will not be available and you must use one of the previous methods of synchronizing the HamPod with the PC by performing an manual reset of the HamPod.  The easiest way to do this that usually works is to start the flash loader application on the computer and press any key when prompted to initiate the firmware download. You then have about 20 seconds to reset the HamPod while the PC application continues to look for the bootloader to start running on the HamPod. So at this point, you need to quickly reset the HamPod by use of the reset button, reset configuration menu item, or removing and applying power to the HamPod. In some cases an erroneous character will be sent to the PC by the HamPod during the reset which might confuse the application running on the computer and it will fail. If this happens, just try the procedure again or use one of the alternative methods to reset the HamPod. 
+
+5.  After a successful update, you can verify the new firmware has been installed by requesting the product information from the HamPod as specified in the user manual for your specific connected device.
+6.   Disconnect from the PC and reconnect the HamPod to your equipment and enjoy the new benefits and features of the firmware!
+
+73 and Have fun with your HAMPod Kenwood Reader!
