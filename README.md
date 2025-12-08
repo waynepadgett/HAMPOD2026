@@ -1,24 +1,42 @@
-# NanoPi Firmware Code 
-The code in this directory is for firmware for the hardware of the Hampod. For now, this includes the numpad and a way to communicate with Festival.
-## Required Dependencies 
-Everything needed to run this code is included in the nanoPi_install.sh script (don't forget to run as a root user).
+# HAMPOD2026
 
-The things needed are:
-* alsa/alsa-mixer from libasound2 
-* git
-* festival
-* festival-dev
-* WiringNP repo. Link to [WiringNP Repo](https://github.com/friendlyarm/WiringNP)
+**HAMPOD** is an accessibility interface designed to make amateur radios (like the Icom IC-7300) accessible to visually impaired operators. It uses a Raspberry Pi-based controller with a tactile keypad and text-to-speech (TTS) feedback to provide audio menus, frequency readouts, and full radio control via Hamlib.
 
-## Programs
-There are three programs in this directory. <br>
-test - This program blinks an LED (On the pin GPIOG11) <br>
-test2 - This program executes a bash command to Festival before blinking the same LED as in test. <br>
-numpadtest - This program reads in button presses from the keypad and speaks them out on festival.
+## 🚧 Status: Active Reconstruction (Fresh Start)
 
-To run these programs, use the bash command `sudo ./numpadtest`(this is an example command for numpadtest). These programs must be run as root as the WiringNP library needs root access for the GPIO.
+This project is currently undergoing a major software rewrite ("Fresh Start"). The goal is to replace the original monolithic software layer with a modular, testable, and responsive architecture.
 
-## Troubleshooting
-If the programs are running into permission issues, use a sudo command to run the program. <br>
-If the programs are missing dependencies, try running the nanoPi_install.sh to install everything needed for these programs. <br>
-If the programs do not run after issuing the command `chmod +x filename` where filename is the name of the program/script you want to run.
+- **Firmware Layer:** Stable. Handles raw hardware I/O (Keypad, Audio extraction) and communicates via Named Pipes.
+- **Software Layer:** Being rewritten from scratch to support robust polling, zero-latency feedback, and reliable Hamlib control.
+
+## 📂 Repository Structure
+
+*   **`Documentation/`** - **Start Here.** Contains build guides, architectural plans, and developer onboarding.
+    *   `Project Overview and Onboarding/` - Critical reading for developers.
+        *   [`fresh-start-big-plan.md`](Documentation/Project%20Overview%20and%20Onboarding/fresh-start-big-plan.md) - The master plan for the rewrite.
+        *   [`fresh-start-phase-zero-plan.md`](Documentation/Project%20Overview%20and%20Onboarding/fresh-start-phase-zero-plan.md) - Immediate steps for core infrastructure.
+*   **`Firmware/`** - The low-level C code that runs on the Pi. It manages the keypad hardware and separates audio output.
+*   **`Software/`** - The legacy (2025 team) software implementation. It is currently serving as a reference but is slated for replacement.
+*   **`Hardware Files/`** - Schematics and PCB design files for the custom keypad/hat.
+
+## 🚀 Getting Started (Developers)
+
+1.  **Review the Plans:** Read `Documentation/Project Overview and Onboarding/fresh-start-big-plan.md` to understand the architecture.
+2.  **Setup Environment:**
+    *   Target hardware: Raspberry Pi 5 (Debian Trixie).
+    *   Dependencies: `libhamlib-dev`, `festival`, `alsa-utils`, `libasound2-dev`.
+3.  **Deployment:** use the scripts in `Documentation/scripts/` to deploy code to the Pi.
+
+## Architecture Overview
+
+The system runs as two main processes communicating via **Named Pipes**:
+
+1.  **Firmware Process:**
+    *   Reads GPIO pins for the Keypad.
+    *   Manages direct ALSA audio (or Festival TTS).
+    *   Sends raw key events to the Software.
+2.  **Software Process (New):**
+    *   Receives key events.
+    *   Manages application state (Menu, Frequency, Settings).
+    *   Controls the physical radio via `hamlib`.
+    *   Sends text strings back to Firmware for speech output.
