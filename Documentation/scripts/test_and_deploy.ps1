@@ -18,6 +18,9 @@ scp -r "$LOCAL_DIR/Firmware" "$REMOTE_USER@$REMOTE_HOST`:$REMOTE_DIR/"
 Write-Host "Copying Software..."
 scp -r "$LOCAL_DIR/Software" "$REMOTE_USER@$REMOTE_HOST`:$REMOTE_DIR/"
 
+Write-Host "Copying Software2..."
+scp -r "$LOCAL_DIR/Software2" "$REMOTE_USER@$REMOTE_HOST`:$REMOTE_DIR/"
+
 Write-Host "Copying Speech_Comparison..."
 scp -r "$LOCAL_DIR/Speech_Comparison" "$REMOTE_USER@$REMOTE_HOST`:$REMOTE_DIR/"
 
@@ -40,7 +43,17 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "Software build successful."
 }
 else {
-    Write-Host "Software build FAILED."
+    Write-Host "Software build FAILED (Legacy - Expected)."
+}
+
+Write-Host "Building Software2 (New Phase 0)..."
+ssh $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR/Software2 && make clean && make"
+
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "Software2 build successful."
+}
+else {
+    Write-Host "Software2 build FAILED."
     exit 1
 }
 

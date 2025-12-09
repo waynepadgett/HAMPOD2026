@@ -1,6 +1,8 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "hampod_firm_packet.h"
+#include "hampod_queue.h"
 
 Packet_queue* create_packet_queue() {
     Packet_queue* new = malloc(sizeof(Packet_queue));
