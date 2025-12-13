@@ -73,7 +73,10 @@ void sigsegv_handler(int signum);
 
 void sigint_handler(int signum);
 
+void sigint_handler(int signum);
+
 int main(){
+    setbuf(stdout, NULL);
 
 #ifdef DEBUG
     printf("\033[0;32mHampod Firmware Version 0.8\n");

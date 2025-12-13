@@ -4,7 +4,7 @@
 
 # Compiler and flags
 CC = cc
-CFLAGS = -Wall -DSHAREDLIB
+CFLAGS = -Wall -DSHAREDLIB -DDEBUG
 LDFLAGS = -lpthread -lasound
 
 # HAL sources and objects
@@ -14,7 +14,11 @@ HAL_OBJS = $(HAL_SRCS:.c=.o)
 # Main targets
 .PHONY: all clean debug install
 
-all: firmware.elf hampod_firm_packet.o audio_firmware.o keypad_firmware.o
+all: firmware.elf imitation_software hampod_firm_packet.o audio_firmware.o keypad_firmware.o
+
+# Imitation Software (Integration Test Tool)
+imitation_software: imitation_software.c hampod_firm_packet.o
+	$(CC) $(CFLAGS) -DSHAREDLIB -o imitation_software imitation_software.c hampod_firm_packet.o
 
 # Main firmware build
 firmware.elf: firmware.o hampod_firm_packet.o audio_firmware.o keypad_firmware.o hampod_queue.o $(HAL_OBJS)

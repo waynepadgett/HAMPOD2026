@@ -34,6 +34,14 @@ void audio_process() {
 
     AUDIO_PRINTF("Pipes successfully connected\nCreating input queue\n");
 
+    if (hal_audio_init() != 0) {
+        AUDIO_PRINTF("Failed to initialize audio HAL\n");
+    } else {
+        AUDIO_PRINTF("Audio HAL initialized\n");
+    }
+
+    AUDIO_PRINTF("Creating input queue\n");
+
     Packet_queue* input_queue = create_packet_queue();
 
     AUDIO_PRINTF("Initializing queue mutex lock\n");

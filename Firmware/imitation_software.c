@@ -39,7 +39,12 @@ int input_pipe;
 int output_pipe;
 void send_packet(Inst_packet* packet){
     printf("Message = %s\n", packet->data);
-    write(output_pipe, packet, 6);
+    
+    // Serialize header explicitly to match Firmware reader
+    write(output_pipe, &packet->type, sizeof(Packet_type));
+    write(output_pipe, &packet->data_len, sizeof(unsigned short));
+    write(output_pipe, &packet->tag, sizeof(unsigned short));
+
     unsigned char buffer[256];
     memcpy(buffer, packet->data, packet->data_len);
     printf("Message = %s\n", (char*)buffer);
@@ -50,10 +55,12 @@ Inst_packet* read_from_pipe(){
     unsigned char buffer[256];
     Packet_type type;
     unsigned short size;
+    unsigned short tag;
     read(input_pipe, &type, sizeof(Packet_type));
     read(input_pipe, &size, sizeof(unsigned short));
+    read(input_pipe, &tag, sizeof(unsigned short));
     read(input_pipe, buffer, size);
-    Inst_packet* temp = create_inst_packet(type, size, buffer);
+    Inst_packet* temp = create_inst_packet(type, size, buffer, tag);
     return temp;
 }
 
@@ -74,6 +81,7 @@ int main(){
         if(output_pipe != -1){
             break;
         }
+        usleep(10000); // Wait 10ms between attempts
     }
     if(output_pipe == -1){
         printf("\nUnsuccessful Connection\n");
@@ -89,12 +97,12 @@ int main(){
         char keypad_msg = 'r';
         char len = 1;
         char msg[] = "sThis is a keypad and audio integration test for the firmware. Press * to toggle DTMF mode.";
-        Inst_packet* temp = create_inst_packet(new_data, strlen(msg) + 1, msg);
+        Inst_packet* temp = create_inst_packet(new_data, strlen(msg) + 1, msg, 0);
         send_packet(temp);
         Inst_packet* audio_packet = read_from_pipe();
         destroy_inst_packet(&audio_packet);
         while(1) { //sue me
-            temp = create_inst_packet(keypad, len, &keypad_msg);
+            temp = create_inst_packet(keypad, len, &keypad_msg, 0);
             send_packet(temp);
             destroy_inst_packet(&temp);
             Inst_packet* keypad_packet = read_from_pipe();
@@ -104,13 +112,14 @@ int main(){
                 continue;
             }
             char keypad_moment = keypad_packet->data[0];
-            printf("keypad says %x\n", keypad_moment);
+            printf("keypad says %x (%c)\n", keypad_moment, keypad_moment);
+            
             if(keypad_packet->data[0] == 12){
                 mode ^= 1;
                 destroy_inst_packet(&keypad_packet);
                 continue;
             }
-            if(keypad_moment == 0xFF){
+            if(keypad_moment == 0xFF || keypad_moment == '-'){
                 destroy_inst_packet(&keypad_packet);
                 continue;
             }
@@ -120,7 +129,7 @@ int main(){
                 printf("Not DTMF\n");
                 strcpy(buffer, "ppregen_audio/");
                 strcat(buffer, keypad_names[keypad_moment]);
-                temp = create_inst_packet(new_data, strlen(buffer) + 1, buffer);
+                temp = create_inst_packet(new_data, strlen(buffer) + 1, buffer, 0);
                 send_packet(temp);
                 destroy_inst_packet(&temp);
                 audio_packet = read_from_pipe();
@@ -129,7 +138,7 @@ int main(){
                 printf("DTMF\n");
                 strcpy(buffer, "ppregen_audio/");
                 strcat(buffer, DTMF_names[keypad_moment]);
-                temp = create_inst_packet(new_data, strlen(buffer) + 1, buffer);
+                temp = create_inst_packet(new_data, strlen(buffer) + 1, buffer, 0);
                 send_packet(temp);
                 destroy_inst_packet(&temp);
                 audio_packet = read_from_pipe();
