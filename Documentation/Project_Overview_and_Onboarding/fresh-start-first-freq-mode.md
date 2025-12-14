@@ -1,11 +1,16 @@
-# Fresh Start: Minimal Frequency Mode Implementation Plan
+# Fresh Start: Phase 1 - Frequency Entry Mode
+
+> **Parent Plan:** [Fresh Start: Big Picture Plan](fresh-start-big-plan.md)
+> **Prerequisite:** [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md)
 
 ## Goal
-Rewrite the Software layer from scratch while keeping the working Firmware/HAL. Focus on implementing a minimal **Frequency Mode** that:
-- Reads keypad input from Firmware
-- Speaks feedback to the blind user
+Implement a minimal **Frequency Entry Mode** that:
+- Reads keypad input from Firmware (via pipes)
+- Speaks feedback to the blind user (via Piper/Festival TTS)
 - Uses Hamlib to set radio frequency
-- Is easily adaptable for different radios (Kenwood, Elecraft, etc.)
+- Is easily adaptable for different radios (ICOM, Kenwood, Elecraft, etc.)
+
+This validates the entire Software → Firmware → Hardware pipeline.
 
 ---
 

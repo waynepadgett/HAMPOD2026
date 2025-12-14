@@ -4,26 +4,44 @@
 
 This document prioritizes mode implementation order to minimize rework and overall effort. Each mode will need its own detailed plan (like `fresh-start-first-freq-mode.md` for Frequency Mode), but this establishes the sequence and dependencies.
 
----
+### Detailed Plans
 
-## Modes from Original HAMPOD (ICOM Reader Manual)
+| Plan | Description | Status |
+|------|-------------|--------|
+| [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md) | Pipe comm, speech, keypad, config modules | ⏳ In Progress |
+| [Phase 1: Frequency Mode](fresh-start-first-freq-mode.md) | First working mode implementation | ⏳ Not Started |
+
+### Prerequisites (COMPLETED)
+
+The following Firmware foundation work is already complete and verified:
+
+- ✅ **Firmware HAL**: USB keypad and audio working
+- ✅ **Piper TTS Integration**: Compile-time switch between Piper and Festival
+- ✅ **Pipe Protocol**: Firmware creates and manages named pipes
+- ✅ **Integration Test**: `imitation_software` validates bidirectional communication
+
+See: [Hampod_RPi_change_plan.md](../Hampod_RPi_change_plan.md) for full Firmware progress.
+
+### Target Behavior
+
+The goal is to implement all modes described in [ICOMReader_Manual_v106.txt](../Original_Hampod_Docs/ICOMReader_Manual_v106.txt):
 
 | Mode | Purpose | Priority |
 |------|---------|----------|
 | Normal Mode | Query radio status, announce changes | Core |
-| Frequency Entry | Direct frequency input | High |
+| Frequency Entry Mode | Direct frequency input | High |
 | Set Mode | Adjust radio parameters | Medium |
 | Memory Mode | Store/recall frequencies | Medium |
 | DTMF Mode | Generate touch tones | Low |
 | DStar Mode | DStar-specific features | Low (radio-specific) |
 | Configuration Mode | HamPod settings | Required |
 
-## New Features (User Requirements)
+### New Features (Beyond Original HAMPOD)
 
 | Feature | Purpose |
 |---------|---------|
-| Radio Selection | Choose/detect radio model |
-| Speech Synthesizer Selection | Switch between Festival/Piper |
+| Radio Selection | Choose/detect radio model (not just ICOM) |
+| Speech Synthesizer Selection | Switch between Festival/Piper at runtime |
 
 ---
 

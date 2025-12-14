@@ -64,21 +64,31 @@ This document outlines the plan to migrate the HAMPOD project from NanoPi hardwa
 - ✅ Verified Piper TTS works in integration test
 - 📄 See [Piper TTS Integration Plan](Project_Overview_and_Onboarding/firmware_update_piper_option_plan.md) for details.
 
-#### Phase 5: Software Layer Verification - IN PROGRESS
+#### Phase 5: Software Layer - FRESH START APPROACH
+
+> [!IMPORTANT]
+> **Decision:** After attempting to fix the legacy Software layer, we decided to **rewrite it from scratch**. The old codebase had too many intertwined dependencies and architectural issues that made incremental fixes impractical.
+
+**Completed Analysis (Legacy Code):**
 - ✅ Analyzed Software layer structure and dependencies
-- ✅ Removed `-lwiringPi` from Software Makefile
-- ✅ Fixed compilation errors (21 separate fixes across multiple files)
-- ✅ Refactored build system from unity build to shared library (`libModes.so`)
-- ✅ Implemented pipe communication in `FirmwareCommunication.c`
-- ✅ Fixed `pthread_create` type mismatch in `FirmwareCommunication.c`
-- ✅ Restored corrupted `RigListCreator.c` and fixed Hamlib callback signature
-- ✅ Added HAL object linking to Software Makefile
-- ✅ Resolved static declaration conflicts by adding `-DSHAREDLIB` flag
-- ✅ Added missing includes to standalone-compiled source files
-- 🚧 Completing final compilation fixes (`ModeRouting.c`)
-- ⏳ Integration testing (Firmware + Software)
-- ⏳ Verifying pipe communication
-- ⏳ Testing keypad and audio flows
+- ✅ Identified reusable components (Hamlib wrappers, KeyPress struct, audio caching)
+- ✅ Documented pipe communication protocol
+- ❌ Abandoned incremental fixes due to excessive technical debt
+
+**Fresh Start Planning:**
+- 📄 **[Fresh Start: Big Picture Plan](Project_Overview_and_Onboarding/fresh-start-big-plan.md)** - Overall architecture and phase sequence
+- 📄 **[Phase 0: Core Infrastructure](Project_Overview_and_Onboarding/fresh-start-phase-zero-plan.md)** - Pipe comm, speech, keypad, config modules
+- 📄 **[Phase 1: Frequency Mode](Project_Overview_and_Onboarding/fresh-start-first-freq-mode.md)** - First mode implementation
+
+**Implementation Status:**
+- ⏳ Phase 0.1: Directory structure & shared headers
+- ⏳ Phase 0.2: Pipe communication module
+- ⏳ Phase 0.3: Speech module (uses Piper via Firmware)
+- ⏳ Phase 0.4: Keypad module
+- ⏳ Phase 0.5: Configuration storage
+- ⏳ Phase 1.1: Frequency Entry Mode
+
+**Target Behavior:** Full implementation of modes described in [ICOMReader_Manual_v106.txt](Original_Hampod_Docs/ICOMReader_Manual_v106.txt)
 
 #### Phase 6-9: Build System, Testing, Documentation, Deployment (Not Started)
 

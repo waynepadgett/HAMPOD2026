@@ -1,8 +1,13 @@
 # Fresh Start: Phase Zero Plan (Core Infrastructure)
 
+> **Parent Plan:** [Fresh Start: Big Picture Plan](fresh-start-big-plan.md)
+> **Next Phase:** [Phase 1: Frequency Mode](fresh-start-first-freq-mode.md)
+
 ## Overview
 
-This phase builds the foundation for the new Software layer. The goal is to establish stable communication with the Firmware (via pipes) and provide clean APIs for subsequent phases (modes).
+This phase builds the foundation for the new Software layer (`Software2/`). The goal is to establish stable communication with the Firmware (via pipes) and provide clean APIs for subsequent phases (modes).
+
+**Key insight:** The Firmware is already complete and handles all USB I/O. Our Software2 just needs to send/receive packets over named pipes.
 
 Each step is a **compile-ready chunk** with specific verification steps.
 
