@@ -54,6 +54,16 @@ This document outlines the plan to migrate the HAMPOD project from NanoPi hardwa
 - ✅ Verified stable 15-second bidirectional communication (Audio + Keypad)
 - 📄 See [Firmware Fix and Functional Test Report](Project_Overview_and_Onboarding/Completed_Tasks/firmware_test_fix.md) for details.
 
+#### Phase 4.6: Piper TTS Integration - COMPLETE
+- ✅ Created TTS HAL interface (`hal_tts.h`)
+- ✅ Implemented Festival TTS HAL (`hal_tts_festival.c`)
+- ✅ Implemented Piper TTS HAL (`hal_tts_piper.c`) with persistent pipeline
+- ✅ Updated Makefile with `TTS_ENGINE` compile-time switch
+- ✅ Created `install_piper.sh` for Piper installation
+- ✅ Verified both Festival and Piper builds compile cleanly
+- ✅ Verified Piper TTS works in integration test
+- 📄 See [Piper TTS Integration Plan](Project_Overview_and_Onboarding/firmware_update_piper_option_plan.md) for details.
+
 #### Phase 5: Software Layer Verification - IN PROGRESS
 - ✅ Analyzed Software layer structure and dependencies
 - ✅ Removed `-lwiringPi` from Software Makefile

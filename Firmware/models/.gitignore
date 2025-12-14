@@ -1,0 +1,3 @@
+# Ignore Piper model files (downloaded by install_piper.sh)
+*.onnx
+*.onnx.json

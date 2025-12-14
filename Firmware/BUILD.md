@@ -15,7 +15,11 @@ Firmware/
 │   ├── hal_keypad.h        # Keypad HAL interface
 │   ├── hal_keypad_usb.c    # USB keypad implementation
 │   ├── hal_audio.h         # Audio HAL interface
-│   └── hal_audio_usb.c     # USB audio implementation (ALSA)
+│   ├── hal_audio_usb.c     # USB audio implementation (ALSA)
+│   ├── hal_tts.h           # TTS HAL interface
+│   ├── hal_tts_piper.c     # Piper TTS implementation (default)
+│   └── hal_tts_festival.c  # Festival TTS implementation (legacy)
+├── models/                 # Voice models (downloaded by install script)
 └── tests/                  # HAL test programs
 ```
 
@@ -26,16 +30,52 @@ Firmware/
 sudo apt-get update
 sudo apt-get install -y \
     build-essential \
-    libasound2-dev \
-    festival \
-    festvox-kallpc16k
+    libasound2-dev
 ```
 
-### Package Descriptions
-- **build-essential**: GCC compiler and build tools
-- **libasound2-dev**: ALSA development libraries (for USB audio)
-- **festival**: Text-to-speech synthesis engine
-- **festvox-kallpc16k**: Festival voice package
+### Optional: Festival TTS (Legacy)
+```bash
+sudo apt-get install -y festival festvox-kallpc16k
+```
+
+### Optional: Piper TTS (Recommended)
+```bash
+./Documentation/scripts/install_piper.sh
+```
+
+## TTS Engine Selection
+
+The firmware supports two text-to-speech engines:
+
+### Piper (Default) - Recommended
+- Zero-latency persistent pipeline
+- High-quality neural voice
+- Requires one-time installation
+
+**Install Piper:**
+```bash
+./Documentation/scripts/install_piper.sh
+```
+
+**Build with Piper (default):**
+```bash
+make
+```
+
+**Build with custom speed (1.0 = normal, 0.8 = faster):**
+```bash
+make TTS_SPEED=0.8
+```
+
+### Festival (Legacy)
+- Uses Festival `text2wave` command
+- Lower quality robotic voice
+- Pre-installed on most Linux systems
+
+**Build with Festival:**
+```bash
+make TTS_ENGINE=festival
+```
 
 ## Building
 

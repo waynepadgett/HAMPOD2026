@@ -6,6 +6,7 @@
 
 #include "audio_firmware.h"
 #include "hal/hal_audio.h"
+#include "hal/hal_tts.h"
 
 extern pid_t controller_pid;
 unsigned char audio_running = 1;
@@ -38,6 +39,12 @@ void audio_process() {
         AUDIO_PRINTF("Failed to initialize audio HAL\n");
     } else {
         AUDIO_PRINTF("Audio HAL initialized\n");
+    }
+
+    if (hal_tts_init() != 0) {
+        AUDIO_PRINTF("Failed to initialize TTS HAL\n");
+    } else {
+        AUDIO_PRINTF("TTS HAL initialized: %s\n", hal_tts_get_impl_name());
     }
 
     AUDIO_PRINTF("Creating input queue\n");
@@ -93,23 +100,12 @@ void audio_process() {
 	char default_directory[0x100];
 	getcwd(default_directory, sizeof(default_directory));
         if(audio_type_byte == 'd') {
-            AUDIO_PRINTF("Festival tts without saving file");
-            chdir("/tmp");
-            sprintf(buffer, "echo '%s' | text2wave -o output.wav", remaining_string);
-            system_result = system(buffer);
-            // system_result = system("aplay output.wav");
-            system_result = hal_audio_play_file("output.wav");
-            chdir(default_directory);
+            AUDIO_PRINTF("TTS speak (direct): %s\n", remaining_string);
+            system_result = hal_tts_speak(remaining_string, NULL);
         } else if(audio_type_byte == 's') {
-            AUDIO_PRINTF("Festival tts %s with saving file\n", remaining_string);
-	    chdir("../Firmware/pregen_audio");
-            sprintf(buffer, "echo '%s' | text2wave -o '%s.wav'", remaining_string, remaining_string);
-            system_result = system(buffer);
-            // sprintf(buffer, "aplay '%s.wav'", remaining_string);
-            // system(buffer);
-            sprintf(buffer, "%s.wav", remaining_string);
-            system_result = hal_audio_play_file(buffer);
-            chdir(default_directory);
+            AUDIO_PRINTF("TTS speak (save): %s\n", remaining_string);
+            /* For Piper persistent mode, we ignore output_file and speak directly */
+            system_result = hal_tts_speak(remaining_string, NULL);
         } else if(audio_type_byte == 'p') {
             // strcpy(buffer, "aplay '");
             // strcat(remaining_string, ".wav'");
