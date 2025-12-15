@@ -148,6 +148,20 @@ We need a home for shared definitions used across modules.
 
 **Goal:** All modules running together.
 
+### Step 0.8: Firmware Bug Fixes (Pre-Integration)
+
+Before integration testing, fix known Firmware issues:
+
+1. **Audio IO Thread Repeat Bug** (`Firmware/audio_firmware.c`)
+   - **Problem:** `audio_io_thread` continues reading stale data after Software disconnects
+   - **Symptom:** Last speech item repeats multiple times
+   - **Fix:** Add error checking to `read()` calls (lines 161-164) to detect disconnection
+
+**Verification:**
+- Run speech queue test
+- On test completion, speech should NOT repeat
+- Firmware should cleanly handle Software disconnect
+
 ### Step 0.9: Integration Test (`main_phase0.c`)
 - Init Config
 - Init Comm
@@ -163,6 +177,7 @@ We need a home for shared definitions used across modules.
 3. Key holds trigger different speech
 4. Speech is queued correctly (no cutoffs)
 5. Beeps happen instantly
+6. No speech repeats after disconnect
 
 ---
 
@@ -171,9 +186,10 @@ We need a home for shared definitions used across modules.
 - [x] **Step 0.1** Directories & Headers ✅ (2025-12-14)
 - [x] **Step 1.1** Comm Reader (Keypad) ✅ (2025-12-14)
 - [x] **Step 1.2** Comm Writer (Audio) ✅ (2025-12-14)
-- [ ] **Step 2.1** Speech Queue
+- [x] **Step 2.1** Speech Queue ✅ (2025-12-14)
 - [ ] **Step 2.2** Audio Caching
 - [ ] **Step 2.3** Dictionary Sub
 - [ ] **Step 3.1** Keypad Events (Hold logic)
 - [ ] **Step 4.1** Config Load/Save
+- [ ] **Step 0.8** Firmware Bug Fixes
 - [ ] **Step 0.9** Integration Test

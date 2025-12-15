@@ -188,6 +188,16 @@ The Firmware is currently working and should be modified only when necessary. He
 - Set Mode
 - Memory Mode
 
+**Known Bugs (Fix Before Integration Testing):**
+
+| Bug | Description | Impact | When to Fix |
+|-----|-------------|--------|-------------|
+| Audio IO Thread Repeat | `audio_io_thread` in `audio_firmware.c` continues reading from pipe after Software disconnects, causing last speech item to repeat | Cosmetic - audio works but may repeat | Before Phase 0.9 Integration Test |
+
+**Root Cause:** The audio IO thread doesn't properly detect end-of-stream or disconnection. When the Software closes its pipe, the Firmware keeps reading stale buffer data.
+
+**Proposed Fix:** Add error checking to `read()` calls in `audio_io_thread()` (lines 161-164) to detect disconnection and reset state.
+
 **Defer unless blocking:**
 - If you encounter a Firmware bug, fix it then
 - Don't proactively refactor working Firmware code

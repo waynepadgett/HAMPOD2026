@@ -279,24 +279,30 @@ int comm_send_audio(char audio_type, const char* payload) {
         return HAMPOD_ERROR;
     }
     
-    // Build audio packet: first byte is type, rest is payload
+    // Build audio packet: first byte is type, rest is payload + null terminator
+    // Format: <type><payload>\0
+    // Example: "dHello World\0" for TTS
     size_t payload_len = strlen(payload);
-    if (payload_len + 1 > COMM_MAX_DATA_LEN) {
+    
+    // +1 for audio_type byte, +1 for payload, +1 for null terminator
+    if (payload_len + 2 > COMM_MAX_DATA_LEN) {
         LOG_ERROR("comm_send_audio: Payload too long (%zu bytes)", payload_len);
         return HAMPOD_ERROR;
     }
     
     CommPacket packet = {
         .type = PACKET_AUDIO,
-        .data_len = (unsigned short)(payload_len + 1),  // +1 for audio_type byte
+        .data_len = (unsigned short)(payload_len + 2),  // +1 for type, +1 for null
         .tag = packet_tag++
     };
     
-    // First byte is audio type, rest is payload
+    // First byte is audio type, then payload, then null terminator
     packet.data[0] = (unsigned char)audio_type;
     memcpy(packet.data + 1, payload, payload_len);
+    packet.data[payload_len + 1] = '\0';  // Null terminate
     
-    LOG_DEBUG("comm_send_audio: type='%c', payload='%s'", audio_type, payload);
+    LOG_DEBUG("comm_send_audio: type='%c', payload='%s', len=%u", 
+              audio_type, payload, packet.data_len);
     
     return comm_send_packet(&packet);
 }
