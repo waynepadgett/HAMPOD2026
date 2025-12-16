@@ -162,10 +162,13 @@ Before integration testing, fix known Firmware issues:
    - **Symptom:** Firmware exits with `mkfifo: File exists` error
    - **Fix:** Add `unlink()` calls before `mkfifo()` to remove stale pipes
 
-3. **Keypad Hold Detection** (`Firmware/keypad_firmware.c`)
-   - **Problem:** Keypad process reports key only ONCE, then immediately returns '-'
-   - **Symptom:** Software cannot detect held keys because state isn't continuously reported
-   - **Fix:** Modify keypad to continuously report the held key until it's released
+3. **Keypad Hold Detection** (`Firmware/hal/hal_keypad_usb.c`)
+   - **Problem:** HAL only reports `ev.value == 1` (key press), ignores `ev.value == 2` (key repeat)
+   - **Root Cause:** Line 145 filters for `ev.value == 1` only, so held keys won't report repeat events
+   - **Symptom:** Software cannot detect held keys - only sees initial press, then `-` continuously
+   - **Fix:** Either:
+     1. Also handle `ev.value == 2` (auto-repeat) events, OR
+     2. Track key state in HAL - report key as held until `ev.value == 0` (release)
 
 **Verification:**
 - Run speech queue test - speech should NOT repeat
