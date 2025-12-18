@@ -51,6 +51,13 @@ int main() {
         return 1;
     }
     
+    // Wait for Firmware ready signal
+    if (comm_wait_ready() != HAMPOD_OK) {
+        LOG_ERROR("Firmware not ready");
+        comm_close();
+        return 1;
+    }
+    
     LOG_INFO("Connected to Firmware!");
     LOG_INFO("Waiting for keypad input... (press keys, Ctrl+C to exit)");
     printf("\n");
