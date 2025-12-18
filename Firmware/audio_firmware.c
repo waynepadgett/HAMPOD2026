@@ -158,10 +158,32 @@ void *audio_io_thread(void* arg) {
         Packet_type type;
         unsigned short size;
         unsigned short tag;
-        read(i_pipe, &type, sizeof(Packet_type));
-        read(i_pipe, &size, sizeof(unsigned short));
-        read(i_pipe, &tag, sizeof(unsigned short));
-        read(i_pipe, buffer, size);
+        ssize_t bytes_read;
+        
+        /* Read packet header with error checking */
+        bytes_read = read(i_pipe, &type, sizeof(Packet_type));
+        if (bytes_read <= 0) {
+            AUDIO_IO_PRINTF("Pipe closed or read error (type), exiting thread\n");
+            break;
+        }
+        
+        bytes_read = read(i_pipe, &size, sizeof(unsigned short));
+        if (bytes_read <= 0) {
+            AUDIO_IO_PRINTF("Pipe closed or read error (size), exiting thread\n");
+            break;
+        }
+        
+        bytes_read = read(i_pipe, &tag, sizeof(unsigned short));
+        if (bytes_read <= 0) {
+            AUDIO_IO_PRINTF("Pipe closed or read error (tag), exiting thread\n");
+            break;
+        }
+        
+        bytes_read = read(i_pipe, buffer, size);
+        if (bytes_read <= 0) {
+            AUDIO_IO_PRINTF("Pipe closed or read error (data), exiting thread\n");
+            break;
+        }
 
         AUDIO_IO_PRINTF("Found packet with type %d, size %d\n", type, size);
         AUDIO_IO_PRINTF("Buffer holds: %s: with size %d\n", buffer, size);
