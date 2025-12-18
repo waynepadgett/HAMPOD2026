@@ -175,6 +175,9 @@ Before integration testing, fix known Firmware issues:
 - Firmware should start cleanly after unclean shutdown
 - Keypad hold detection should work (key held >500ms triggers hold event)
 
+> [!NOTE]
+> See [firmware_bug_fix_plan.md](file:///c:/Users/wayne/github/hampod/HAMPOD2026/Documentation/Project_Overview_and_Onboarding/firmware_bug_fix_plan.md) for detailed fix steps and test procedures.
+
 ### Step 0.9: Integration Test (`main_phase0.c`)
 - Init Config
 - Init Comm

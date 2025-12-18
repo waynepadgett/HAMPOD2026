@@ -108,6 +108,7 @@ int main(){
 
     FIRMWARE_PRINTF("Now creating Firmware_o pipe\n");
 
+    unlink(OUTPUT_PIPE);  /* Remove stale pipe if exists */
     if (mkfifo(OUTPUT_PIPE, 0666) == -1) {
         perror("mkfifo");
         exit(1);
@@ -120,6 +121,7 @@ int main(){
 
     FIRMWARE_PRINTF("Firmware_o created, now creating Firmware_i\n");
     
+    unlink(INPUT_PIPE);  /* Remove stale pipe if exists */
     if (mkfifo(INPUT_PIPE, 0666) == -1) {
         perror("mkfifo");
         exit(1);
@@ -133,6 +135,7 @@ int main(){
     FIRMWARE_PRINTF("Firmware_i created\n");
     FIRMWARE_PRINTF("Creating Keypad_i pipe\n");
 
+    unlink(KEYPAD_IN);  /* Remove stale pipe if exists */
     if (mkfifo(KEYPAD_IN, 0666) == -1) {
         perror("mkfifo");
         exit(1);
@@ -141,6 +144,7 @@ int main(){
     FIRMWARE_PRINTF("Keypad_i created\n");
     FIRMWARE_PRINTF("Creating Keypad_o pipe\n");
 
+    unlink(KEYPAD_OUT);  /* Remove stale pipe if exists */
     if (mkfifo(KEYPAD_OUT, 0666) == -1) {
         perror("mkfifo");
         exit(1);
@@ -167,6 +171,7 @@ int main(){
     FIRMWARE_PRINTF("Keypad_o created\n");
     FIRMWARE_PRINTF("Creating Audio_i pipe\n");
 
+    unlink(AUDIO_IN);  /* Remove stale pipe if exists */
     if (mkfifo(AUDIO_IN, 0666) == -1) {
         perror("mkfifo");
         exit(1);
@@ -175,6 +180,7 @@ int main(){
     FIRMWARE_PRINTF("Audio_i created\n");
     FIRMWARE_PRINTF("Creating Audio_o pipe\n");
 
+    unlink(AUDIO_OUT);  /* Remove stale pipe if exists */
     if (mkfifo(AUDIO_OUT, 0666) == -1) {
         perror("mkfifo");
         exit(1);
