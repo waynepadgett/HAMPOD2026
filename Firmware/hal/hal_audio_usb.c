@@ -12,7 +12,7 @@
 #include <string.h>
 
 /* Default USB audio device string */
-static char audio_device[256] = "plughw:CARD=Device,DEV=0";
+static char audio_device[256] = "sysdefault:CARD=Device";
 static int initialized = 0;
 
 /**
@@ -49,7 +49,7 @@ static int detect_usb_audio(void) {
                 /* Prefer USB or Device in the name */
                 if (strstr(line, "USB") || strstr(name, "Device")) {
                     snprintf(audio_device, sizeof(audio_device), 
-                             "plughw:CARD=%s,DEV=0", name);
+                             "sysdefault:CARD=%s", name);
                     pclose(fp);
                     return 0;
                 }
@@ -67,7 +67,7 @@ static int detect_usb_audio(void) {
     /* If USB not found but we have a device, use that */
     if (card_name[0] != '\0') {
         snprintf(audio_device, sizeof(audio_device), 
-                 "plughw:CARD=%s,DEV=0", card_name);
+                 "sysdefault:CARD=%s", card_name);
         return 0;
     }
     
@@ -126,7 +126,7 @@ int hal_audio_play_file(const char* filepath) {
     
     /* Build aplay command with device specification */
     snprintf(command, sizeof(command), 
-             "aplay -D %s '%s' 2>/dev/null", 
+             "aplay -D %s '%s'", 
              audio_device, filepath);
     
     /* Execute command */
