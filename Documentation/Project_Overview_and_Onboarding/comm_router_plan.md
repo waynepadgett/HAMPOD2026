@@ -405,15 +405,15 @@ git push --force-with-lease
 
 ## Checklist
 
-- [ ] Step 1: Create branch, add type stubs
-- [ ] Step 2: Implement response queues
-- [ ] Step 3: Implement router thread
-- [ ] Step 4: Implement blocking queue readers
+- [x] Step 1: Create branch, add type stubs ✅ (2025-12-20)
+- [x] Step 2: Implement response queues ✅ (2025-12-20)
+- [x] Step 3: Implement router thread ✅ (2025-12-20)
+- [x] Step 4: Implement blocking queue readers ✅ (2025-12-20)
 - [ ] Step 5: Create unit test for queue
-- [ ] Step 6: Update comm_read_keypad()
-- [ ] Step 7: Update speech.c
-- [ ] Step 8: Update comm_init()/comm_close()
-- [ ] Step 9: Test Phase 0.9 integration
-- [ ] Step 10: Run Imitation Software regression
+- [x] Step 6: Update comm_read_keypad() ✅ (2025-12-20)
+- [x] Step 7: Update speech.c ✅ (2025-12-20)
+- [x] Step 8: Update comm_init()/comm_close() ✅ (2025-12-20)
+- [x] Step 9: Test Phase 0.9 integration ✅ (2025-12-20)
+- [x] Step 10: Run Imitation Software regression ✅ (2025-12-20)
 - [ ] Step 11: Run HAL Integration regression
 - [ ] Step 12: Merge to main
