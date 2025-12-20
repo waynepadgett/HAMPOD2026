@@ -196,29 +196,39 @@ int comm_read_keypad(char* key_out) {
         return HAMPOD_ERROR;
     }
     
-    // Wait for response
+    // Wait for response - may need to skip AUDIO responses from speech thread
     CommPacket response;
-    if (comm_read_packet(&response) != HAMPOD_OK) {
-        return HAMPOD_ERROR;
+    int retries = 10;  // Max retries to find our response
+    
+    while (retries-- > 0) {
+        if (comm_read_packet(&response) != HAMPOD_OK) {
+            return HAMPOD_ERROR;
+        }
+        
+        // If it's our KEYPAD response, process it
+        if (response.type == PACKET_KEYPAD) {
+            if (response.data_len > 0) {
+                *key_out = (char)response.data[0];
+            } else {
+                *key_out = '-';  // No key
+            }
+            
+            LOG_DEBUG("comm_read_keypad: key='%c' (0x%02X)", *key_out, (unsigned char)*key_out);
+            return HAMPOD_OK;
+        }
+        
+        // Skip AUDIO responses (they're for the speech thread)
+        if (response.type == PACKET_AUDIO) {
+            LOG_DEBUG("comm_read_keypad: Skipping AUDIO response (tag=%u)", response.tag);
+            continue;
+        }
+        
+        // Unexpected packet type
+        LOG_DEBUG("comm_read_keypad: Skipping unexpected type=%d", response.type);
     }
     
-    // Verify response type
-    if (response.type != PACKET_KEYPAD) {
-        LOG_ERROR("comm_read_keypad: Expected KEYPAD response, got type=%d", 
-                  response.type);
-        return HAMPOD_ERROR;
-    }
-    
-    // Extract key from response
-    if (response.data_len > 0) {
-        *key_out = (char)response.data[0];
-    } else {
-        *key_out = '-';  // No key
-    }
-    
-    LOG_DEBUG("comm_read_keypad: key='%c' (0x%02X)", *key_out, (unsigned char)*key_out);
-    
-    return HAMPOD_OK;
+    LOG_ERROR("comm_read_keypad: No KEYPAD response after %d packets", 10);
+    return HAMPOD_ERROR;
 }
 
 // ============================================================================

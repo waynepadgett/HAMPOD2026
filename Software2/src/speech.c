@@ -197,10 +197,14 @@ static void* speech_thread_func(void* arg) {
         
         LOG_DEBUG("Speaking: type='%c', payload='%s'", item.type, item.payload);
         
-        // Send to Firmware and wait for completion
-        if (comm_send_audio_sync(item.type, item.payload) != HAMPOD_OK) {
+        // Send to Firmware (non-blocking, don't wait for response)
+        // Note: We use non-blocking send because keypad thread also reads responses
+        if (comm_send_audio(item.type, item.payload) != HAMPOD_OK) {
             LOG_ERROR("Failed to send audio: %s", item.payload);
         }
+        
+        // Brief delay to let audio play (simple throttle)
+        usleep(100000);  // 100ms
     }
     
     LOG_INFO("Speech thread exiting");
