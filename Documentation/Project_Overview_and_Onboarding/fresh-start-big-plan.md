@@ -8,7 +8,7 @@ This document prioritizes mode implementation order to minimize rework and overa
 
 | Plan | Description | Status |
 |------|-------------|--------|
-| [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md) | Pipe comm, speech, keypad, config modules | ⏳ In Progress |
+| [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md) | Pipe comm, speech, keypad, config modules | ✅ Mostly Complete (2025-12-21) |
 | [Phase 1: Frequency Mode](fresh-start-first-freq-mode.md) | First working mode implementation | ⏳ Not Started |
 
 ### Prerequisites (COMPLETED)
@@ -374,22 +374,20 @@ void speech_say(const char* text);  // Sends to Firmware via pipe
 
 ## Summary: Implementation Order
 
-| Order | Component | Depends On | Effort |
+| Order | Component | Depends On | Status |
 |-------|-----------|------------|--------|
-| 0.1 | Pipe Communication | Firmware | 2 hours |
-| 0.2 | Speech Module | Pipe Comm | 3 hours |
-| 0.3 | Keypad Module | Pipe Comm | 2 hours |
-| 0.4 | Radio Module (Hamlib) | - | 3 hours |
-| 0.5 | Config Storage | - | 2 hours |
-| 1.1 | Configuration Mode | All 0.x | 3 hours |
-| 1.2 | Frequency Mode | Speech, Keypad, Radio | 4 hours |
-| 2.1 | Polling Thread | Radio | 3 hours |
-| 2.2 | Normal Mode Queries | Polling, Speech | 4 hours |
-| 2.3 | Auto Announcements | Polling, Speech | 2 hours |
-| 3.x | Set Mode | Normal Mode | 4 hours |
-| 4.x | Memory Mode | Set Mode | 4 hours |
-
-**Total estimated: ~36 hours** (over multiple sessions)
+| 0.1 | Pipe Communication | Firmware | ✅ Complete |
+| 0.2 | Speech Module | Pipe Comm | ✅ Complete |
+| 0.3 | Keypad Module | Pipe Comm | ✅ Complete |
+| 0.4 | Radio Module (Hamlib) | - | ⏳ Not Started |
+| 0.5 | Config Storage | - | ⏳ Not Started |
+| 1.1 | Configuration Mode | All 0.x | ⏳ Not Started |
+| 1.2 | Frequency Mode | Speech, Keypad, Radio | ⏳ Not Started |
+| 2.1 | Polling Thread | Radio | ⏳ Not Started |
+| 2.2 | Normal Mode Queries | Polling, Speech | ⏳ Not Started |
+| 2.3 | Auto Announcements | Polling, Speech | ⏳ Not Started |
+| 3.x | Set Mode | Normal Mode | ⏳ Not Started |
+| 4.x | Memory Mode | Set Mode | ⏳ Not Started |
 
 ---
 

@@ -202,15 +202,29 @@ Before integration testing, fix known Firmware issues:
 - [x] **Step 0.1** Directories & Headers ✅ (2025-12-14)
 - [x] **Step 1.1** Comm Reader (Keypad) ✅ (2025-12-14)
 - [x] **Step 1.2** Comm Writer (Audio) ✅ (2025-12-14)
+- [x] **Step 1.3** Comm Router Thread ✅ (2025-12-21) - [see comm_router_plan.md](comm_router_plan.md)
 - [x] **Step 2.1** Speech Queue ✅ (2025-12-14)
-- [ ] **Step 2.2** Audio Caching
-- [ ] **Step 2.3** Dictionary Sub
+- [ ] **Step 2.2** Audio Caching (DEFERRED - Piper is fast enough for now)
+- [ ] **Step 2.3** Dictionary Substitutions
 - [x] **Step 3.1** Keypad Events ✅ (2025-12-18) - Full press/hold detection working
 - [ ] **Step 4.1** Config Load/Save
 - [x] **Step 0.8** Firmware Bug Fixes ✅ (2025-12-18) - All 4 bugs fixed
 - [x] **Step 0.9** Integration Test ✅ (2025-12-19) - All modules working together
 
 ### Notes
+
+**Step 1.3 Comm Router Thread (COMPLETED 2025-12-21):**
+The original comm module had a race condition where the keypad thread and speech thread both tried to read responses from the same Firmware pipe, causing "packet type mismatch" errors.
+
+**Solution:** Implemented a router thread architecture:
+- Dedicated router thread reads from `Firmware_o`
+- Packets dispatched to type-specific queues (KEYPAD, AUDIO, CONFIG)
+- `comm_read_keypad()` and speech use blocking queue reads
+- Full implementation documented in `comm_router_plan.md`
+
+**Regression Tests Added (2025-12-21):**
+- `Regression_Phase0_Integration.sh` - Tests the router thread with concurrent keypad/speech
+- All three regression tests (HAL, Imitation, Phase0) pass
 
 **Step 3.1 Hold Detection (RESOLVED 2025-12-18):** Fixed by:
 1. Firmware Bug 3 fix (`53baaaa`) - HAL now properly reports held keys
