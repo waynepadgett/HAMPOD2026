@@ -155,6 +155,83 @@ cd ~/HAMPOD2026
 
 ---
 
+### Test 3: Phase 0.9 Integration Test (Software2 + Router Thread)
+
+**Purpose:** Verifies the Software2 router thread architecture, which handles concurrent keypad polling and speech output without packet type conflicts. **This is the only test that exercises the router thread!**
+
+**Location:** `Software2/bin/phase0_test`
+
+#### What This Test Covers (that other tests don't)
+- ✅ Router thread in `comm.c` dispatching packets by type
+- ✅ Concurrent keypad and speech threads waiting for responses
+- ✅ Response queue FIFO ordering and timeout behavior
+- ✅ Full Software2 → Firmware → Software2 roundtrip
+
+#### Prerequisites
+- SSH connection to Raspberry Pi
+- USB keypad connected
+- USB audio device connected
+- Piper TTS model installed
+- Firmware NOT already running (script starts it)
+
+#### Execution Steps
+
+**Option A: Automated Script (Recommended)**
+```bash
+# Run from RPi
+cd ~/HAMPOD2026
+./Documentation/scripts/Regression_Phase0_Integration.sh
+```
+
+**Option B: Manual Execution**
+```bash
+# Terminal 1 - Start Firmware
+cd ~/HAMPOD2026/Firmware
+make clean && make
+sudo ./firmware.elf
+
+# Terminal 2 - Start Phase0 Test
+cd ~/HAMPOD2026/Software2
+make phase0_test
+sudo ./bin/phase0_test
+```
+
+#### Expected Behavior
+1. **Startup:** Announcement: "Phase zero integration test ready. Press any key."
+2. **Router Thread:** Logs show "Router thread started"
+3. **Key Press:** "You pressed X" announcement for each key
+4. **Key Hold:** "You held X" announcement for long presses
+5. **No Errors:** NO "packet type mismatch" or "bruh" errors
+
+#### Verification Checklist
+
+| Check | Expected | Actual | Pass/Fail |
+|-------|----------|--------|-----------|
+| Firmware starts and creates pipes | Pipes exist in Firmware/ | | |
+| Software2 connects | "Firmware communication initialized" | | |
+| Router thread starts | "Router thread started" message | | |
+| Startup announcement plays | User hears audio | | |
+| Key press detected | "You pressed X" in logs | | |
+| Audio heard on key press | User confirms audio output | | |
+| Hold detection works | "You held X" announcement | | |
+| **No packet errors** | No "type mismatch" or "bruh" | | |
+| Clean exit on timeout/Ctrl+C | "Shutting down..." message | | |
+
+#### ⚠️ Critical Verification Rules
+
+1. **Packet Type Errors:**
+   - If you see "packet type mismatch", "expected KEYPAD got AUDIO", or "bruh":
+     - **This is a FAILURE** - the router thread is not working correctly
+     - Check that `comm.c` has the router implementation
+     - Verify `comm_wait_ready()` starts the router
+
+2. **Audio Verification:**
+   - If logs show speech commands but no audio:
+     - **DO NOT** assume audio worked
+     - **ASK:** "Did you hear the startup announcement and key press feedback?"
+
+---
+
 ## 📝 Test Execution Log Template
 
 Use this template to document each test run:

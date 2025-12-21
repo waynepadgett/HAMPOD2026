@@ -2,7 +2,7 @@
 cd ~/HAMPOD2026/Firmware || exit 1
 
 echo '--- Killing Stale Processes ---'
-killall -9 firmware.elf imitation_software 2>/dev/null
+sudo killall -9 firmware.elf imitation_software 2>/dev/null
 
 echo '--- Cleaning Build ---'
 make clean
@@ -15,7 +15,8 @@ if [ $? -ne 0 ]; then
 fi
 
 echo '--- Cleaning Pipes ---'
-rm -f Firmware_i Firmware_o Keypad_i Keypad_o Speaker_i Speaker_o
+# Use sudo since pipes may be owned by root from previous runs
+sudo rm -f Firmware_i Firmware_o Keypad_i Keypad_o Speaker_i Speaker_o
 
 echo '--- Starting Firmware ---'
 # Start firmware in background, redirected to log

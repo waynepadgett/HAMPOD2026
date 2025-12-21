@@ -51,11 +51,12 @@ sleep 1  # Let processes fully terminate
 echo "  Done."
 
 # -----------------------------------------------------------------------------
-# Step 2: Clean up stale pipes
+# Step 2: Clean up stale pipes (use sudo since firmware runs as root)
 # -----------------------------------------------------------------------------
 echo -e "${YELLOW}[Step 2/6] Cleaning up stale pipes...${NC}"
 cd "$FIRMWARE_DIR"
-rm -f Firmware_i Firmware_o Keypad_i Keypad_o Speaker_i Speaker_o 2>/dev/null || true
+# Note: Pipes may be owned by root if firmware was run with sudo
+sudo rm -f Firmware_i Firmware_o Keypad_i Keypad_o Speaker_i Speaker_o 2>/dev/null || true
 rm -f /tmp/imitation_test_output.txt /tmp/firmware.log 2>/dev/null || true
 echo "  Done."
 
