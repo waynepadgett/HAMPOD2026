@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "hampod_core.h"
 #include "config.h"
@@ -42,11 +43,11 @@ static void signal_handler(int sig) {
 // Keypad Callback
 // ============================================================================
 
-static void on_keypress(const KeyPress* kp) {
-    DEBUG_PRINT("main: Key '%c' hold=%d shift=%d\n", kp->key, kp->is_hold, kp->shift_amount);
+static void on_keypress(const KeyPressEvent* kp) {
+    DEBUG_PRINT("main: Key '%c' hold=%d shift=%d\n", kp->key, kp->isHold, kp->shiftAmount);
     
     // Route to frequency mode first
-    if (frequency_mode_handle_key(kp->key, kp->is_hold)) {
+    if (frequency_mode_handle_key(kp->key, kp->isHold)) {
         // Key consumed by frequency mode
         return;
     }
@@ -54,7 +55,7 @@ static void on_keypress(const KeyPress* kp) {
     // Key not consumed - handle here or pass to other modes
     // For now, just announce unhandled keys
     char text[32];
-    if (kp->is_hold) {
+    if (kp->isHold) {
         snprintf(text, sizeof(text), "Held %c", kp->key);
     } else {
         snprintf(text, sizeof(text), "Pressed %c", kp->key);
@@ -119,7 +120,7 @@ int main(int argc, char *argv[]) {
     printf("Initializing keypad...\n");
     if (keypad_init() != 0) {
         fprintf(stderr, "ERROR: Keypad init failed\n");
-        speech_cleanup();
+        speech_shutdown();
         comm_close();
         config_cleanup();
         return 1;
@@ -165,8 +166,8 @@ int main(int argc, char *argv[]) {
         radio_cleanup();
     }
     
-    keypad_cleanup();
-    speech_cleanup();
+    keypad_shutdown();
+    speech_shutdown();
     comm_close();
     config_cleanup();
     
