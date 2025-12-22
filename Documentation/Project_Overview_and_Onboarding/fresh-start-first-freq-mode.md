@@ -1,7 +1,12 @@
-# Fresh Start: Phase 1 - Frequency Entry Mode
+# Fresh Start: Phase 1 - Frequency Entry Mode (Original Design)
 
 > **Parent Plan:** [Fresh Start: Big Picture Plan](fresh-start-big-plan.md)
 > **Prerequisite:** [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md)
+> **Current Implementation Plan:** [Phase 1 Implementation](fresh-start-phase-1-plan.md)
+
+> [!NOTE]
+> **Status: Reference Document (2025-12-21)**
+> This was the original design document for frequency mode. The infrastructure phases (1-4) described below are now **COMPLETE** as part of Phase Zero work. See [fresh-start-phase-1-plan.md](fresh-start-phase-1-plan.md) for the current implementation plan.
 
 ## Goal
 Implement a minimal **Frequency Entry Mode** that:
@@ -11,6 +16,7 @@ Implement a minimal **Frequency Entry Mode** that:
 - Is easily adaptable for different radios (ICOM, Kenwood, Elecraft, etc.)
 
 This validates the entire Software → Firmware → Hardware pipeline.
+
 
 ---
 

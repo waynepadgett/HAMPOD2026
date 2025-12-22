@@ -49,8 +49,10 @@
 
 #if DEBUG_LEVEL >= DEBUG_DEBUG
     #define LOG_DEBUG(fmt, ...) printf("[DEBUG] " fmt "\n", ##__VA_ARGS__)
+    #define DEBUG_PRINT(fmt, ...) printf("[DEBUG] " fmt, ##__VA_ARGS__)
 #else
     #define LOG_DEBUG(fmt, ...)
+    #define DEBUG_PRINT(fmt, ...)
 #endif
 
 // ============================================================================

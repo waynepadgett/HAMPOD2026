@@ -8,8 +8,9 @@ This document prioritizes mode implementation order to minimize rework and overa
 
 | Plan | Description | Status |
 |------|-------------|--------|
-| [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md) | Pipe comm, speech, keypad, config modules | ✅ Mostly Complete (2025-12-21) |
-| [Phase 1: Frequency Mode](fresh-start-first-freq-mode.md) | First working mode implementation | ⏳ Not Started |
+| [Phase 0: Core Infrastructure](fresh-start-phase-zero-plan.md) | Pipe comm, speech, keypad, config modules | ✅ Complete (2025-12-21) |
+| [Phase 1: Frequency Mode](fresh-start-phase-1-plan.md) | First working mode implementation | 🔄 In Progress (2025-12-21) |
+| [Phase 1: Original Design Doc](fresh-start-first-freq-mode.md) | Original frequency mode design (reference) | 📚 Reference |
 
 ### Prerequisites (COMPLETED)
 
@@ -379,11 +380,11 @@ void speech_say(const char* text);  // Sends to Firmware via pipe
 | 0.1 | Pipe Communication | Firmware | ✅ Complete |
 | 0.2 | Speech Module | Pipe Comm | ✅ Complete |
 | 0.3 | Keypad Module | Pipe Comm | ✅ Complete |
-| 0.4 | Radio Module (Hamlib) | - | ⏳ Not Started |
-| 0.5 | Config Storage | - | ⏳ Not Started |
+| 0.4 | Radio Module (Hamlib) | - | 🔄 In Progress |
+| 0.5 | Config Storage | - | ✅ Complete |
 | 1.1 | Configuration Mode | All 0.x | ⏳ Not Started |
-| 1.2 | Frequency Mode | Speech, Keypad, Radio | ⏳ Not Started |
-| 2.1 | Polling Thread | Radio | ⏳ Not Started |
+| 1.2 | Frequency Mode | Speech, Keypad, Radio | 🔄 In Progress |
+| 2.1 | Polling Thread | Radio | 🔄 In Progress |
 | 2.2 | Normal Mode Queries | Polling, Speech | ⏳ Not Started |
 | 2.3 | Auto Announcements | Polling, Speech | ⏳ Not Started |
 | 3.x | Set Mode | Normal Mode | ⏳ Not Started |
