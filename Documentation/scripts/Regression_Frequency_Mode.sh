@@ -35,14 +35,14 @@ TESTS_FAILED=0
 
 pass() {
     echo -e "${GREEN}PASS${NC}: $1"
-    ((TESTS_PASSED++))
-    ((TESTS_RUN++))
+    ((TESTS_PASSED++)) || true
+    ((TESTS_RUN++)) || true
 }
 
 fail() {
     echo -e "${RED}FAIL${NC}: $1"
-    ((TESTS_FAILED++))
-    ((TESTS_RUN++))
+    ((TESTS_FAILED++)) || true
+    ((TESTS_RUN++)) || true
 }
 
 warn() {
