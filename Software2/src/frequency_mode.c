@@ -33,6 +33,9 @@ static bool g_has_decimal = false;
 #define FREQ_MODE_TIMEOUT_SEC 10
 static time_t g_last_activity = 0;
 
+// Suppress polling announcement after user sets frequency
+static bool g_suppress_next_poll = false;
+
 // ============================================================================
 // Internal Helpers
 // ============================================================================
@@ -122,6 +125,9 @@ static void submit_frequency(void) {
     }
     
     DEBUG_PRINT("submit_frequency: %.3f MHz\n", freq_hz / 1000000.0);
+    
+    // Suppress the polling announcement for this frequency change
+    g_suppress_next_poll = true;
     
     // Set frequency on radio
     if (radio_set_frequency(freq_hz) == 0) {
@@ -279,7 +285,13 @@ void frequency_mode_cancel(void) {
 void frequency_mode_on_radio_change(double new_freq) {
     // Announce frequency change from VFO dial
     // Only announce if NOT actively entering a frequency
+    // Also suppress if we just set the frequency ourselves
     if (g_state == FREQ_MODE_IDLE) {
+        if (g_suppress_next_poll) {
+            DEBUG_PRINT("frequency_mode_on_radio_change: Suppressed (we just set it)\n");
+            g_suppress_next_poll = false;
+            return;
+        }
         DEBUG_PRINT("frequency_mode_on_radio_change: %.3f MHz\n", new_freq / 1000000.0);
         announce_frequency(new_freq);
     }
