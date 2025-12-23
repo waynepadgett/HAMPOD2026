@@ -2,15 +2,16 @@
  * @file main.c
  * @brief HAMPOD2026 Software2 Main Entry Point
  * 
- * Integrates all modules for frequency mode operation:
+ * Integrates all modules for frequency and normal mode operation:
  * - Config module for settings
  * - Comm module for Firmware communication
  * - Speech module for audio feedback
  * - Keypad module for input
  * - Radio module for Hamlib control
  * - Frequency mode for keypad frequency entry
+ * - Normal mode for radio queries and status
  * 
- * Part of Phase 1: Frequency Mode Implementation
+ * Part of Phase 1/2: Frequency Mode and Normal Mode Implementation
  */
 
 #include <stdio.h>
@@ -26,6 +27,7 @@
 #include "keypad.h"
 #include "radio.h"
 #include "frequency_mode.h"
+#include "normal_mode.h"
 
 // ============================================================================
 // Signal Handling
@@ -52,8 +54,13 @@ static void on_keypress(const KeyPressEvent* kp) {
         return;
     }
     
-    // Key not consumed - handle here or pass to other modes
-    // For now, just announce unhandled keys
+    // Route to normal mode
+    if (normal_mode_handle_key(kp->key, kp->isHold)) {
+        // Key consumed by normal mode
+        return;
+    }
+    
+    // Key not consumed by any mode - announce it
     char text[32];
     if (kp->isHold) {
         snprintf(text, sizeof(text), "Held %c", kp->key);
@@ -68,7 +75,7 @@ static void on_keypress(const KeyPressEvent* kp) {
 // ============================================================================
 
 int main(int argc, char *argv[]) {
-    printf("=== HAMPOD2026 Frequency Mode ===\n\n");
+    printf("=== HAMPOD2026 Frequency/Normal Mode ===\n\n");
     
     // Set up signal handler for clean shutdown
     signal(SIGINT, signal_handler);
@@ -146,10 +153,14 @@ int main(int argc, char *argv[]) {
     // Initialize frequency mode
     frequency_mode_init();
     
+    // Initialize normal mode
+    normal_mode_init();
+    
     // Announce startup
-    printf("\nStartup complete. Press [#] to enter frequency mode.\n");
+    printf("\nStartup complete. Normal mode active.\n");
+    printf("Press [#] to enter frequency mode.\n");
     printf("Press Ctrl+C to exit.\n\n");
-    speech_say_text("Frequency mode ready");
+    speech_say_text("Ready");
     
     // Main loop - just keep running while keypad thread handles input
     while (g_running) {
