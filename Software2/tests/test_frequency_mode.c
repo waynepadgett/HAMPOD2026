@@ -79,6 +79,17 @@ int config_get_radio_model(void) { return 3073; }
 const char* config_get_radio_device(void) { return "/dev/ttyUSB0"; }
 int config_get_radio_baud(void) { return 19200; }
 
+// Mock radio_queries (for radio_set_vfo used in submit_frequency)
+#include "radio_queries.h"
+int radio_set_vfo(RadioVfo vfo) { 
+    (void)vfo;
+    printf("[RADIO] Set VFO to %d\n", vfo);
+    return 0; 
+}
+
+// Mock normal_mode (for normal_mode_get_verbosity used in on_radio_change)
+bool normal_mode_get_verbosity(void) { return true; }
+
 // ============================================================================
 // Tests
 // ============================================================================
