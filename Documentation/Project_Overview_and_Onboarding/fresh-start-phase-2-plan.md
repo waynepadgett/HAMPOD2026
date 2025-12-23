@@ -35,8 +35,8 @@ From the ICOMReader manual, Normal Mode has ~50 key combinations. For Phase 2, w
 | Event | Behavior |
 |-------|----------|
 | Frequency change | Announce after 1-second debounce (existing) |
-| Mode change | Announce new mode after 1-second debounce |
-| VFO change | Announce VFO name when switched |
+| Mode change | Announce immediately (no debounce needed) |
+| VFO change | Announce VFO name immediately when switched |
 
 > [!NOTE]
 > The `[C]` key toggles automatic frequency announcements on/off (verbosity control). This will be implemented in Phase 2.

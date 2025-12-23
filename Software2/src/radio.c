@@ -16,12 +16,12 @@
 #include <hamlib/rig.h>
 
 // ============================================================================
-// Module State
+// Module State (non-static for access by radio_queries.c)
 // ============================================================================
 
-static RIG *g_rig = NULL;
-static bool g_connected = false;
-static pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
+RIG *g_rig = NULL;
+bool g_connected = false;
+pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Polling state
 static pthread_t g_poll_thread;
