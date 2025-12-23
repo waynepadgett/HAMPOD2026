@@ -9,6 +9,7 @@
 #include "radio.h"
 #include "radio_queries.h"
 #include "speech.h"
+#include "normal_mode.h"
 #include "hampod_core.h"
 
 #include <stdio.h>
@@ -298,12 +299,20 @@ void frequency_mode_on_radio_change(double new_freq) {
     // Announce frequency change from VFO dial
     // Only announce if NOT actively entering a frequency
     // Also suppress if we just set the frequency ourselves
+    // And respect verbosity setting
     if (g_state == FREQ_MODE_IDLE) {
         if (g_suppress_next_poll) {
             DEBUG_PRINT("frequency_mode_on_radio_change: Suppressed (we just set it)\n");
             g_suppress_next_poll = false;
             return;
         }
+        
+        // Check if announcements are enabled (from normal_mode)
+        if (!normal_mode_get_verbosity()) {
+            DEBUG_PRINT("frequency_mode_on_radio_change: Suppressed (verbosity off)\n");
+            return;
+        }
+        
         DEBUG_PRINT("frequency_mode_on_radio_change: %.3f MHz\n", new_freq / 1000000.0);
         announce_frequency(new_freq);
     }

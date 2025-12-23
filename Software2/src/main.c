@@ -96,6 +96,13 @@ int main(int argc, char *argv[]) {
         printf("WARNING: Config init failed, using defaults\n");
     }
     
+    // Apply volume setting
+    int volume = config_get_volume();
+    printf("Setting volume to %d%%...\n", volume);
+    char vol_cmd[128];
+    snprintf(vol_cmd, sizeof(vol_cmd), "amixer -q sset PCM %d%% 2>/dev/null || amixer -q sset Speaker %d%% 2>/dev/null", volume, volume);
+    system(vol_cmd);
+    
     // Initialize comm (Firmware pipes)
     printf("Connecting to Firmware...\n");
     if (comm_init() != 0) {
