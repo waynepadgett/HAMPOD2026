@@ -53,18 +53,18 @@ static bool g_shift_active = false;
 static void on_keypress(const KeyPressEvent* kp) {
     DEBUG_PRINT("main: Key '%c' hold=%d shift=%d\n", kp->key, kp->isHold, kp->shiftAmount);
     
-    // Handle [A] key for shift toggle
-    if (kp->key == 'A' && !kp->isHold) {
-        g_shift_active = !g_shift_active;
-        speech_say_text(g_shift_active ? "Shift" : "Shift off");
-        return;
-    }
-    
-    // Route to set mode first (if active, it takes priority)
+    // Route to set mode first (if active, it takes priority for ALL keys including [A])
     if (set_mode_is_active()) {
         if (set_mode_handle_key(kp->key, kp->isHold, g_shift_active)) {
             return;
         }
+    }
+    
+    // Handle [A] key for shift toggle (only when NOT in set mode)
+    if (kp->key == 'A' && !kp->isHold) {
+        g_shift_active = !g_shift_active;
+        speech_say_text(g_shift_active ? "Shift" : "Shift off");
+        return;
     }
     
     // [B] key enters Set Mode when not active
