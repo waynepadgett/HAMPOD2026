@@ -79,11 +79,11 @@ To avoid typing your password every time, you can generate an SSH key on your co
 2.  **(DEV:)** **Copy the key to the Pi**:
     *On Windows (PowerShell):*
     ```powershell
-    type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh hampoduser@HAMPOD.local "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+    type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh hampod@hampod.local "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
     ```
     *On Mac/Linux:*
     ```bash
-    ssh-copy-id hampoduser@HAMPOD.local
+    ssh-copy-id hampod@hampod.local
     ```
 
 3.  **Verify**: Log out and log back in. You should not be asked for a password.
@@ -116,10 +116,6 @@ Now, download the project code to your home directory.
     cd ~
     git clone https://github.com/waynepadgett/HAMPOD2026.git
     ```
-2.  **(RPI:)** **Enter the Directory**:
-    ```bash
-    cd HAMPOD2026
-    ```
 
 ---
 
@@ -127,13 +123,16 @@ Now, download the project code to your home directory.
 
 HAMPOD uses **Piper** for high-quality, low-latency text-to-speech. We have a script to automate this installation.
 
+
 1.  **(RPI:)** **Make Scripts Executable**:
     ```bash
+    cd HAMPOD2026
     chmod +x Documentation/scripts/*.sh
     ```
 2.  **(RPI:)** **Run the Installer**:
     ```bash
-    ./Documentation/scripts/install_piper.sh
+    cd ~/HAMPOD2026/Documentation/scripts
+    ./install_piper.sh
     ```
     *This script downloads the Piper binary, installs it to `/usr/local/bin/piper`, and downloads the required voice model (`en_US-lessac-low.onnx`) to `Firmware/models/`.*
 
