@@ -302,15 +302,15 @@ git push
 
 ## Execution Checklist
 
-- [ ] **Chunk 1** Documentation & Branch
-- [ ] **Chunk 2** Radio Setters Module
-- [ ] **Chunk 3** Set Mode Skeleton
-- [ ] **Chunk 4** Power Level Setting
-- [ ] **Chunk 5** Mic Gain and Compression
-- [ ] **Chunk 6** Noise Blanker and Noise Reduction
-- [ ] **Chunk 7** AGC Settings
-- [ ] **Chunk 8** Preamp and Attenuation
-- [ ] **Chunk 9** Main Integration
+- [x] **Chunk 1** Documentation & Branch
+- [x] **Chunk 2** Radio Setters Module
+- [x] **Chunk 3** Set Mode Skeleton
+- [x] **Chunk 4** Power Level Setting
+- [x] **Chunk 5** Mic Gain and Compression
+- [x] **Chunk 6** Noise Blanker and Noise Reduction
+- [x] **Chunk 7** AGC Settings
+- [x] **Chunk 8** Preamp and Attenuation
+- [x] **Chunk 9** Main Integration
 - [ ] **Chunk 10** Regression Test Script
 - [ ] **Chunk 11** Manual Integration Test
 - [ ] **Chunk 12** Regression Testing & Merge
