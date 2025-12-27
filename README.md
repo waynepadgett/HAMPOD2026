@@ -19,7 +19,41 @@ This project is currently undergoing a major software rewrite ("Fresh Start"). T
 *   **`Software/`** - The legacy (2025 team) software implementation. It is currently serving as a reference but is slated for replacement.
 *   **`Hardware_Files/`** - Schematics and PCB design files for the custom keypad/hat.
 
-## 🚀 Getting Started (Developers)
+## 🚀 Quick Install (Raspberry Pi)
+
+We have an automated install script that sets up everything for you! Just flash your Pi with Debian Trixie, enable SSH, and run:
+
+### Option 1: Feature Branch (Current - Working ✅)
+```bash
+# SSH into your Pi, then:
+git clone -b feature/set-mode https://github.com/waynepadgett/HAMPOD2026.git
+cd HAMPOD2026/Documentation/scripts
+./install_hampod.sh
+```
+
+### Option 2: Main Branch One-Liner (Coming Soon ⏳)
+> **Note:** This will work once the install script is merged to main.
+```bash
+# SSH into your Pi, then:
+curl -sSL https://raw.githubusercontent.com/waynepadgett/HAMPOD2026/main/Documentation/scripts/install_hampod.sh | bash
+```
+
+The script will:
+- Update system packages
+- Install all dependencies (git, gcc, ALSA, Hamlib)
+- Clone the repository
+- Install Piper TTS for speech
+- Build the Firmware
+- Build integration tests
+- Configure audio permissions
+
+After completion, it will prompt you to run the first regression test to verify your setup.
+
+📖 For detailed manual setup instructions, see [`Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md`](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md).
+
+---
+
+## 🛠️ Getting Started (Developers)
 
 1.  **Review the Plans:** Read `Documentation/Project_Overview_and_Onboarding/fresh-start-big-plan.md` to understand the architecture.
 2.  **Setup Environment:**
