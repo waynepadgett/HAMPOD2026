@@ -32,7 +32,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m' # No Color
 
 # Configuration
@@ -42,6 +44,12 @@ TOTAL_STEPS=7
 
 # Track current step
 CURRENT_STEP=0
+
+# Spinner characters
+SPINNER_CHARS='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+
+# PID of background spinner process
+SPINNER_PID=""
 
 # ============================================================================
 # Helper Functions
@@ -53,14 +61,83 @@ print_header() {
     echo -e "${CYAN}║${NC}${BOLD}                 HAMPOD Installation Script                   ${NC}${CYAN}║${NC}"
     echo -e "${CYAN}╠══════════════════════════════════════════════════════════════╣${NC}"
     echo -e "${CYAN}║${NC} This script will set up your Raspberry Pi for HAMPOD.        ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC} Estimated time: 5-15 minutes                                 ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC} Estimated time: 5-15 minutes (depends on internet speed)     ${CYAN}║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
 
+# Progress bar: draws [████████░░░░░░░░░░░░] 40%
+draw_progress_bar() {
+    local current=$1
+    local total=$2
+    local width=30
+    local percent=$((current * 100 / total))
+    local filled=$((current * width / total))
+    local empty=$((width - filled))
+    
+    # Build the bar
+    local bar=""
+    for ((i=0; i<filled; i++)); do bar+="█"; done
+    for ((i=0; i<empty; i++)); do bar+="░"; done
+    
+    echo -e "${DIM}[${NC}${GREEN}${bar:0:$filled}${NC}${DIM}${bar:$filled}${NC}${DIM}]${NC} ${BOLD}${percent}%${NC}"
+}
+
+# Start a spinner in the background
+start_spinner() {
+    local message="$1"
+    
+    # Don't start if already running
+    if [ -n "$SPINNER_PID" ] && kill -0 "$SPINNER_PID" 2>/dev/null; then
+        return
+    fi
+    
+    (
+        local i=0
+        local len=${#SPINNER_CHARS}
+        while true; do
+            local char="${SPINNER_CHARS:$i:1}"
+            printf "\r      ${MAGENTA}%s${NC} %s" "$char" "$message"
+            i=$(( (i + 1) % len ))
+            sleep 0.1
+        done
+    ) &
+    SPINNER_PID=$!
+    disown $SPINNER_PID 2>/dev/null || true
+}
+
+# Stop the spinner
+stop_spinner() {
+    if [ -n "$SPINNER_PID" ]; then
+        kill $SPINNER_PID 2>/dev/null || true
+        wait $SPINNER_PID 2>/dev/null || true
+        SPINNER_PID=""
+        printf "\r\033[K"  # Clear the line
+    fi
+}
+
+# Run a command with a spinner
+run_with_spinner() {
+    local message="$1"
+    shift
+    
+    start_spinner "$message"
+    
+    # Run the command
+    if "$@" > /dev/null 2>&1; then
+        stop_spinner
+        return 0
+    else
+        stop_spinner
+        return 1
+    fi
+}
+
 print_step() {
     CURRENT_STEP=$((CURRENT_STEP + 1))
-    echo -e "${BLUE}[${CURRENT_STEP}/${TOTAL_STEPS}]${NC} $1"
+    echo ""
+    echo -e "$(draw_progress_bar $CURRENT_STEP $TOTAL_STEPS)"
+    echo -e "${BLUE}[${CURRENT_STEP}/${TOTAL_STEPS}]${NC} ${BOLD}$1${NC}"
 }
 
 print_success() {
@@ -100,6 +177,47 @@ check_internet() {
     print_success "Internet connection verified"
 }
 
+# Test internet speed by downloading a small file
+test_internet_speed() {
+    print_info "Testing download speed..."
+    
+    # Download a small file and measure time (GitHub's robots.txt is tiny and reliable)
+    local test_url="https://raw.githubusercontent.com/waynepadgett/HAMPOD2026/main/README.md"
+    local start_time=$(date +%s.%N)
+    
+    # Download to /dev/null and capture size
+    local result=$(curl -s -w "%{size_download} %{time_total}" -o /dev/null "$test_url" 2>/dev/null)
+    local size=$(echo "$result" | awk '{print $1}')
+    local time=$(echo "$result" | awk '{print $2}')
+    
+    if [ -n "$size" ] && [ -n "$time" ] && [ "$time" != "0" ] && [ "$time" != "0.000000" ]; then
+        # Calculate speed in KB/s
+        local speed=$(echo "scale=0; $size / $time / 1024" | bc 2>/dev/null || echo "0")
+        
+        if [ "$speed" -gt 0 ]; then
+            if [ "$speed" -gt 1024 ]; then
+                local speed_mb=$(echo "scale=1; $speed / 1024" | bc 2>/dev/null || echo "$speed")
+                print_success "Download speed: ~${speed_mb} MB/s"
+            else
+                print_success "Download speed: ~${speed} KB/s"
+            fi
+            
+            # Estimate based on speed
+            if [ "$speed" -lt 100 ]; then
+                print_warning "Slow connection detected - installation may take 15-30 minutes"
+            elif [ "$speed" -lt 500 ]; then
+                print_info "Moderate speed - installation should take 10-15 minutes"
+            else
+                print_info "Good speed - installation should take 5-10 minutes"
+            fi
+        else
+            print_info "Could not measure speed (will proceed anyway)"
+        fi
+    else
+        print_info "Could not measure speed (will proceed anyway)"
+    fi
+}
+
 print_success_banner() {
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
@@ -126,6 +244,7 @@ print_success_banner() {
 }
 
 handle_error() {
+    stop_spinner  # Make sure spinner is stopped
     echo ""
     echo -e "${RED}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${RED}║${NC}${BOLD}                     ❌ INSTALLATION FAILED                    ${NC}${RED}║${NC}"
@@ -141,8 +260,14 @@ handle_error() {
     exit 1
 }
 
-# Set up error handler
+# Clean up spinner on exit
+cleanup() {
+    stop_spinner
+}
+
+# Set up handlers
 trap 'handle_error' ERR
+trap 'cleanup' EXIT
 
 # ============================================================================
 # Main Installation Steps
@@ -155,23 +280,26 @@ main() {
     echo -e "${BOLD}Pre-flight checks...${NC}"
     check_disk_space
     check_internet
+    test_internet_speed
     echo ""
     
     # -------------------------------------------------------------------------
     # Step 1: Update System
     # -------------------------------------------------------------------------
     print_step "Updating system packages..."
-    sudo apt update -y > /dev/null 2>&1
+    
+    run_with_spinner "Updating package lists..." sudo apt update -y
     print_success "Package lists updated"
     
-    sudo apt upgrade -y > /dev/null 2>&1
+    run_with_spinner "Upgrading packages (this may take a few minutes)..." sudo apt upgrade -y
     print_success "System upgraded"
     
     # -------------------------------------------------------------------------
     # Step 2: Install Dependencies
     # -------------------------------------------------------------------------
     print_step "Installing dependencies (git, gcc, ALSA, Hamlib)..."
-    sudo apt install -y git make gcc libasound2-dev libhamlib-dev wget > /dev/null 2>&1
+    
+    run_with_spinner "Installing build tools and libraries..." sudo apt install -y git make gcc libasound2-dev libhamlib-dev wget bc
     print_success "All dependencies installed"
     
     # -------------------------------------------------------------------------
@@ -183,12 +311,12 @@ main() {
         print_warning "Repository already exists at $HAMPOD_DIR"
         print_info "Pulling latest changes..."
         cd "$HAMPOD_DIR"
-        git pull origin main > /dev/null 2>&1 || git pull origin master > /dev/null 2>&1 || true
+        run_with_spinner "Pulling updates..." git pull origin main || git pull origin master || true
         print_success "Repository updated"
     else
         print_info "Cloning from $REPO_URL..."
         cd "$HOME"
-        git clone "$REPO_URL" > /dev/null 2>&1
+        run_with_spinner "Cloning repository..." git clone "$REPO_URL"
         print_success "Repository cloned to $HAMPOD_DIR"
     fi
     
@@ -203,11 +331,14 @@ main() {
     # Check if Piper is already installed
     if command -v piper &> /dev/null && [ -f "$HAMPOD_DIR/Firmware/models/en_US-lessac-low.onnx" ]; then
         print_warning "Piper TTS already installed"
-        print_info "Skipping installation (use --force to reinstall)"
+        print_info "Skipping installation (use --force in install_piper.sh to reinstall)"
     else
-        print_info "Running Piper installer..."
+        print_info "Running Piper installer (downloading ~20MB)..."
         cd "$HAMPOD_DIR/Documentation/scripts"
+        
+        # Run piper installer - it has its own output, don't suppress
         ./install_piper.sh --force
+        
         print_success "Piper TTS installed"
     fi
     
@@ -218,10 +349,10 @@ main() {
     cd "$HAMPOD_DIR/Firmware"
     
     # Clean first to avoid architecture mismatch
-    make clean > /dev/null 2>&1 || true
+    run_with_spinner "Cleaning old build artifacts..." make clean || true
     print_info "Cleaned old build artifacts"
     
-    make > /dev/null 2>&1
+    run_with_spinner "Compiling firmware..." make
     
     if [ -f "firmware.elf" ]; then
         print_success "Firmware built successfully (firmware.elf)"
@@ -235,8 +366,8 @@ main() {
     print_step "Building HAL Integration Tests..."
     cd "$HAMPOD_DIR/Firmware/hal/tests"
     
-    make clean > /dev/null 2>&1 || true
-    make > /dev/null 2>&1
+    run_with_spinner "Cleaning test artifacts..." make clean || true
+    run_with_spinner "Compiling tests..." make
     print_success "HAL Integration Tests built"
     
     # -------------------------------------------------------------------------
