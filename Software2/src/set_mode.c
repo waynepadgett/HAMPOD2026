@@ -391,7 +391,7 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
     DEBUG_PRINT("set_mode_handle_key: key='%c' hold=%d shift=%d state=%d\n", 
                 key, is_hold, is_shifted, g_state);
     
-    // [B] - Toggle Set Mode (handled by normal_mode, but also exit from here)
+    // [B] - Toggle Set Mode or toggle OFF for toggle parameters
     if (key == 'B' && !is_hold && !is_shifted) {
         if (g_state == SET_MODE_OFF) {
             set_mode_enter();
@@ -400,9 +400,22 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
             set_mode_exit();
             return true;
         } else if (g_state == SET_MODE_EDITING) {
-            // Cancel current edit and exit
-            set_mode_exit();
-            return true;
+            // For toggle parameters (NB, NR, Compression), [B] means "disable"
+            switch (g_current_param) {
+                case SET_PARAM_NB:
+                    toggle_nb(false);
+                    return true;
+                case SET_PARAM_NR:
+                    toggle_nr(false);
+                    return true;
+                case SET_PARAM_COMPRESSION:
+                    toggle_compression(false);
+                    return true;
+                default:
+                    // For other parameters, exit Set Mode
+                    set_mode_exit();
+                    return true;
+            }
         }
     }
     
@@ -528,25 +541,7 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
             return true;
         }
         
-        // [B] - Disable (for toggle parameters) or decrement
-        if (key == 'B' && !is_hold) {
-            switch (g_current_param) {
-                case SET_PARAM_NB:
-                    toggle_nb(false);
-                    break;
-                case SET_PARAM_NR:
-                    toggle_nr(false);
-                    break;
-                case SET_PARAM_COMPRESSION:
-                    toggle_compression(false);
-                    break;
-                default:
-                    // Exit editing for other parameters
-                    set_mode_cancel_edit();
-                    break;
-            }
-            return true;
-        }
+        // Note: [B] key is handled at the top of the function for toggle parameters
         
         // AGC-specific: [1] Hold = Fast, [2] Hold = Medium, [3] Hold = Slow
         if (g_current_param == SET_PARAM_AGC && is_hold) {
