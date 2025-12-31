@@ -562,3 +562,41 @@ int comm_send_audio_sync(char audio_type, const char* payload) {
     LOG_DEBUG("comm_send_audio_sync: Got acknowledgment");
     return HAMPOD_OK;
 }
+
+// ============================================================================
+// Beep Audio Feedback
+// ============================================================================
+
+int comm_play_beep(CommBeepType beep_type) {
+    /*
+     * Sends a beep request to Firmware using the 'b' audio type.
+     * Protocol: 'b' + beep_type_char where:
+     *   'k' = keypress beep
+     *   'h' = hold indicator beep
+     *   'e' = error beep
+     */
+    char beep_char;
+    
+    switch (beep_type) {
+        case COMM_BEEP_KEYPRESS:
+            beep_char = 'k';
+            break;
+        case COMM_BEEP_HOLD:
+            beep_char = 'h';
+            break;
+        case COMM_BEEP_ERROR:
+            beep_char = 'e';
+            break;
+        default:
+            LOG_ERROR("comm_play_beep: Unknown beep type %d", beep_type);
+            return HAMPOD_ERROR;
+    }
+    
+    // Create payload with just the beep type character
+    char payload[2] = {beep_char, '\0'};
+    
+    LOG_DEBUG("comm_play_beep: Sending beep type='%c'", beep_char);
+    
+    // Send beep request (non-blocking - don't wait for ack)
+    return comm_send_audio('b', payload);
+}

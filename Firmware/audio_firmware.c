@@ -114,6 +114,18 @@ void audio_process() {
             AUDIO_PRINTF("Now playing %s with HAL\n", remaining_string);
             // system_result = system(buffer);
             system_result = hal_audio_play_file(buffer);
+        } else if(audio_type_byte == 'b') {
+            /* Beep request: remaining_string is beep type ('k'=keypress, 'h'=hold, 'e'=error) */
+            BeepType beep_type;
+            switch (remaining_string[0]) {
+                case 'k': beep_type = BEEP_KEYPRESS; break;
+                case 'h': beep_type = BEEP_HOLD; break;
+                case 'e': beep_type = BEEP_ERROR; break;
+                default:
+                    AUDIO_PRINTF("Unknown beep type: %c\n", remaining_string[0]);
+                    beep_type = BEEP_KEYPRESS;
+            }
+            system_result = audio_play_beep(beep_type);
         } else {
             AUDIO_PRINTF("Audio error. Unrecognized packet data %s\n", requested_string);
             system_result = -1;
@@ -277,4 +289,38 @@ int firmwarePlayAudio(void* text){
         return system_result;
 }
 
-
+/**
+ * @brief Play a beep sound directly using HAL (low-latency)
+ * 
+ * Uses pre-generated WAV files for minimum latency.
+ * Thread-safe via audio_lock mutex.
+ */
+int audio_play_beep(BeepType type) {
+    const char* beep_file = NULL;
+    
+    switch (type) {
+        case BEEP_KEYPRESS:
+            beep_file = "../Firmware/pregen_audio/beep_keypress.wav";
+            break;
+        case BEEP_HOLD:
+            beep_file = "../Firmware/pregen_audio/beep_hold.wav";
+            break;
+        case BEEP_ERROR:
+            beep_file = "../Firmware/pregen_audio/beep_error.wav";
+            break;
+        default:
+            AUDIO_PRINTF("audio_play_beep: Unknown beep type %d\n", type);
+            return -1;
+    }
+    
+    AUDIO_PRINTF("audio_play_beep: Playing %s\n", beep_file);
+    
+    /* Use HAL to play the beep file - this goes through ALSA dmix for mixing */
+    int result = hal_audio_play_file(beep_file);
+    
+    if (result != 0) {
+        AUDIO_PRINTF("audio_play_beep: Failed to play %s\n", beep_file);
+    }
+    
+    return result;
+}

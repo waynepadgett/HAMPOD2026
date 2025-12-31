@@ -55,6 +55,33 @@ typedef struct audio_io_packet {
     int pipe_fd;
     Packet_queue* queue;
 } audio_io_packet;
+
+/**
+ * @brief Beep types for audio feedback
+ */
+typedef enum {
+    BEEP_KEYPRESS,  /**< Short beep on key press (1000Hz, 50ms) */
+    BEEP_HOLD,      /**< Lower-pitch hold indicator (700Hz, 50ms) */
+    BEEP_ERROR      /**< Low-frequency error beep (400Hz, 100ms) */
+} BeepType;
+
+/**
+ * @brief Play a beep sound directly (low-latency, no pipe IPC)
+ * 
+ * This function plays a pre-generated beep audio file using the HAL.
+ * It is thread-safe and can be called from any process/thread.
+ * 
+ * @param type The type of beep to play
+ * @return 0 on success, -1 on error
+ * 
+ * @note Requires beep audio files to exist in pregen_audio/:
+ *       - beep_keypress.wav
+ *       - beep_hold.wav 
+ *       - beep_error.wav
+ *       Generate these with: ./Firmware/pregen_audio/generate_beeps.sh
+ */
+int audio_play_beep(BeepType type);
+
 void audio_process();
 void *audio_io_thread(void* arg);
 void firmwareStartAudio();

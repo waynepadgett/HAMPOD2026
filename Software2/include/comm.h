@@ -144,6 +144,35 @@ int comm_send_audio(char audio_type, const char* payload);
 int comm_send_audio_sync(char audio_type, const char* payload);
 
 // ============================================================================
+// Beep Audio Feedback
+// ============================================================================
+
+/**
+ * Beep types for audio feedback.
+ * 
+ * These correspond to the BeepType enum in Firmware/audio_firmware.h.
+ */
+typedef enum {
+    COMM_BEEP_KEYPRESS = 0,  /**< Short beep on key press (1000Hz, 50ms) */
+    COMM_BEEP_HOLD     = 1,  /**< Lower-pitch hold indicator (700Hz, 50ms) */
+    COMM_BEEP_ERROR    = 2   /**< Low-frequency error beep (400Hz, 100ms) */
+} CommBeepType;
+
+/**
+ * Request a beep from Firmware (non-blocking).
+ * 
+ * This sends a beep request to Firmware which plays a pre-generated
+ * beep audio file. Used for keypad feedback.
+ * 
+ * @param beep_type The type of beep to play
+ * @return HAMPOD_OK on success, HAMPOD_ERROR on failure
+ * 
+ * @note Beep audio files must exist on RPi. Generate with:
+ *       cd ~/HAMPOD2026/Firmware/pregen_audio && ./generate_beeps.sh
+ */
+int comm_play_beep(CommBeepType beep_type);
+
+// ============================================================================
 // Router Thread (dispatches responses to type-specific queues)
 // ============================================================================
 
