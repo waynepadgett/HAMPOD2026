@@ -2,7 +2,6 @@ ICOM Reader Implementation Specification
 
 Document Purpose: This is a developer-focused rewrite of ICOMReader_Manual_v106.txt combined with clarifications from ICOMReader_Manual_Add_On.txt. It eliminates ambiguity and provides precise behavior specifications for implementation.
 
---------------------------------------------------------------------------------
 
 Table of Contents
 
@@ -21,299 +20,219 @@ Table of Contents
 13. Error Handling
 14. Special Frequencies
 
---------------------------------------------------------------------------------
 
-1. System Architecture
+Section 1. System Architecture
 
 1.1 Hardware Interface
 
-Component           Specification
----------           -------------
-Serial Ports        2x male DB9 connectors (port 1 nearest power jack)
-Baud Rate           19,200 bps (ICOM CI-V protocol)
-Power               9-15V DC, center-positive, 2.1mm x 5.5mm jack
-Keypad              16 buttons in 4x4 matrix
-Audio Output        3.5mm mono headphone jack (some models)
+Serial Ports: 2 male DB9 connectors, port 1 is nearest the power jack.
+Baud Rate: 19,200 bps using ICOM CI-V protocol.
+Power: 9-15V DC, center-positive, 2.1mm by 5.5mm jack.
+Keypad: 16 buttons in a 4 by 4 matrix.
+Audio Output: 3.5mm mono headphone jack on some models.
 
 1.2 Keypad Layout
 
-+-------+-------+-------+-------+
-|   1   |   2   |   3   |   A   |  <- Row 1
-+-------+-------+-------+-------+
-|   4   |   5   |   6   |   B   |  <- Row 2
-+-------+-------+-------+-------+
-|   7   |   8   |   9   |   C   |  <- Row 3
-+-------+-------+-------+-------+
-|   *   |   0   |   #   |   D   |  <- Row 4
-+-------+-------+-------+-------+
+The keypad is a standard 4 by 4 telephone-style matrix. Row 1 from left to right contains keys 1, 2, 3, and A. Row 2 contains keys 4, 5, 6, and B. Row 3 contains keys 7, 8, 9, and C. Row 4 contains keys star, 0, pound, and D.
 
 1.3 Radio Communication
 
-- Polling: The HamPod polls for a connected ICOM radio at ~1 second intervals
-- Connection: On detection, announces the ICOM ID number
-- Protocol: All frequency commands use Hamlib (CI-V under the hood)
+Polling: The HamPod polls for a connected ICOM radio at approximately 1 second intervals.
+Connection: On detection, the unit announces the ICOM ID number.
+Protocol: All frequency commands use Hamlib, which uses CI-V under the hood.
 
---------------------------------------------------------------------------------
 
-2. Mode System
+Section 2. Mode System
 
 2.1 Mode Hierarchy
 
-Mode Transitions:
-  [Initial] --> Normal
-  Normal --> FrequencyEntry: [#] key
-  Normal --> SetMode: [B] key
-  Normal --> MemoryMode: [Shift]+[C]
-  Normal --> DStarMode: [Shift]+[D]
-  Normal --> DTMFMode: [Shift]+[D] Hold
-  Normal --> ConfigMode: [C] Hold
-  
-  FrequencyEntry --> Normal: [Enter]/[D]/[*][*]/Timeout
-  SetMode --> Normal: [#]/[D]/[*]
-  MemoryMode --> Normal: [*]/[D]
-  DStarMode --> Normal: [D]
-  DTMFMode --> Normal: [D] Hold
-  ConfigMode --> Normal: [C] Hold/[D] Hold/Timeout
+The system starts in Normal Mode. From Normal Mode, you can enter the following modes:
+
+Press pound to enter Frequency Entry Mode.
+Press B to enter Set Mode.
+Press Shift plus C to enter Memory Mode.
+Press Shift plus D to enter DStar Mode.
+Hold Shift plus D to enter DTMF Mode.
+Hold C for 1 second to enter Configuration Mode.
+
+To exit each mode and return to Normal Mode:
+
+From Frequency Entry: press pound to submit, or press D, or press star twice, or wait for timeout.
+From Set Mode: press pound to submit, or press D or star to cancel.
+From Memory Mode: press star or D.
+From DStar Mode: press D.
+From DTMF Mode: hold D.
+From Configuration Mode: hold C to save and exit, or hold D to discard and exit, or wait for timeout.
 
 2.2 Mode List
 
-Mode              Entry Method          Exit Method                           Purpose
-----              ------------          -----------                           -------
-Normal            Default/Exit          --                                    Query radio parameters
-Frequency Entry   [#]                   [#] (submit), [D] (cancel),           Direct frequency input
-                                        [*][*] (cancel), timeout
-Set Mode          [B]                   [#] (submit), [D] (cancel),           Modify radio parameters
-                                        [*] (cancel)
-Memory Mode       [Shift]+[C]           [*] or [D]                            View/transfer/clear memory
-DStar Mode        [Shift]+[D]           [D]                                   DStar callsign and text entry
-DTMF Mode         [Shift]+[D] Hold      [D] Hold                              Generate DTMF tones
-Configuration     [C] Hold (1 sec)      [C] Hold (save), [D] Hold (discard),  HamPod settings
-                                        timeout (discard)
+Normal Mode is the default mode for querying radio parameters.
 
---------------------------------------------------------------------------------
+Frequency Entry Mode allows direct frequency input.
 
-3. Key Input System
+Set Mode allows modification of radio parameters.
+
+Memory Mode allows viewing, transferring, and clearing memory channels.
+
+DStar Mode handles DStar callsign and text entry.
+
+DTMF Mode generates DTMF tones.
+
+Configuration Mode adjusts HamPod settings.
+
+
+Section 3. Key Input System
 
 3.1 Key Press Types
 
-Press Type        Detection                 Behavior
-----------        ---------                 --------
-Short Press       Key released before 500ms Standard action
-Long Press (Hold) Key held >=500ms          Alternate action
+Short Press: Key is released before 500 milliseconds. This performs the standard action.
+
+Long Press or Hold: Key is held for 500 milliseconds or longer. This performs an alternate action.
 
 3.2 Shift Mechanism
 
-The [A] key acts as a SHIFT modifier in Normal Mode:
-
-1. Press [A] -> SHIFT activates (announced as "Shift")
-2. Press next key -> SHIFT action executes
-3. SHIFT automatically deactivates after action
+The A key acts as a SHIFT modifier in Normal Mode. Press A and the unit announces "Shift". Then press the next key to execute the shifted action. SHIFT automatically deactivates after the action.
 
 Note: Keys are never pressed simultaneously. All input is sequential.
 
 3.3 Audio Feedback on Key Press
 
-Condition                             Feedback
----------                             --------
-Key initially pressed (beep enabled)  Short beep
-Key held >=500ms                      Second lower-pitch beep
-Invalid key in current mode           Low-frequency error beep
+When a key is initially pressed and beep is enabled, you hear a short beep.
+When a key is held for 500 milliseconds or longer, you hear a second lower-pitch beep.
+When you press an invalid key in the current mode, you hear a low-frequency error beep.
 
 3.4 Keypad Timeout
 
-Setting           Behavior
--------           --------
-Disabled          No timeout; waits indefinitely
-5-30 seconds      Timer resets on each keypress; on expiration, says "timeout"
-                  and returns to Normal Mode
+If timeout is disabled, the system waits indefinitely.
+If timeout is set to 5 through 30 seconds, the timer resets on each keypress. When it expires, the system says "timeout" and returns to Normal Mode.
 
-The timeout applies during:
-- Frequency Entry Mode (after any key press)
-- Configuration Mode (after any key press)
-- VFO selection phase (after [#] pressed)
+The timeout applies during Frequency Entry Mode, Configuration Mode, and the VFO selection phase after pressing pound.
 
---------------------------------------------------------------------------------
 
-4. Normal Mode
+Section 4. Normal Mode
 
 4.1 Key Mapping Overview
 
-Each key can have up to 6 actions:
-1. Short press
-2. Long press (Hold)
-3. [Shift] + Short press
-4. [Shift] + Long press
-5. [Set] + Short press
-6. [Set] + [Shift] + combinations
+Each key can have up to 6 actions: short press, long press or hold, Shift plus short press, Shift plus long press, Set plus short press, and Set plus Shift plus combinations.
 
 4.2 Complete Key Reference
 
-Key [1] - VFO Selection
+Key 1, VFO Selection:
+Press 1 to select VFO A and announce frequency.
+Hold 1 to select VFO B and announce frequency.
+Set plus 1 selects Main receiver on IC-7800, 7851, 9100, and 9700.
+Set plus Hold 1 selects Sub receiver on those same models.
+Shift plus 1 reports VOX status, Gain, and Anti-Gain levels.
+Set plus Shift plus 1 sets VOX parameters.
+Shift plus Hold 1 reports Break-in status and Delay level.
 
-Action                Behavior
-------                --------
-[1]                   Select VFO A, announce frequency
-[1] Hold              Select VFO B, announce frequency
-[Set]+[1]             Select Main receiver (IC-7800/7851/9100/9700)
-[Set]+[1] Hold        Select Sub receiver (IC-7800/7851/9100/9700)
-[Shift]+[1]           Report VOX status, Gain, Anti-Gain levels
-[Set]+[Shift]+[1]     Set VOX parameters
-[Shift]+[1] Hold      Report Break-in status and Delay level
+Key 2, Frequency and Tuning:
+Press 2 to announce current working VFO frequency.
+Hold 2 to toggle Memory Scan On or Off.
+Shift plus 2 reports Tuning Step.
+Set plus Shift plus 2 sets Tuning Step, range 0 through 12 depending on model.
+Shift plus Hold 2 reports RF/Squelch Control setting.
+Set plus Shift plus Hold 2 sets RF/Squelch Control: 0 for Auto, 1 for Squelch, 2 for RF plus Squelch.
 
-Key [2] - Frequency & Tuning
+Key 3, Split and Duplex:
+Press 3 to toggle Split Mode On or Off.
+Hold 3 to exchange VFO A and VFO B.
+Shift plus 3 cycles Duplex direction from minus to plus to disabled and announces offset. On IC-775, 7610, and 7851 this also disables Dual Watch.
+Set plus Shift plus 3 sets Duplex Offset frequency in kHz, up to 4 digits.
+Shift plus Hold 3 turns on Dual Watch on IC-775, 7610, and 7851.
 
-Action                      Behavior
-------                      --------
-[2]                         Announce current working VFO frequency
-[2] Hold                    Toggle Memory Scan On/Off
-[Shift]+[2]                 Report Tuning Step
-[Set]+[Shift]+[2]           Set Tuning Step (0-12 depending on model)
-[Shift]+[2] Hold            Report RF/Squelch Control setting
-[Set]+[Shift]+[2] Hold      Set RF/Squelch Control (0=Auto, 1=Squelch, 2=RF+Squelch)
+Key A, Shift and Volume:
+Press A to toggle SHIFT on or off.
+Hold A for Volume Up.
+Shift plus A turns SHIFT off if currently on.
+Shift plus Hold A is not assigned.
 
-Key [3] - Split & Duplex
+Key 4, PreAmp and AGC:
+Press 4 to report PreAmp status.
+Set plus 4 sets PreAmp 1 or 2 status.
+Hold 4 reports AGC status as slow, mid, or fast, and level from 0 through 13.
+Shift plus 4 reports Attenuation status.
+Set plus Shift plus 4 sets Attenuation level.
 
-Action                Behavior
-------                --------
-[3]                   Toggle Split Mode On/Off
-[3] Hold              Exchange VFO A and VFO B
-[Shift]+[3]           Cycle Duplex direction (minus->plus->disabled), announce offset;
-                      OR disable Dual Watch (IC-775/7610/7851)
-[Set]+[Shift]+[3]     Set Duplex Offset frequency (enter in kHz, up to 4 digits)
-[Shift]+[3] Hold      Turn on Dual Watch (IC-775/7610/7851)
+Key 5, Tones:
+Press 5 to report Repeater, CTCSS, and DTCS Tone status and frequency or code.
+Set plus 5 sets Repeater Tone.
+Set plus Hold 5 sets CTCSS Squelch Tone.
+Set plus Shift plus 5 sets DTCS: A for On, B for Off, C for Polarity.
+Shift plus Hold 5 reports Digital Voice Squelch status and code.
+Set plus Shift plus Hold 5 sets Digital Voice Squelch.
 
-Key [A] - Shift & Volume
+Key 6, Filters:
+Press 6 to report selected Filter Width.
+Hold 6 reports Audio Peak Filter.
+Shift plus 6 reports Filter Number.
+Set plus Shift plus 6 sets Filter Number.
+Shift plus Hold 6 reports Roofing Filter.
 
-Action                Behavior
-------                --------
-[A]                   Toggle SHIFT on/off
-[A] Hold              Volume Up
-[Shift]+[A]           Turn SHIFT off if currently on
-[Shift]+[A] Hold      Not assigned
+Key B, Band and Set Mode:
+Press B to enter Set Mode. On radios with band stacking, this cycles through Set, Band, and Off.
+Hold B for Volume Down.
+Shift plus B activates Debug Mode which speaks CI-V data.
 
-Key [4] - PreAmp & AGC
+Key 7, Noise Blanker and Tuner:
+Press 7 to report Noise Blanker status and Level.
+Set plus 7 sets Noise Blanker status and Level.
+Hold 7 reports Antenna Tuner status as Off, On, or Tuning.
+Shift plus 7 reports Antenna Selection.
+Shift plus Hold 7 reports Voltage and Current on firmware version 2.xx only.
 
-Action                Behavior
-------                --------
-[4]                   Report PreAmp status
-[Set]+[4]             Set PreAmp 1/2 status
-[4] Hold              Report AGC status (slow/mid/fast) and level (0-13)
-[Shift]+[4]           Report Attenuation status
-[Set]+[Shift]+[4]     Set Attenuation level
+Key 8, Noise Reduction and Mic:
+Press 8 to report Noise Reduction status and Level.
+Set plus 8 sets Noise Reduction status and Level.
+Hold 8 reports Mic Gain Level.
+Set plus Hold 8 sets Mic Gain Level.
+Shift plus 8 reports Keyer Speed.
+Set plus Shift plus 8 sets Keyer Speed.
 
-Key [5] - Tones
+Key 9, Notch, Power, and Compression:
+Press 9 to report Auto Notch status, Manual Notch status, and Frequency.
+Hold 9 reports Power Level.
+Set plus Hold 9 sets Power Level.
+Shift plus 9 reports Compression status and Level.
+Set plus Shift plus 9 sets Compression Level.
+Shift plus Hold 9 reports Monitor status and Level.
+Set plus Shift plus Hold 9 sets Monitor Level.
 
-Action                     Behavior
-------                     --------
-[5]                        Report Repeater, CTCSS, DTCS Tone status and frequency/code
-[Set]+[5]                  Set Repeater Tone
-[Set]+[5] Hold             Set CTCSS Squelch Tone
-[Set]+[Shift]+[5]          Set DTCS ([A]=On, [B]=Off, [C]=Polarity)
-[Shift]+[5] Hold           Report Digital Voice Squelch status/code
-[Set]+[Shift]+[5] Hold     Set Digital Voice Squelch
+Key C, Frequency Announcement and Config:
+Press C to toggle Frequency Announcement Delay on or off.
+Hold C for 1 second to enter Configuration Mode.
+Shift plus C enters Memory Mode.
+Shift plus Hold C enters Memory Mode 2 with auto-transfer to VFO.
 
-Key [6] - Filters
+Key star, Meters:
+Press star to report S-Meter.
+Hold star to report RF Power Meter.
+Shift plus star reports Compression Meter.
+Shift plus Hold star reports ALC Meter.
 
-Action                Behavior
-------                --------
-[6]                   Report selected Filter Width
-[6] Hold              Report Audio Peak Filter
-[Shift]+[6]           Report Filter Number
-[Set]+[Shift]+[6]     Set Filter Number
-[Shift]+[6] Hold      Report Roofing Filter
+Key 0, Mode and SWR:
+Press 0 to report current operating Mode.
+Set plus 0 sets current Mode.
+Hold 0 toggles Data Mode On or Off.
+Shift plus 0 starts SWR query, stays in TX until a key is pressed.
+Shift plus Hold 0 takes an SWR reading at 15 percent power with tuner bypassed.
 
-Key [B] - Band/Set Mode
+Key pound, Frequency Entry:
+Press pound to enter Frequency Entry Mode. Additional presses cycle VFO selection through A, B, Current, and back to A.
+Hold pound queries current Time on select models only.
+Set plus Hold pound sets current Time using 4 digits in 24-hour format.
+Shift plus pound recalls last entered frequency.
+Shift plus Hold pound saves current frequency to recall buffer.
 
-Action                Behavior
-------                --------
-[B]                   Enter Set Mode (cycles Set->Band->Off if band stacking available)
-[B] Hold              Volume Down
-[Shift]+[B]           Debug Mode (speaks CI-V data)
+Key D, Verbosity and Ports:
+Press D to toggle Verbosity on or off.
+Hold D to switch between serial ports 1 and 2.
+Shift plus D enters DStar Mode.
+Set plus Shift plus D sets Dial or Panel Lock.
+Shift plus Hold D enters DTMF Mode.
 
-Key [7] - Noise Blanker & Tuner
 
-Action                Behavior
-------                --------
-[7]                   Report Noise Blanker status and Level
-[Set]+[7]             Set Noise Blanker status and Level
-[7] Hold              Report Antenna Tuner status (Off/On/Tuning)
-[Shift]+[7]           Report Antenna Selection
-[Shift]+[7] Hold      Report Voltage and Current (firmware v2.xx only)
-
-Key [8] - Noise Reduction & Mic
-
-Action                Behavior
-------                --------
-[8]                   Report Noise Reduction status and Level
-[Set]+[8]             Set Noise Reduction status and Level
-[8] Hold              Report Mic Gain Level
-[Set]+[8] Hold        Set Mic Gain Level
-[Shift]+[8]           Report Keyer Speed
-[Set]+[Shift]+[8]     Set Keyer Speed
-
-Key [9] - Notch, Power & Compression
-
-Action                     Behavior
-------                     --------
-[9]                        Report Auto Notch status, Manual Notch status and Frequency
-[9] Hold                   Report Power Level
-[Set]+[9] Hold             Set Power Level
-[Shift]+[9]                Report Compression status and Level
-[Set]+[Shift]+[9]          Set Compression Level
-[Shift]+[9] Hold           Report Monitor status and Level
-[Set]+[Shift]+[9] Hold     Set Monitor Level
-
-Key [C] - Frequency Announcement & Config
-
-Action                Behavior
-------                --------
-[C]                   Toggle Frequency Announcement Delay on/off
-[C] Hold              Enter Configuration Mode
-[Shift]+[C]           Enter Memory Mode
-[Shift]+[C] Hold      Enter Memory Mode 2 (auto-transfer to VFO)
-
-Key [*] - Meters
-
-Action                Behavior
-------                --------
-[*]                   Report S-Meter
-[*] Hold              Report RF Power Meter
-[Shift]+[*]           Report Compression Meter
-[Shift]+[*] Hold      Report ALC Meter
-
-Key [0] - Mode & SWR
-
-Action                Behavior
-------                --------
-[0]                   Report current operating Mode
-[Set]+[0]             Set current Mode
-[0] Hold              Toggle Data Mode On/Off
-[Shift]+[0]           SWR query (stays in TX until key pressed)
-[Shift]+[0] Hold      SWR reading (15% power, tuner bypassed)
-
-Key [#] - Frequency Entry
-
-Action                Behavior
-------                --------
-[#]                   Enter Frequency Entry Mode; cycle VFO selection (A->B->Current->A...)
-[#] Hold              Query current Time (select models only)
-[Set]+[#] Hold        Set current Time (4 digits, 24hr format)
-[Shift]+[#]           Recall last entered frequency
-[Shift]+[#] Hold      Save current frequency to recall buffer
-
-Key [D] - Verbosity & Ports
-
-Action                Behavior
-------                --------
-[D]                   Toggle Verbosity on/off
-[D] Hold              Switch between serial ports 1 and 2
-[Shift]+[D]           Enter DStar Mode
-[Set]+[Shift]+[D]     Set Dial/Panel Lock
-[Shift]+[D] Hold      Enter DTMF Mode
-
---------------------------------------------------------------------------------
-
-5. Frequency Entry Mode
+Section 5. Frequency Entry Mode
 
 5.1 Mode Overview
 
@@ -321,219 +240,178 @@ Frequency Entry Mode provides direct numeric input for VFO frequencies. All freq
 
 5.2 Entry Sequence
 
-1. User presses [#] key
-2. HamPod responds with "A" (or last used VFO)
-3. VFO Selection (optional): User can press [#] to cycle through "B" / "Current" / "A"
-4. Digit Entry: User enters [0-9] or [*], HamPod speaks digit or "point"
-5. User presses [#] (Enter)
-6. HamPod sends Set frequency command to Radio
-7. HamPod speaks new frequency (confirmation)
+Press pound to enter the mode. The unit announces "A" or the last used VFO.
+Optionally, press pound again to cycle through VFO B, Current, and back to A.
+Enter digits 0 through 9. Each digit is spoken as you press it.
+Press star for a decimal point. The unit says "point".
+Press pound again to submit the frequency to the radio. The unit speaks the confirmed frequency.
 
 5.3 Key Behaviors in Frequency Entry Mode
 
-Key                   Behavior
----                   --------
-[0-9]                 Append digit to buffer; speak digit
-[*] (first press)     Insert decimal point; speak "point"
-[*] (second press)    Clear entry, speak "clear", exit to Normal Mode
-[#] (Enter)           Submit frequency to radio; speak resulting frequency
-[D]                   Clear entry, speak "clear", exit to Normal Mode
-[A], [B], [C]         Low-frequency error beep; ignored
-Any Hold action       Disabled; treated as short press
+Keys 0 through 9 append a digit to the buffer and speak the digit.
+Star on first press inserts a decimal point and says "point".
+Star on second press clears the entry, says "clear", and exits to Normal Mode.
+Pound submits the frequency to the radio and speaks the resulting frequency.
+D clears the entry, says "clear", and exits to Normal Mode.
+Keys A, B, and C produce a low-frequency error beep and are ignored.
+Hold actions are disabled in this mode and are treated as short presses.
 
 5.4 Input Buffer Specification
 
-Property              Value
---------              -----
-Maximum buffer size   11 characters
-12th digit            Error beep, digit rejected
-Example max entry     1234.123456
-Leading zeros         Accepted but ignored in value
+Maximum buffer size is 11 characters.
+If you try to enter a 12th digit, you hear an error beep and the digit is rejected.
+An example maximum entry is 1234.123456.
+Leading zeros are accepted but ignored in the value.
 
 5.5 Frequency Format Rules
 
-Input         Interpretation             Notes
------         --------------             -----
-14.250        14.250 MHz                 Standard format
-14.           14.000 MHz                 Trailing zeros assumed
-.250          0.250 MHz = 250 kHz        Leading dot for kHz entry
-14            14 MHz                     No decimal = whole MHz
-0             Invalid                    Fills buffer with zeros; no command sent
-Empty + [#]   No effect                  Cycles VFO selection instead
+Enter 14.250 for 14.250 MHz in standard format.
+Enter 14 followed by a decimal point for 14.000 MHz, trailing zeros are assumed.
+Enter a decimal point followed by 250 for 0.250 MHz, which equals 250 kHz. Use a leading dot for kHz entry.
+Enter 14 with no decimal for 14 whole MHz.
+Entering 0 alone is invalid. It fills the buffer with zeros but no command is sent.
+Pressing pound with an empty buffer cycles VFO selection instead.
 
 5.6 Frequency Announcement Format
 
-When announcing a frequency:
-1. Trailing zeros after the 1 kHz position are not spoken
-2. The second decimal point (if present) is spoken as "dot" instead of "point"
-
-Example: 7.240000 is announced as "seven point two four zero"
+When announcing a frequency, trailing zeros after the 1 kHz position are not spoken.
+If a second decimal point is present, it is spoken as "dot" instead of "point".
+For example, 7.240000 is announced as "seven point two four zero".
 
 5.7 Exit Conditions
 
-Condition                     Speech
----------                     ------
-Successful submission [#]     Speaks confirmed frequency from radio
-Cancel via [D]                "clear"
-Cancel via [*][*]             "clear"
-Keypad timeout                "timeout"
-Invalid entry (0)             Silent; exits without sending
+Successful submission via pound causes the unit to speak the confirmed frequency from the radio.
+Cancel via D causes the unit to say "clear".
+Cancel via star star causes the unit to say "clear".
+Keypad timeout causes the unit to say "timeout".
+Invalid entry of just 0 exits silently without sending.
 
---------------------------------------------------------------------------------
 
-6. Set Mode
+Section 6. Set Mode
 
 6.1 Mode Overview
 
-Set Mode allows modification of radio parameters. It is not a separate mode but rather a modifier flag that changes how Normal Mode keys behave--specifically enabling write operations instead of just read.
+Set Mode allows modification of radio parameters. It is not a separate mode but rather a modifier flag that changes how Normal Mode keys behave, specifically enabling write operations instead of just read.
 
 6.2 Entry and Exit
 
-Action                        Result
-------                        ------
-[B] (from Normal)             Cycle: Set -> Band -> Off (if band stacking available)
-                              OR Set -> Off
-[#] (Enter)                   Submit current setting, exit Set Mode
-[D]                           Cancel, exit Set Mode
-[*]                           Cancel, exit Set Mode
+Press B from Normal Mode to cycle through: Set, Band, and Off on radios with band stacking, or just Set and Off on other radios.
+Press pound to submit the current setting and exit Set Mode.
+Press D or star to cancel and exit Set Mode.
 
-Note: The [*] key can safely exit Set Mode because no Set Mode parameters require decimal input. Parameters that appear to need decimals (e.g., CTCSS tones like 88.5 Hz) are entered as 3-4 digit integers without a decimal point (e.g., 885 for 88.5 Hz, 1000 for 100.0 Hz).
+Note: The star key can safely exit Set Mode because no Set Mode parameters require decimal input. Parameters that appear to need decimals, such as CTCSS tones like 88.5 Hz, are entered as 3 or 4 digit integers without a decimal point. For example, enter 885 for 88.5 Hz or 1000 for 100.0 Hz.
 
 6.3 Common Control Keys in Set Mode
 
-Key       Function
----       --------
-[A]       Toggle On / Increment / Next option
-[B]       Toggle Off / Decrement / Previous option
-[C]       Cycle through sub-options (e.g., VOX Gain vs Anti-Gain)
-[0-9]     Enter numeric value
-[#]       Confirm and send to radio
+A toggles On, increments, or selects the next option.
+B toggles Off, decrements, or selects the previous option.
+C cycles through sub-options, for example VOX Gain versus Anti-Gain.
+Keys 0 through 9 enter a numeric value.
+Pound confirms and sends to the radio.
 
 6.4 Settable Parameters
 
-PreAmp ([Set]+[4])
-- [1]: Enable PreAmp 1, disable PreAmp 2
-- [2]: Enable PreAmp 2, disable PreAmp 1
-- [0]: Disable all PreAmps
-- Stays in Set Mode; press [#] or [D] to exit
+PreAmp via Set plus 4:
+Press 1 to enable PreAmp 1 and disable PreAmp 2.
+Press 2 to enable PreAmp 2 and disable PreAmp 1.
+Press 0 to disable all PreAmps.
+Stays in Set Mode. Press pound or D to exit.
 
-Attenuation ([Set]+[Shift]+[4])
-- Enter 0-45 dB (model-dependent valid values)
-- [#] to submit and exit
+Attenuation via Set plus Shift plus 4:
+Enter 0 through 45 dB depending on model.
+Press pound to submit and exit.
 
-Filter Width ([Set]+[6])
-- [1] Hold: Sharp DSP filter shape
-- [2] Hold: Soft DSP filter shape
-- [0-9]: Enter filter width value (0-57+ depending on model)
-- [#] to submit
+Filter Width via Set plus 6:
+Hold 1 for Sharp DSP filter shape.
+Hold 2 for Soft DSP filter shape.
+Press 0 through 9 to enter filter width value, range 0 through 57 or more depending on model.
+Press pound to submit.
 
-AGC ([Set]+[4] Hold)
-- [1] Hold: Fast AGC
-- [2] Hold: Mid AGC
-- [3] Hold: Slow AGC
-- [0-9]: Enter level (0-13)
-- [#] to submit and exit
+AGC via Set plus Hold 4:
+Hold 1 for Fast AGC.
+Hold 2 for Mid AGC.
+Hold 3 for Slow AGC.
+Press 0 through 9 to enter level from 0 through 13.
+Press pound to submit and exit.
 
-Notch Filter ([Set]+[7] -- Note: Document says [7] but likely meant for notch mode)
-- [A]: Enable Auto or Manual Notch (selected by [C])
-- [B]: Disable Auto or Manual Notch
-- [C]: Toggle between Auto and Manual Notch
-- [1] Hold: Wide manual notch width
-- [2] Hold: Mid manual notch width
-- [3] Hold: Narrow manual notch width
-- [0-9]: Set notch frequency (0-100)
-- [#] to submit and exit
+Notch Filter via Set plus 7:
+Press A to enable Auto or Manual Notch, selected by C.
+Press B to disable Auto or Manual Notch.
+Press C to toggle between Auto and Manual Notch.
+Hold 1 for Wide manual notch width.
+Hold 2 for Mid manual notch width.
+Hold 3 for Narrow manual notch width.
+Press 0 through 9 to set notch frequency from 0 through 100.
+Press pound to submit and exit.
 
-VOX ([Set]+[Shift]+[1])
-- [A]: Enable VOX
-- [B]: Disable VOX
-- [C]: Cycle between Gain, Anti-Gain, Delay
-- [0-9]: Enter value for selected control
-- [#] to send
+VOX via Set plus Shift plus 1:
+Press A to enable VOX.
+Press B to disable VOX.
+Press C to cycle between Gain, Anti-Gain, and Delay.
+Press 0 through 9 to enter value for selected control.
+Press pound to send.
 
-Other Settable Parameters
-- Tuning Step, RF/Squelch Control, Duplex Offset, Dial/Panel Lock, etc.
+Other settable parameters include Tuning Step, RF/Squelch Control, Duplex Offset, and Dial/Panel Lock.
 
 6.5 Quick Band Change
 
 For models with Band Stacking Registers:
 
-1. Press [B] until "Band" is announced
-2. Press [0-9], [C], or [D] for immediate band change:
-   - [1]=160m, [2]=80m, [3]=60m, [4]=40m, [5]=20m
-   - [6]=17m, [7]=15m, [8]=12m, [9]=10m, [0]=6m
-   - [C]=UHF, [D]=1.2G (IC-7100/9100 only)
+Press B until "Band" is announced.
+Then press a number for immediate band change:
+1 for 160 meters, 2 for 80 meters, 3 for 60 meters, 4 for 40 meters, 5 for 20 meters,
+6 for 17 meters, 7 for 15 meters, 8 for 12 meters, 9 for 10 meters, 0 for 6 meters,
+C for UHF, and D for 1.2G on IC-7100 and 9100 only.
 
---------------------------------------------------------------------------------
 
-7. Memory Mode
+Section 7. Memory Mode
 
 7.1 Mode Overview
 
-Memory Mode allows viewing, transferring, saving, and clearing memory channels. The radio itself does not change mode--it stays in VFO mode unless a clear operation is performed.
+Memory Mode allows viewing, transferring, saving, and clearing memory channels. The radio itself does not change mode. It stays in VFO mode unless a clear operation is performed.
 
 7.2 Entry and Exit
 
-Action                Result
-------                ------
-[Shift]+[C]           Enter Memory Mode (review mode)
-[Shift]+[C] Hold      Enter Memory Mode 2 (auto-transfer to VFO)
-[*] or [D]            Exit to Normal Mode (if no data pending)
+Press Shift plus C to enter Memory Mode in review mode.
+Hold Shift plus C to enter Memory Mode 2 with auto-transfer to VFO.
+Press star or D to exit to Normal Mode if no data is pending.
 
 7.3 Key Behaviors
 
-Key           Behavior
----           --------
-[A]           Increment channel, announce data
-[B]           Decrement channel, announce data
-[0-9]         Enter channel number (up to 3 digits)
-[#]           After channel entered: go to that channel;
-              After VFO selected: transfer and exit
-[0-5] Hold    Select Memory Bank 0-5 (model-dependent)
-[C]           Cycle transfer destination: VFO A -> VFO B -> Modify Name
-[C] Hold      IMMEDIATE save current VFO to selected channel
-[*]           Clear pending input, or exit if nothing pending
-[*] Hold      IMMEDIATE clear selected memory channel
+A increments the channel and announces data.
+B decrements the channel and announces data.
+Keys 0 through 9 enter a channel number, up to 3 digits.
+Pound after entering a channel number goes to that channel. Pound after selecting a VFO transfers and exits.
+Hold 0 through 5 selects Memory Bank 0 through 5, depending on model.
+C cycles transfer destination through VFO A, VFO B, and Modify Name.
+Hold C immediately saves current VFO to selected channel.
+Star clears pending input, or exits if nothing is pending.
+Hold star immediately clears the selected memory channel.
 
 7.4 Channel Announcement Format
 
-When a channel is accessed:
-1. Channel number
-2. Alpha-numeric label (if populated)
-3. RX frequency
-4. Operating mode letter (if Frequency Plus Mode enabled)
+When a channel is accessed, you hear: channel number, alpha-numeric label if populated, RX frequency, and operating mode letter if Frequency Plus Mode is enabled.
 
 7.5 Memory Operations
 
-Transfer Memory to VFO
-1. Navigate to desired channel ([A]/[B] or direct entry)
-2. Press [C] to select target VFO (A or B)
-3. Press [#] to transfer and exit
+To transfer memory to VFO: Navigate to the desired channel using A, B, or direct entry. Press C to select target VFO, either A or B. Press pound to transfer and exit.
 
-Save VFO to Memory
-1. Navigate to desired channel location
-2. Press [C] Hold -- IMMEDIATE, no confirmation
-3. Exits to Normal Mode
+To save VFO to memory: Navigate to the desired channel location. Hold C for immediate save with no confirmation. This exits to Normal Mode.
 
-Clear Memory Channel
-1. Navigate to channel to clear
-2. Press [*] Hold -- IMMEDIATE, no confirmation
-3. Radio switches to VFO Mode (even if it was in Memory Mode)
-4. Exits to Normal Mode
+To clear a memory channel: Navigate to the channel to clear. Hold star for immediate clear with no confirmation. The radio switches to VFO Mode even if it was in Memory Mode. This exits to Normal Mode.
 
 7.6 Memory Channel Name Tags
 
 To assign a name to a memory channel using the DStar Text Buffer:
-1. Enter DStar Mode ([Shift]+[D])
-2. Enter text starting with lowercase m followed by desired name
-3. Exit DStar Mode ([D])
-4. Enter Memory Mode, select target channel
-5. Press [C] until "Modify Name" is announced
-6. Press [#] to write
+Enter DStar Mode with Shift plus D.
+Enter text starting with lowercase m followed by the desired name.
+Exit DStar Mode with D.
+Enter Memory Mode and select the target channel.
+Press C until "Modify Name" is announced.
+Press pound to write.
 
---------------------------------------------------------------------------------
 
-8. DStar Mode
+Section 8. DStar Mode
 
 8.1 Mode Overview
 
@@ -541,44 +419,37 @@ DStar Mode provides text entry and management for DStar callsigns and parameters
 
 8.2 DStar Fields
 
-Field           Size        Purpose
------           ----        -------
-My Callsign     12 chars    Your callsign (8) + short note (4)
-TX Callsign     24 chars    UR Callsign (8) + RPT1 (8) + RPT2 (8)
-TX Message      20 chars    Free-form text message
+My Callsign is 12 characters: your callsign in 8 characters plus a short note in 4 characters.
+TX Callsign is 24 characters: UR Callsign in 8 characters, plus RPT1 in 8 characters, plus RPT2 in 8 characters.
+TX Message is 20 characters of free-form text.
 
 8.3 Key Mapping
 
-Key           Behavior
----           --------
-[0-9]         Select character to write (multi-tap style)
-[A]           Write selected char to buffer at cursor, advance cursor
-[B]           Move cursor back one position
-[B] Hold      Convert current char to lowercase
-[C]           Select DStar field (My Callsign / TX Callsign / TX Message)
-[C] Hold      Copy field data into editable buffer
-[#]           Read selected field from radio
-[#] Hold      Write buffer to selected field in radio
-[*]           Write null (end-of-string) at cursor
-[*] Hold      Clear entire buffer
-[1] Hold      Read buffer contents aloud
-[2] Hold      Read buffer letter-by-letter
-[D]           Exit DStar Mode
+Keys 0 through 9 select a character to write using multi-tap style.
+A writes the selected character to the buffer at the cursor and advances the cursor.
+B moves the cursor back one position.
+Hold B converts the current character to lowercase.
+C selects the DStar field: My Callsign, TX Callsign, or TX Message.
+Hold C copies field data into the editable buffer.
+Pound reads the selected field from the radio.
+Hold pound writes the buffer to the selected field in the radio.
+Star writes null, meaning end-of-string, at the cursor.
+Hold star clears the entire buffer.
+Hold 1 reads the buffer contents aloud.
+Hold 2 reads the buffer letter-by-letter.
+D exits DStar Mode.
 
 8.4 DStar Hot Keys
 
-Key           Action          Buffer Content
----           ------          --------------
-[4] Hold      Link            Sets 8th char to "L", sends TX Callsign
-[5] Hold      Talk            Sets first 8 chars to "CQCQCQ  ", sends
-[6] Hold      Unlink          Sets first 8 chars to "       U", sends
-[7] Hold      Relink          Restores saved UR Callsign, sends
-[8] Hold      Echo test       Sets first 8 chars to "       E", sends
-[9] Hold      Info request    Sets first 8 chars to "       I", sends
+Hold 4 for Link: sets the 8th character to L and sends TX Callsign.
+Hold 5 for Talk: sets the first 8 characters to CQCQCQ with 2 spaces and sends.
+Hold 6 for Unlink: sets the first 8 characters to 7 spaces followed by U and sends.
+Hold 7 for Relink: restores the saved UR Callsign and sends.
+Hold 8 for Echo test: sets the first 8 characters to 7 spaces followed by E and sends.
+Hold 9 for Info request: sets the first 8 characters to 7 spaces followed by I and sends.
 
---------------------------------------------------------------------------------
 
-9. DTMF Mode
+Section 9. DTMF Mode
 
 9.1 Mode Overview
 
@@ -586,233 +457,172 @@ DTMF Mode converts the keypad into a 16-key DTMF tone generator.
 
 9.2 Entry and Exit
 
-Action                Result
-------                ------
-[Shift]+[D] Hold      Enter DTMF Mode
-[D] Hold              Exit DTMF Mode
+Hold Shift plus D to enter DTMF Mode.
+Hold D to exit DTMF Mode.
 
 9.3 Behavior
 
-- All 16 keys generate their corresponding DTMF tone
-- Key beeps are muted during DTMF Mode
-- Tone duration is configurable (100-500ms, default 200ms)
+All 16 keys generate their corresponding DTMF tone.
+Key beeps are muted during DTMF Mode.
+Tone duration is configurable from 100 to 500 milliseconds, with a default of 200 milliseconds.
 
---------------------------------------------------------------------------------
 
-10. Configuration Mode
+Section 10. Configuration Mode
 
 10.1 Entry and Exit
 
-Action                  Result
-------                  ------
-[C] Hold (1 sec)        Enter Configuration Mode at last-viewed option
-[C] Hold (1 sec)        Save changes to EEPROM and exit
-[D] Hold (1 sec)        Discard changes and exit (changes remain until power cycle)
-Keypad timeout          Exit without saving
+Hold C for 1 second to enter Configuration Mode at the last-viewed option.
+Hold C for 1 second again to save changes to EEPROM and exit.
+Hold D for 1 second to discard changes and exit. Changes remain until power cycle.
+Keypad timeout exits without saving.
 
 10.2 Navigation Keys
 
-Key       Function
----       --------
-[A]       Step forward through options
-[B]       Step backward through options
-[C]       Increment current parameter
-[D]       Decrement current parameter
+A steps forward through options.
+B steps backward through options.
+C increments the current parameter.
+D decrements the current parameter.
 
-All menus are circular (wrap around).
+All menus are circular and wrap around.
 
 10.3 Invalid Keys
 
-Only [A], [B], [C], [D] are valid in Configuration Mode. All other keys produce an error beep and are ignored.
+Only A, B, C, and D are valid in Configuration Mode. All other keys produce an error beep and are ignored.
 
---------------------------------------------------------------------------------
 
-11. Audio Feedback System
+Section 11. Audio Feedback System
 
 11.1 Key Beeps
 
-Event                               Sound
------                               -----
-Key pressed (beep enabled)          Short beep
-Key held >=500ms                    Lower-pitch beep (hold indicator)
-Invalid key                         Low-frequency error beep
+When a key is pressed with beep enabled, you hear a short beep.
+When a key is held for 500 milliseconds or more, you hear a lower-pitch beep to indicate hold.
+When you press an invalid key, you hear a low-frequency error beep.
 
 11.2 Status Announcements
 
-Trigger                   Announcement
--------                   ------------
-Entry cleared             "clear"
-Decimal point entered     "point"
-Keypad timeout            "timeout"
-Radio timeout             "radio timeout"
-VFO selection             "A" / "B" / "Current"
-Set Mode entry            "Set" / "Band" / "Off"
+Entry cleared: "clear"
+Decimal point entered: "point"
+Keypad timeout: "timeout"
+Radio timeout: "radio timeout"
+VFO selection: "A", "B", or "Current"
+Set Mode entry: "Set", "Band", or "Off"
 
 11.3 Frequency Announcement Optimizations
 
-The radio returns frequencies with full precision (typically to 10 Hz or 1 Hz). The speech system optimizes announcements as follows:
+The radio returns frequencies with full precision, typically to 10 Hz or 1 Hz. The speech system optimizes announcements as follows:
 
-1. Trailing zeros after 1 kHz are omitted -- but only if all sub-kHz digits are zero
-2. Non-zero sub-kHz digits trigger a "dot" separator -- if any digit below 1 kHz is non-zero,
-   a "dot" is spoken after the 1 kHz digit, followed by the remaining significant digits
-3. "Point" vs "dot" -- the primary decimal (MHz separator) is spoken as "point";
-   the secondary separator (kHz to Hz) is spoken as "dot"
+Trailing zeros after 1 kHz are omitted, but only if all sub-kHz digits are zero.
+Non-zero sub-kHz digits trigger a "dot" separator. If any digit below 1 kHz is non-zero, a "dot" is spoken after the 1 kHz digit, followed by the remaining significant digits.
+The word "point" is used for the primary decimal at the MHz separator. The word "dot" is used for the secondary separator between kHz and Hz.
 
-Radio Returns     Spoken As                                           Notes
--------------     ---------                                           -----
-14.250000         "fourteen point two five zero"                      All sub-kHz zeros omitted
-7.240000          "seven point two four zero"                         All sub-kHz zeros omitted
-14.250500         "fourteen point two five zero dot five"             500 Hz shown
-7.123456          "seven point one two three dot four five six"       Full sub-kHz precision
-14.000000         "fourteen point zero zero zero"                     Zeros to 1 kHz spoken
+Examples:
+14.250000 is spoken as "fourteen point two five zero" with all sub-kHz zeros omitted.
+7.240000 is spoken as "seven point two four zero" with all sub-kHz zeros omitted.
+14.250500 is spoken as "fourteen point two five zero dot five" showing 500 Hz.
+7.123456 is spoken as "seven point one two three dot four five six" with full sub-kHz precision.
+14.000000 is spoken as "fourteen point zero zero zero" with zeros to 1 kHz spoken.
 
 11.4 Frequency Plus Mode Suffixes
 
-When enabled, frequency announcements include mode suffix:
+When Frequency Plus Mode is enabled, frequency announcements include a mode suffix:
+LSB is "L", USB is "U", CW is "C", CW Reverse is "CR", RTTY is "R", RTTY Reverse is "RR", FM is "F", WFM is "W", AM is "A", AM Sync is "S", PSK is "P", PSK Reverse is "PR", Digital Voice is "DV".
 
-Mode              Suffix
-----              ------
-LSB               "L"
-USB               "U"
-CW                "C"
-CW Reverse        "CR"
-RTTY              "R"
-RTTY Reverse      "RR"
-FM                "F"
-WFM               "W"
-AM                "A"
-AM Sync           "S"
-PSK               "P"
-PSK Reverse       "PR"
-Digital Voice     "DV"
 
---------------------------------------------------------------------------------
-
-12. Configuration Parameters
+Section 12. Configuration Parameters
 
 12.1 Voice Parameters
 
-Parameter               Range       Default
----------               -----       -------
-Volume                  0-9         5
-Speed                   0-13        5
-Pitch                   0-99        50
-Articulation            0-9         3
-Expression              0-9         3
-Reverb                  0-9         0
-Formant Frequency       0-99        50
-Tone                    0-2         1
-Voice (preset)          0-10        0
+Volume: range 0 through 9, default 5.
+Speed: range 0 through 13, default 5.
+Pitch: range 0 through 99, default 50.
+Articulation: range 0 through 9, default 3.
+Expression: range 0 through 9, default 3.
+Reverb: range 0 through 9, default 0.
+Formant Frequency: range 0 through 99, default 50.
+Tone: range 0 through 2, default 1.
+Voice preset: range 0 through 10, default 0.
 
 12.2 Operational Parameters
 
-Parameter                       Range                         Default
----------                       -----                         -------
-Key Beep                        on/off                        --
-Key Timeout Duration            off, 5-30 sec                 --
-Verbosity                       on/off                        --
-Frequency Announcement          on/off                        --
-Frequency Announcement Delay    1.2-5.0 sec (0.1s steps)      --
-AF and RF Announcement          on/off                        --
-Frequency Plus Mode             on/off                        --
-Communications Timeout          5-20                          --
-ICOM ID Port 1                  00-A0 (hex), A0=auto-acquire  --
-ICOM ID Port 2                  00-A0 (hex), A0=auto-acquire  --
-DTMF Tone Duration              100-500 ms                    200
-Power On To Port                1-2                           1
+Key Beep: on or off.
+Key Timeout Duration: off, or 5 through 30 seconds.
+Verbosity: on or off.
+Frequency Announcement: on or off.
+Frequency Announcement Delay: 1.2 through 5.0 seconds in 0.1 second steps.
+AF and RF Announcement: on or off.
+Frequency Plus Mode: on or off.
+Communications Timeout: 5 through 20.
+ICOM ID Port 1: 00 through A0 in hex, where A0 means auto-acquire.
+ICOM ID Port 2: 00 through A0 in hex, where A0 means auto-acquire.
+DTMF Tone Duration: 100 through 500 milliseconds, default 200.
+Power On To Port: 1 or 2, default 1.
 
---------------------------------------------------------------------------------
 
-13. Error Handling
+Section 13. Error Handling
 
 13.1 Error Responses
 
-Condition                     Response
----------                     --------
-Invalid key in current mode   Low-frequency error beep
-Invalid frequency sent        No acknowledgment; speaks current frequency (unchanged)
-Radio disconnected            "radio timeout" on next command
-Invalid channel number        Error beep, entry cleared
-Communication timeout         "radio timeout"
-Invalid parameter value       "failed" response
+Invalid key in current mode: low-frequency error beep.
+Invalid frequency sent: no acknowledgment, speaks current frequency unchanged.
+Radio disconnected: "radio timeout" on next command.
+Invalid channel number: error beep, entry cleared.
+Communication timeout: "radio timeout".
+Invalid parameter value: "failed" response.
 
 13.2 Recovery Behaviors
 
-Error                           Recovery
------                           --------
-Frequency entry timeout         Returns to Normal Mode
-Radio timeout during command    Aborts operation, returns to Normal Mode
-Config mode timeout             Exits without saving, settings remain until power cycle
+Frequency entry timeout: returns to Normal Mode.
+Radio timeout during command: aborts operation, returns to Normal Mode.
+Config mode timeout: exits without saving, settings remain until power cycle.
 
---------------------------------------------------------------------------------
 
-14. Special Frequencies
+Section 14. Special Frequencies
 
 14.1 System Commands via Frequency Entry
 
-Frequency     Action
----------     ------
-777           Announce firmware version (e.g., "HamPod Pi Firmware Version Alpha 0.1")
-999           Factory reset EEPROM to defaults and reboot (immediate, no confirmation)
+Enter 777 and press pound to announce the firmware version, for example "HamPod Pi Firmware Version Alpha 0.1".
+Enter 999 and press pound for factory reset of EEPROM to defaults and reboot. This is immediate with no confirmation.
 
 14.2 Usage
 
-1. Enter Frequency Entry Mode ([#])
-2. Select any VFO
-3. Enter 777 or 999
-4. Press [#] (Enter)
+Enter Frequency Entry Mode by pressing pound.
+Select any VFO.
+Enter 777 or 999.
+Press pound.
 
---------------------------------------------------------------------------------
 
-Appendix A: Implementation Notes
+Appendix A. Implementation Notes
 
 A.1 State Machine Design
 
-The mode system should be implemented as a finite state machine with clear transitions:
-
-enum Mode {
-    MODE_NORMAL,
-    MODE_FREQUENCY_ENTRY,
-    MODE_SET,
-    MODE_MEMORY,
-    MODE_DSTAR,
-    MODE_DTMF,
-    MODE_CONFIG
-}
+The mode system should be implemented as a finite state machine with clear transitions. The modes are: Normal, Frequency Entry, Set, Memory, DStar, DTMF, and Config.
 
 A.2 Input Buffer Requirements
 
-Buffer              Max Size      Purpose
-------              --------      -------
-Frequency Input     11 chars      Digit accumulation
-DStar Text          24 chars      Largest field (TX Callsign)
-Memory Channel      3 digits      Channel number entry
-Generic Value       2 digits      Most Set Mode values
+Frequency Input buffer: maximum 11 characters for digit accumulation.
+DStar Text buffer: maximum 24 characters for the largest field, TX Callsign.
+Memory Channel buffer: maximum 3 digits for channel number entry.
+Generic Value buffer: maximum 2 digits for most Set Mode values.
 
 A.3 Timer Requirements
 
-Timer                           Range           Default
------                           -----           -------
-Key Hold Detection              500ms           --
-Keypad Timeout                  5-30 sec        Configurable
-Communications Timeout          5-20 (units TBD) Configurable
-Frequency Announcement Delay    1.2-5.0 sec     Configurable
+Key Hold Detection: 500 milliseconds.
+Keypad Timeout: 5 through 30 seconds, configurable.
+Communications Timeout: 5 through 20 units, configurable.
+Frequency Announcement Delay: 1.2 through 5.0 seconds, configurable.
 
 A.4 Key Mapping Priority
 
 When processing a key press:
-1. Check current mode
-2. Check if SHIFT is active
-3. Check if SET is active
-4. Check for HOLD condition
-5. Execute corresponding action
-6. Clear SHIFT flag (if used)
+1. Check current mode.
+2. Check if SHIFT is active.
+3. Check if SET is active.
+4. Check for HOLD condition.
+5. Execute corresponding action.
+6. Clear SHIFT flag if used.
 
---------------------------------------------------------------------------------
 
 Revision History
 
-Date          Version     Changes
-----          -------     -------
-2025-12-30    2.0         Developer-focused rewrite; incorporated Add-On Q&A clarifications
-2023-09-06    1.06        Original manual
+Version 2.0, dated 2025-12-30: Developer-focused rewrite. Incorporated Add-On Q and A clarifications.
+Version 1.06, dated 2023-09-06: Original manual.

@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Default USB audio device string */
-static char audio_device[256] = "sysdefault:CARD=Device";
+/* Default audio device - uses system default which should be configured for dmix */
+static char audio_device[256] = "default";
 static int initialized = 0;
 
 /**
@@ -48,9 +48,8 @@ static int detect_usb_audio(void) {
                 
                 /* Prefer USB or Device in the name */
                 if (strstr(line, "USB") || strstr(name, "Device")) {
-                    /* Use plughw for automatic format conversion (mono->stereo, sample rate) */
-                    snprintf(audio_device, sizeof(audio_device), 
-                             "plughw:%d,0", card_num);
+                    /* Use default device which routes through dmix in .asoundrc */
+                    snprintf(audio_device, sizeof(audio_device), "default");
                     pclose(fp);
                     return 0;
                 }
