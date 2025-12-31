@@ -99,10 +99,44 @@ Once logged in, update the system and install the required build tools and libra
     sudo apt update && sudo apt upgrade -y
     ```
 2.  **(RPI:)** **Install Development Tools & Audio Libraries**:
-    HAMPOD requires `git`, `make`, `gcc`, ALSA (audio), and Hamlib (rig control).
+    HAMPOD requires `git`, `make`, `gcc`, ALSA (audio), Hamlib (rig control), and `sox` (audio generation).
     ```bash
-    sudo apt install -y git make gcc libasound2-dev libhamlib-dev
+    sudo apt install -y git make gcc libasound2-dev libhamlib-dev sox
     ```
+
+3.  **(RPI:)** **Configure ALSA for Audio Mixing (dmix)**:
+    To allow beeps and speech to play simultaneously, configure ALSA's dmix plugin:
+    ```bash
+    cat >> ~/.asoundrc << 'EOF'
+# ALSA dmix configuration for audio mixing (beeps + speech)
+pcm.!default {
+    type plug
+    slave.pcm "dmixer"
+}
+
+pcm.dmixer {
+    type dmix
+    ipc_key 1024
+    slave {
+        pcm "hw:0,0"
+        period_time 0
+        period_size 1024
+        buffer_size 4096
+        rate 44100
+    }
+    bindings {
+        0 0
+        1 1
+    }
+}
+
+ctl.dmixer {
+    type hw
+    card 0
+}
+EOF
+    ```
+    > **Note**: If using a USB audio device instead of the built-in audio, change `hw:0,0` to match your device (use `aplay -l` to list devices).
 
 ---
 

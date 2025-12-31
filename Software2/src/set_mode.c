@@ -352,7 +352,7 @@ void set_mode_enter(void) {
         g_state = SET_MODE_IDLE;
         g_current_param = SET_PARAM_NONE;
         clear_value_buffer();
-        speech_say_text("Set Mode");
+        speech_say_text("Set");
         DEBUG_PRINT("set_mode_enter: Entered Set Mode\n");
     }
 }
@@ -361,7 +361,7 @@ void set_mode_exit(void) {
     g_state = SET_MODE_OFF;
     g_current_param = SET_PARAM_NONE;
     clear_value_buffer();
-    speech_say_text("Set Mode Off");
+    speech_say_text("Set Off");
     DEBUG_PRINT("set_mode_exit: Exited Set Mode\n");
 }
 
