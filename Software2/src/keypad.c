@@ -23,6 +23,7 @@
 
 #include "keypad.h"
 #include "comm.h"
+#include "config.h"
 
 // ============================================================================
 // Configuration Defaults
@@ -71,6 +72,17 @@ static long elapsed_since_press(void) {
 static void fire_event(char key, bool is_hold) {
     if (user_callback == NULL) {
         return;
+    }
+    
+    // Play beep feedback if enabled
+    if (config_get_key_beep_enabled()) {
+        if (is_hold) {
+            // Lower-pitch beep for hold events
+            comm_play_beep(COMM_BEEP_HOLD);
+        } else {
+            // Standard beep for press events
+            comm_play_beep(COMM_BEEP_KEYPRESS);
+        }
     }
     
     KeyPressEvent event = {
