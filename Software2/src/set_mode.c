@@ -251,10 +251,8 @@ static void apply_value(void) {
         speech_say_text("Failed");
     }
     
-    // Return to idle state after applying
-    clear_value_buffer();
-    g_current_param = SET_PARAM_NONE;
-    g_state = SET_MODE_IDLE;
+    // Return to Normal mode after applying (per spec: [#] submits and exits)
+    set_mode_exit();
 }
 
 // ============================================================================
@@ -525,9 +523,8 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
             if (g_value_len > 0) {
                 apply_value();
             } else {
-                // No value entered, just exit editing
-                g_current_param = SET_PARAM_NONE;
-                g_state = SET_MODE_IDLE;
+                // No value entered, treat as "Done/Exit" per spec
+                set_mode_exit();
             }
             return true;
         }
