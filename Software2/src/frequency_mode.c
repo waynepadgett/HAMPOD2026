@@ -74,9 +74,12 @@ static void announce_frequency(double freq_hz) {
     char text[128];
     int mhz_part = (int)freq_mhz;
     
-    // Get 5 decimal places (100 Hz resolution = 5 digits after decimal)
+    // Get 5 decimal places (10 Hz resolution = 5 digits after decimal)
     // e.g., 14.250000 MHz -> decimals = 25000
-    int decimals = (int)((freq_mhz - mhz_part) * 100000 + 0.5);
+    // Use truncation (not rounding) to match radio display behavior
+    // Add tiny epsilon to handle floating-point representation errors
+    // (e.g., 12345.0 represented as 12344.99999...)
+    int decimals = (int)((freq_mhz - mhz_part) * 100000 + 0.0001);
     
     if (decimals == 0) {
         snprintf(text, sizeof(text), "%d megahertz", mhz_part);
@@ -169,8 +172,14 @@ static void submit_frequency(void) {
     
     // Set frequency on radio
     if (radio_set_frequency(freq_hz) == 0) {
-        // Just announce the frequency (no separate "Frequency set" message)
-        announce_frequency(freq_hz);
+        // Read back from radio to confirm what was actually set
+        double actual_freq = radio_get_frequency();
+        if (actual_freq > 0) {
+            announce_frequency(actual_freq);
+        } else {
+            // Fallback to announcing what we sent if readback fails
+            announce_frequency(freq_hz);
+        }
     } else {
         if (config_get_key_beep_enabled()) {
             comm_play_beep(COMM_BEEP_ERROR);

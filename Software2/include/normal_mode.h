@@ -38,9 +38,10 @@ void normal_mode_init(void);
  * 
  * @param key The key character ('0'-'9', 'A'-'D', '*', '#')
  * @param is_hold true if this is a held key (long press)
+ * @param is_shifted true if shift is active (from [A] toggle)
  * @return true if the key was consumed, false to pass to next handler
  */
-bool normal_mode_handle_key(char key, bool is_hold);
+bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted);
 
 // ============================================================================
 // Verbosity Control

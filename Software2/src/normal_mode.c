@@ -8,6 +8,7 @@
 #include "normal_mode.h"
 #include "radio.h"
 #include "radio_queries.h"
+#include "radio_setters.h"
 #include "speech.h"
 #include "frequency_mode.h"
 #include "hampod_core.h"
@@ -40,7 +41,9 @@ static void announce_frequency(void) {
     int mhz_part = (int)freq_mhz;
     
     // Get 5 decimal places for 10 Hz resolution
-    int decimals = (int)((freq_mhz - mhz_part) * 100000 + 0.5);
+    // Use truncation (not rounding) to match radio display behavior
+    // Add tiny epsilon to handle floating-point representation errors
+    int decimals = (int)((freq_mhz - mhz_part) * 100000 + 0.0001);
     
     char text[128];
     if (decimals == 0) {
@@ -94,8 +97,8 @@ void normal_mode_init(void) {
 // Key Handling
 // ============================================================================
 
-bool normal_mode_handle_key(char key, bool is_hold) {
-    DEBUG_PRINT("normal_mode_handle_key: key='%c' hold=%d\n", key, is_hold);
+bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+    DEBUG_PRINT("normal_mode_handle_key: key='%c' hold=%d shift=%d\n", key, is_hold, is_shifted);
     
     // [1] - VFO selection
     if (key == '1') {
@@ -133,6 +136,105 @@ bool normal_mode_handle_key(char key, bool is_hold) {
         const char* mode = radio_get_mode_string();
         speech_say_text(mode);
         return true;
+    }
+    
+    // [4] - PreAmp (press) / AGC (hold) / Attenuation (shift+press)
+    if (key == '4') {
+        char buffer[64];
+        if (is_shifted && !is_hold) {
+            // [Shift]+[4] - Attenuation query
+            int atten = radio_get_attenuation();
+            if (atten == 0) {
+                snprintf(buffer, sizeof(buffer), "Attenuation off");
+            } else if (atten > 0) {
+                snprintf(buffer, sizeof(buffer), "Attenuation %d D B", atten);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Attenuation not available");
+            }
+            speech_say_text(buffer);
+            return true;
+        } else if (is_hold) {
+            // [4] Hold - AGC query
+            snprintf(buffer, sizeof(buffer), "A G C %s", radio_get_agc_string());
+            speech_say_text(buffer);
+            return true;
+        } else {
+            // [4] Press - PreAmp query
+            int preamp = radio_get_preamp();
+            if (preamp == 0) {
+                snprintf(buffer, sizeof(buffer), "Pre amp off");
+            } else if (preamp > 0) {
+                snprintf(buffer, sizeof(buffer), "Pre amp %d", preamp);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Pre amp not available");
+            }
+            speech_say_text(buffer);
+            return true;
+        }
+    }
+    
+    // [7] - Noise Blanker query
+    if (key == '7' && !is_hold) {
+        char buffer[64];
+        bool nb_on = radio_get_nb_enabled();
+        int nb_level = radio_get_nb_level();
+        snprintf(buffer, sizeof(buffer), "Noise blanker %s, level %d", 
+                 nb_on ? "on" : "off", nb_level >= 0 ? nb_level : 0);
+        speech_say_text(buffer);
+        return true;
+    }
+    
+    // [8] - Noise Reduction (press) / Mic Gain (hold)
+    if (key == '8') {
+        char buffer[64];
+        if (is_hold) {
+            // [8] Hold - Mic Gain query
+            int mic = radio_get_mic_gain();
+            if (mic >= 0) {
+                snprintf(buffer, sizeof(buffer), "Mic gain %d percent", mic);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Mic gain not available");
+            }
+            speech_say_text(buffer);
+            return true;
+        } else {
+            // [8] Press - Noise Reduction query
+            bool nr_on = radio_get_nr_enabled();
+            int nr_level = radio_get_nr_level();
+            snprintf(buffer, sizeof(buffer), "Noise reduction %s, level %d",
+                     nr_on ? "on" : "off", nr_level >= 0 ? nr_level : 0);
+            speech_say_text(buffer);
+            return true;
+        }
+    }
+    
+    // [9] - Compression (shift+press) / Power (hold)
+    if (key == '9') {
+        char buffer[64];
+        if (is_shifted && !is_hold) {
+            // [Shift]+[9] - Compression query
+            int comp = radio_get_compression();
+            bool comp_on = radio_get_compression_enabled();
+            if (comp >= 0) {
+                snprintf(buffer, sizeof(buffer), "Compression %s, level %d",
+                         comp_on ? "on" : "off", comp);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Compression not available");
+            }
+            speech_say_text(buffer);
+            return true;
+        } else if (is_hold) {
+            // [9] Hold - Power level query
+            int power = radio_get_power();
+            if (power >= 0) {
+                snprintf(buffer, sizeof(buffer), "Power %d percent", power);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Power not available");
+            }
+            speech_say_text(buffer);
+            return true;
+        }
+        // [9] Press alone - not assigned, fall through
     }
     
     // [*] - S-meter (press) / Power meter (hold)

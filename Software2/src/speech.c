@@ -116,7 +116,8 @@ static int queue_push(char type, const char* payload) {
     
     if (queue.count >= queue.capacity) {
         pthread_mutex_unlock(&queue.mutex);
-        LOG_ERROR("Speech queue is full");
+        LOG_ERROR("Speech queue is full (count=%d, capacity=%d) - dropping: %s", 
+                  queue.count, queue.capacity, payload);
         return HAMPOD_ERROR;
     }
     

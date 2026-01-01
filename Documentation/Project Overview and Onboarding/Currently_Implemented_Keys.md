@@ -23,14 +23,34 @@ These keys work across multiple modes or have consistent behavior:
 
 Normal Mode is the default operating mode. Active when Frequency Mode and Set Mode are not active.
 
+### Basic Queries
+
 | Key | Action | Function |
 |-----|--------|----------|
+| `[0]` | Press | **Mode Query** - Announces the current operating mode (e.g., "USB", "LSB", "CW"). |
 | `[1]` | Press | **VFO A Select** - Selects VFO A and announces the frequency. |
 | `[1]` | Hold | **VFO B Select** - Selects VFO B and announces the frequency. |
 | `[2]` | Press | **Frequency Query** - Announces the current working frequency (e.g., "14 point 0 4 0 7 0 megahertz"). |
-| `[0]` | Press | **Mode Query** - Announces the current operating mode (e.g., "USB", "LSB", "CW"). |
 | `[*]` | Press | **S-Meter** - Reads and announces the S-meter reading. |
 | `[*]` | Hold | **Power Meter** - Reads and announces the RF power meter reading. |
+
+### Parameter Queries
+
+| Key | Action | Function |
+|-----|--------|----------|
+| `[4]` | Press | **PreAmp Query** - Announces current pre-amp setting (off, 1, or 2). |
+| `[4]` | Hold | **AGC Query** - Announces current AGC setting (Off, Fast, Medium, Slow). |
+| `[Shift]+[4]` | Press | **Attenuation Query** - Announces current attenuation level. |
+| `[7]` | Press | **Noise Blanker Query** - Announces NB status and level (e.g., "Noise blanker on, level 5"). |
+| `[8]` | Press | **Noise Reduction Query** - Announces NR status and level. |
+| `[8]` | Hold | **Mic Gain Query** - Announces current mic gain level. |
+| `[Shift]+[9]` | Press | **Compression Query** - Announces compression status and level. |
+| `[9]` | Hold | **Power Level Query** - Announces current power level (e.g., "Power 50 percent"). |
+
+### Mode Controls
+
+| Key | Action | Function |
+|-----|--------|----------|
 | `[C]` | Press | **Announcements Toggle** - Toggles automatic frequency/mode announcements on or off. Announces "Announcements on" or "Announcements off". |
 | `[B]` | Press | **Enter Set Mode** - Transitions to Set Mode. Announces "Set". |
 | `[#]` | Press | **Enter Frequency Mode** - Transitions to Frequency Mode. Announces "Frequency Mode". |
@@ -139,17 +159,14 @@ The following keys from the ICOMReader Manual are not yet functional:
 
 ### Normal Mode (Planned)
 - `[3]` - Split Mode toggle / VFO exchange
-- `[4]` - PreAmp query / AGC query
 - `[5]` - Tone functions
 - `[6]` - Filter functions
-- `[7]` - Noise Blanker query / Tuner query
-- `[8]` - Noise Reduction query / Mic Gain query
-- `[9]` - Notch query / Power query
+- `[7]` Hold - Tuner query/control
+- `[9]` Press - Notch query
 - `[A]` Hold - Volume Up
 - `[B]` Hold - Volume Down
 - `[C]` Hold - Configuration Mode entry
 - `[D]` - Verbosity toggle / Serial port switch
-- Shift combinations for meters
 
 ### Frequency Mode (Planned)
 - `[777]` - Product info
@@ -181,7 +198,7 @@ Audio beeps provide immediate feedback for key presses. Beeps are **configurable
 
 | Mode | Implemented | Total Planned | Status |
 |------|-------------|---------------|--------|
-| **Normal Mode** | 8 key functions | ~20+ | 🟡 Partial |
+| **Normal Mode** | 16 key functions | ~20+ | � Mostly Complete |
 | **Frequency Mode** | All core functions | Core complete | 🟢 Complete |
 | **Set Mode** | All core parameters | Core complete | 🟢 Complete |
 | **Audio Beeps** | Press/Hold beeps | Press/Hold/Error | 🟡 Partial |
@@ -192,5 +209,6 @@ Audio beeps provide immediate feedback for key presses. Beeps are **configurable
 
 | Date | Changes |
 |------|---------|
+| 2026-01-01 | Added Normal Mode parameter query keys ([4], [7], [8], [9] with press/hold/shift) |
 | 2025-12-31 | Added Audio Feedback section for key beeps |
 | 2025-12-29 | Initial document - cataloged all implemented functions |

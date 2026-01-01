@@ -53,9 +53,16 @@ static bool g_shift_active = false;
 static void on_keypress(const KeyPressEvent* kp) {
     DEBUG_PRINT("main: Key '%c' hold=%d shift=%d\n", kp->key, kp->isHold, kp->shiftAmount);
     
+    // Capture shift state before processing (shift is one-shot: auto-clears after use)
+    bool was_shifted = g_shift_active;
+    
     // Route to set mode first (if active, it takes priority for ALL keys including [A])
     if (set_mode_is_active()) {
-        if (set_mode_handle_key(kp->key, kp->isHold, g_shift_active)) {
+        if (set_mode_handle_key(kp->key, kp->isHold, was_shifted)) {
+            // Auto-clear shift after a shifted key is consumed
+            if (was_shifted) {
+                g_shift_active = false;
+            }
             return;
         }
     }
@@ -70,16 +77,28 @@ static void on_keypress(const KeyPressEvent* kp) {
     // [B] key enters Set Mode when not active
     if (kp->key == 'B' && !kp->isHold && !set_mode_is_active()) {
         set_mode_enter();
+        // Clear shift when entering Set Mode
+        if (was_shifted) {
+            g_shift_active = false;
+        }
         return;
     }
     
     // Route to frequency mode
     if (frequency_mode_handle_key(kp->key, kp->isHold)) {
+        // Auto-clear shift after a key is consumed
+        if (was_shifted) {
+            g_shift_active = false;
+        }
         return;
     }
     
     // Route to normal mode (pass shift state)
-    if (normal_mode_handle_key(kp->key, kp->isHold)) {
+    if (normal_mode_handle_key(kp->key, kp->isHold, was_shifted)) {
+        // Auto-clear shift after a shifted key is consumed
+        if (was_shifted) {
+            g_shift_active = false;
+        }
         return;
     }
     
@@ -91,6 +110,11 @@ static void on_keypress(const KeyPressEvent* kp) {
         snprintf(text, sizeof(text), "Pressed %c", kp->key);
     }
     speech_say_text(text);
+    
+    // Even unhandled keys clear shift
+    if (was_shifted) {
+        g_shift_active = false;
+    }
 }
 
 // ============================================================================
