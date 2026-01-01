@@ -10,6 +10,8 @@
 #include "radio_queries.h"
 #include "speech.h"
 #include "hampod_core.h"
+#include "comm.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -243,6 +245,9 @@ static void apply_value(void) {
     if (result == 0) {
         speech_say_text(buffer);
     } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Failed");
     }
     
@@ -278,6 +283,9 @@ static void toggle_nb(bool enable) {
     if (radio_set_nb(enable, level) == 0) {
         speech_say_text(enable ? "Noise blanker on" : "Noise blanker off");
     } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Failed");
     }
 }
@@ -289,6 +297,9 @@ static void toggle_nr(bool enable) {
     if (radio_set_nr(enable, level) == 0) {
         speech_say_text(enable ? "Noise reduction on" : "Noise reduction off");
     } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Failed");
     }
 }
@@ -297,6 +308,9 @@ static void toggle_compression(bool enable) {
     if (radio_set_compression_enabled(enable) == 0) {
         speech_say_text(enable ? "Compression on" : "Compression off");
     } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Failed");
     }
 }
@@ -312,6 +326,9 @@ static void set_agc(AgcSpeed speed) {
         snprintf(buffer, sizeof(buffer), "A G C %s", names[speed]);
         speech_say_text(buffer);
     } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Failed");
     }
 }
@@ -563,6 +580,9 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
                 const char* mode = radio_get_mode_string();
                 speech_say_text(mode);
             } else {
+                if (config_get_key_beep_enabled()) {
+                    comm_play_beep(COMM_BEEP_ERROR);
+                }
                 speech_say_text("Failed");
             }
             return true;

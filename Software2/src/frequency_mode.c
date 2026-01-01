@@ -11,6 +11,8 @@
 #include "speech.h"
 #include "normal_mode.h"
 #include "hampod_core.h"
+#include "comm.h"
+#include "config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -137,6 +139,9 @@ static void submit_frequency(void) {
     double freq_hz = parse_frequency();
     
     if (freq_hz < 0) {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Invalid frequency");
         clear_freq_buffer();
         g_state = FREQ_MODE_IDLE;
@@ -152,6 +157,9 @@ static void submit_frequency(void) {
     if (g_selected_vfo != VFO_CURRENT) {
         RadioVfo target_vfo = (g_selected_vfo == VFO_A) ? RADIO_VFO_A : RADIO_VFO_B;
         if (radio_set_vfo(target_vfo) != 0) {
+            if (config_get_key_beep_enabled()) {
+                comm_play_beep(COMM_BEEP_ERROR);
+            }
             speech_say_text("VFO switch failed");
             clear_freq_buffer();
             g_state = FREQ_MODE_IDLE;
@@ -164,6 +172,9 @@ static void submit_frequency(void) {
         // Just announce the frequency (no separate "Frequency set" message)
         announce_frequency(freq_hz);
     } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
         speech_say_text("Failed to set frequency");
     }
     
