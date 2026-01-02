@@ -16,7 +16,6 @@ Here is a comparison of the top free, local TTS engines for the Raspberry Pi 5.
 | **eSpeak NG** | Formant Synthesis | **Extremely Low** | **Very Poor/Robotic** | Faster than Festival, but the voice quality is highly mechanical. Good for simple, instantaneous alerts where quality is irrelevant. |
 | **Festival** | Concatenative Synthesis | Medium/High | Poor/Monotone | Your current solution. Higher latency than eSpeak NG, with dated, noticeable synthesized speech. |
 | **Pico2Wave** | Unit Selection/Hybrid | Very Low | Basic/Functional | Very fast and lightweight, often built into Linux systems. Voice is functional but flat, slightly better than eSpeak NG. |
-| **Coqui TTS** | Various Neural Models | Moderate to High | **Excellent/Human-like** | A full TTS toolkit offering the highest quality models (like XTTS-v2). Requires significantly more CPU/RAM and may have high latency on the RPi 5 for arbitrary speech compared to Piper. |
 
 ---
 
