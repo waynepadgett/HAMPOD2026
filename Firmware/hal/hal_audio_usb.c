@@ -48,8 +48,8 @@ static int detect_usb_audio(void) {
                 
                 /* Prefer USB or Device in the name */
                 if (strstr(line, "USB") || strstr(name, "Device")) {
-                    /* Use default device which routes through dmix in .asoundrc */
-                    snprintf(audio_device, sizeof(audio_device), "default");
+                    /* Use plughw format for direct access without needing .asoundrc */
+                    snprintf(audio_device, sizeof(audio_device), "plughw:%d,0", card_num);
                     pclose(fp);
                     return 0;
                 }

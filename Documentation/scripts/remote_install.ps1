@@ -1,8 +1,16 @@
+# =============================================================================
+# DEPRECATED - DO NOT USE FOR GUIDANCE
+# =============================================================================
+# This script contains outdated SSH connection information.
+# The correct SSH target is: hampod@hampod.local (not waynesr@HAMPOD.local)
+# Use Regression_Phase_One_Manual_Radio_Test.sh for manual testing instead.
+# =============================================================================
+
 # Remote Install Script for Windows (PowerShell)
 # Usage: .\remote_install.ps1 "<commit_message>"
 
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$CommitMessage
 )
 
