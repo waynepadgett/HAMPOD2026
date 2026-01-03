@@ -51,6 +51,9 @@ static void signal_handler(int sig) {
 static bool g_shift_active = false;
 
 static void on_keypress(const KeyPressEvent *kp) {
+  // Interrupt any ongoing speech immediately for better responsiveness
+  speech_interrupt();
+
   DEBUG_PRINT("main: Key '%c' hold=%d shift=%d\n", kp->key, kp->isHold,
               kp->shiftAmount);
 
