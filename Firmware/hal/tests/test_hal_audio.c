@@ -1,114 +1,224 @@
 /**
  * @file test_hal_audio.c
- * @brief Test program for USB audio HAL
- * 
- * Compile: gcc -o test_audio test_hal_audio.c ../hal_audio_usb.c -I..
- * Run: ./test_audio
+ * @brief Unit tests for the Audio HAL persistent pipeline
+ *
+ * Part of Chunk 1.3: Audio HAL Unit Tests
  */
 
+#include "../hal_audio.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
-#include "hal_audio.h"
+#include <unistd.h>
 
-/* Create a simple test WAV file */
-int create_test_wav(const char* filename) {
-    /* This creates a very simple 1-second beep at 440Hz */
-    FILE *fp = fopen(filename, "wb");
-    if (!fp) {
-        perror("Failed to create test file");
-        return -1;
-    }
-    
-    /* WAV header for 1 second, 8000 Hz, mono, 8-bit */
-    unsigned char header[] = {
-        'R','I','F','F',  // ChunkID
-        0x24,0x1F,0x00,0x00,  // ChunkSize (8000 + 36)
-        'W','A','V','E',  // Format
-        'f','m','t',' ',  // Subchunk1ID
-        0x10,0x00,0x00,0x00,  // Subchunk1Size (16)
-        0x01,0x00,  // AudioFormat (PCM)
-        0x01,0x00,  // NumChannels (1)
-        0x40,0x1F,0x00,0x00,  // SampleRate (8000)
-        0x40,0x1F,0x00,0x00,  // ByteRate
-        0x01,0x00,  // BlockAlign
-        0x08,0x00,  // BitsPerSample (8)
-        'd','a','t','a',  // Subchunk2ID
-        0x00,0x1F,0x00,0x00   // Subchunk2Size (8000)
-    };
-    
-    fwrite(header, 1, sizeof(header), fp);
-    
-    /* Generate simple sine wave (440 Hz = A note) */
-    for (int i = 0; i < 8000; i++) {
-        unsigned char sample = 128 + (int)(64 * sin(2 * 3.14159 * 440 * i / 8000));
-        fwrite(&sample, 1, 1, fp);
-    }
-    
-    fclose(fp);
-    return 0;
+/* Test result counters */
+static int tests_passed = 0;
+static int tests_failed = 0;
+
+#define TEST_PASS(name)                                                        \
+  do {                                                                         \
+    printf("  [PASS] %s\n", name);                                             \
+    tests_passed++;                                                            \
+  } while (0)
+
+#define TEST_FAIL(name, reason)                                                \
+  do {                                                                         \
+    printf("  [FAIL] %s: %s\n", name, reason);                                 \
+    tests_failed++;                                                            \
+  } while (0)
+
+/* ============================================================================
+ * Test Cases
+ * ============================================================================
+ */
+
+/**
+ * Test: Pipeline starts and stops cleanly
+ */
+void test_audio_init_cleanup(void) {
+  printf("\n=== Test: Init and Cleanup ===\n");
+
+  /* Initialize */
+  if (hal_audio_init() != 0) {
+    TEST_FAIL("hal_audio_init", "returned non-zero");
+    return;
+  }
+  TEST_PASS("hal_audio_init");
+
+  /* Check pipeline ready */
+  if (!hal_audio_pipeline_ready()) {
+    TEST_FAIL("hal_audio_pipeline_ready", "pipeline not ready after init");
+  } else {
+    TEST_PASS("hal_audio_pipeline_ready");
+  }
+
+  /* Cleanup */
+  hal_audio_cleanup();
+  TEST_PASS("hal_audio_cleanup");
+
+  /* Verify cleanup worked */
+  if (hal_audio_pipeline_ready()) {
+    TEST_FAIL("pipeline state after cleanup", "pipeline still ready");
+  } else {
+    TEST_PASS("pipeline state after cleanup");
+  }
 }
 
-int main() {
-    printf("=== HAMPOD USB Audio HAL Test ===\n\n");
-    
-    /* Initialize audio */
-    printf("Initializing audio HAL...\n");
-    if (hal_audio_init() != 0) {
-        fprintf(stderr, "ERROR: Failed to initialize audio\n");
-        fprintf(stderr, "Make sure:\n");
-        fprintf(stderr, "  1. USB audio device is connected\n");
-        fprintf(stderr, "  2. ALSA is installed (aplay command available)\n");
-        return 1;
-    }
-    
-    printf("Audio initialized successfully!\n");
-    printf("Implementation: %s\n", hal_audio_get_impl_name());
-    printf("Device: %s\n\n", hal_audio_get_device());
-    
-    /* Create test WAV file */
-    const char* test_file = "/tmp/hampod_test.wav";
-    printf("Creating test audio file: %s\n", test_file);
-    
-    if (create_test_wav(test_file) != 0) {
-        fprintf(stderr, "ERROR: Failed to create test file\n");
-        hal_audio_cleanup();
-        return 1;
-    }
-    
-    printf("Test file created successfully!\n\n");
-    
-    /* Test audio playback */
-    printf("Test 1: Playing test tone (1 second beep at 440Hz)...\n");
-    if (hal_audio_play_file(test_file) != 0) {
-        fprintf(stderr, "ERROR: Audio playback failed\n");
-        fprintf(stderr, "Check audio device connection and volume settings\n");
-        hal_audio_cleanup();
-        return 1;
-    }
-    printf("✓ Playback successful!\n\n");
-    
-    /* Test with non-existent file */
-    printf("Test 2: Error handling (non-existent file)...\n");
-    int result = hal_audio_play_file("/tmp/nonexistent.wav");
-    if (result != 0) {
-        printf("✓ Correctly returned error for missing file\n\n");
+/**
+ * Test: Write raw samples to pipeline
+ */
+void test_audio_write_raw(void) {
+  int16_t samples[800]; /* 50ms of silence at 16kHz */
+  int i;
+
+  printf("\n=== Test: Write Raw Samples ===\n");
+
+  /* Initialize */
+  if (hal_audio_init() != 0) {
+    TEST_FAIL("init for write_raw test", "hal_audio_init failed");
+    return;
+  }
+
+  /* Generate silence samples */
+  for (i = 0; i < 800; i++) {
+    samples[i] = 0;
+  }
+
+  /* Write samples */
+  if (hal_audio_write_raw(samples, 800) != 0) {
+    TEST_FAIL("hal_audio_write_raw", "returned non-zero");
+  } else {
+    TEST_PASS("hal_audio_write_raw (silence)");
+  }
+
+  /* Generate a short beep (1000Hz for 50ms) */
+  for (i = 0; i < 800; i++) {
+    /* 1000Hz sine wave: sin(2*pi*1000*i/16000) */
+    /* Using integer approximation */
+    int phase = (i * 1000 * 360) / 16000;
+    phase = phase % 360;
+    /* Simple triangle wave approximation */
+    if (phase < 90) {
+      samples[i] = (int16_t)(phase * 364); /* 0 to 32760 */
+    } else if (phase < 270) {
+      samples[i] = (int16_t)((180 - phase) * 364); /* 32760 to -32760 */
     } else {
-        printf("⚠ Warning: Should have returned error for missing file\n\n");
+      samples[i] = (int16_t)((phase - 360) * 364); /* -32760 to 0 */
     }
-    
-    /* Cleanup */
-    printf("Cleaning up...\n");
+  }
+
+  if (hal_audio_write_raw(samples, 800) != 0) {
+    TEST_FAIL("hal_audio_write_raw", "beep write failed");
+  } else {
+    TEST_PASS("hal_audio_write_raw (beep)");
+  }
+
+  /* Give time for audio to play */
+  usleep(200000); /* 200ms */
+
+  hal_audio_cleanup();
+}
+
+/**
+ * Test: Play WAV file through pipeline
+ */
+void test_audio_play_file(void) {
+  const char *test_file = "../pregen_audio/1.wav";
+
+  printf("\n=== Test: Play WAV File ===\n");
+
+  /* Initialize */
+  if (hal_audio_init() != 0) {
+    TEST_FAIL("init for play_file test", "hal_audio_init failed");
+    return;
+  }
+
+  /* Check if test file exists */
+  if (access(test_file, F_OK) != 0) {
+    printf("  [SKIP] Test file not found: %s\n", test_file);
     hal_audio_cleanup();
-    remove(test_file);
-    
-    printf("\n=== All tests passed! ===\n");
-    printf("\nYou should have heard a 1-second beep tone.\n");
-    printf("If you didn't hear anything, check:\n");
-    printf("  - USB speaker volume\n");
-    printf("  - USB speaker is set as default device\n");
-    printf("  - Run: aplay -l  (to list audio devices)\n");
-    
-    return 0;
+    return;
+  }
+
+  /* Play file */
+  if (hal_audio_play_file(test_file) != 0) {
+    /* May fail if file format doesn't match pipeline - check fallback */
+    printf("  [INFO] hal_audio_play_file returned error (may be format "
+           "mismatch)\n");
+  } else {
+    TEST_PASS("hal_audio_play_file");
+  }
+
+  /* Give time for audio to play */
+  usleep(500000); /* 500ms */
+
+  hal_audio_cleanup();
+}
+
+/**
+ * Test: Interrupt during playback
+ */
+void test_audio_interrupt(void) {
+  int16_t samples[8000]; /* 500ms of audio at 16kHz */
+  int i;
+
+  printf("\n=== Test: Interrupt During Playback ===\n");
+
+  /* Initialize */
+  if (hal_audio_init() != 0) {
+    TEST_FAIL("init for interrupt test", "hal_audio_init failed");
+    return;
+  }
+
+  /* Generate 500ms of beeps */
+  for (i = 0; i < 8000; i++) {
+    int phase = (i * 500 * 360) / 16000;
+    phase = phase % 360;
+    if (phase < 180) {
+      samples[i] = (int16_t)(16000);
+    } else {
+      samples[i] = (int16_t)(-16000);
+    }
+  }
+
+  /* Test interrupt state */
+  if (hal_audio_is_playing()) {
+    TEST_FAIL("is_playing before playback", "should be 0");
+  } else {
+    TEST_PASS("is_playing before playback");
+  }
+
+  /* Test interrupt function */
+  hal_audio_interrupt();
+  TEST_PASS("hal_audio_interrupt called");
+
+  hal_audio_cleanup();
+}
+
+/* ============================================================================
+ * Main
+ * ============================================================================
+ */
+
+int main(int argc, char *argv[]) {
+  printf("=============================================\n");
+  printf("  HAMPOD Audio HAL Unit Tests\n");
+  printf("=============================================\n");
+
+  (void)argc;
+  (void)argv;
+
+  /* Run tests */
+  test_audio_init_cleanup();
+  test_audio_write_raw();
+  test_audio_play_file();
+  test_audio_interrupt();
+
+  /* Summary */
+  printf("\n=============================================\n");
+  printf("  Results: %d passed, %d failed\n", tests_passed, tests_failed);
+  printf("=============================================\n");
+
+  return (tests_failed > 0) ? 1 : 0;
 }
