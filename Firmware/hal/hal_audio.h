@@ -111,4 +111,29 @@ int hal_audio_is_playing(void);
  */
 int hal_audio_pipeline_ready(void);
 
+/* ============================================================================
+ * RAM-Cached Beep API (for low-latency beeps)
+ * ============================================================================
+ */
+
+/**
+ * @brief Beep type enumeration
+ */
+typedef enum {
+  BEEP_KEYPRESS, /**< Short beep on key press */
+  BEEP_HOLD,     /**< Lower-pitch beep for key hold */
+  BEEP_ERROR     /**< Error/invalid key beep */
+} BeepType;
+
+/**
+ * @brief Play a beep from RAM cache
+ *
+ * Plays a pre-loaded beep sound with minimal latency (no file I/O).
+ * Beep sounds are loaded into RAM at hal_audio_init().
+ *
+ * @param type Type of beep to play
+ * @return 0 on success, -1 on failure
+ */
+int hal_audio_play_beep(BeepType type);
+
 #endif /* HAL_AUDIO_H */

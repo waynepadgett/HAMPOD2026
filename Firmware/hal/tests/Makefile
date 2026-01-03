@@ -1,7 +1,7 @@
 # Audio HAL Tests Makefile
 
 CC = gcc
-CFLAGS = -Wall -I..
+CFLAGS = -Wall -I.. -DBEEP_BASE_PATH=\"../../pregen_audio/\"
 
 # Source files
 HAL_SRC = ../hal_audio_usb.c

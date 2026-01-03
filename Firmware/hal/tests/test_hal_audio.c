@@ -157,6 +157,46 @@ void test_audio_play_file(void) {
 }
 
 /**
+ * Test: Play beep from RAM cache
+ */
+void test_audio_play_beep(void) {
+  printf("\n=== Test: Play Beep (RAM Cache) ===\n");
+
+  /* Initialize */
+  if (hal_audio_init() != 0) {
+    TEST_FAIL("init for play_beep test", "hal_audio_init failed");
+    return;
+  }
+
+  /* Play keypress beep */
+  if (hal_audio_play_beep(BEEP_KEYPRESS) != 0) {
+    TEST_FAIL("hal_audio_play_beep(BEEP_KEYPRESS)",
+              "failed (maybe file not found during init)");
+  } else {
+    TEST_PASS("hal_audio_play_beep(BEEP_KEYPRESS)");
+  }
+
+  /* Play hold beep */
+  if (hal_audio_play_beep(BEEP_HOLD) != 0) {
+    TEST_FAIL("hal_audio_play_beep(BEEP_HOLD)", "failed");
+  } else {
+    TEST_PASS("hal_audio_play_beep(BEEP_HOLD)");
+  }
+
+  /* Play error beep */
+  if (hal_audio_play_beep(BEEP_ERROR) != 0) {
+    TEST_FAIL("hal_audio_play_beep(BEEP_ERROR)", "failed");
+  } else {
+    TEST_PASS("hal_audio_play_beep(BEEP_ERROR)");
+  }
+
+  /* Give time for audio to play */
+  usleep(500000); /* 500ms */
+
+  hal_audio_cleanup();
+}
+
+/**
  * Test: Interrupt during playback
  */
 void test_audio_interrupt(void) {
@@ -213,6 +253,7 @@ int main(int argc, char *argv[]) {
   test_audio_init_cleanup();
   test_audio_write_raw();
   test_audio_play_file();
+  test_audio_play_beep();
   test_audio_interrupt();
 
   /* Summary */

@@ -38,6 +38,141 @@ static volatile int audio_playing = 0;
 #define AUDIO_CHUNK_BYTES                                                      \
   (AUDIO_CHUNK_SAMPLES * AUDIO_CHANNELS * AUDIO_BYTES_PER_SAMPLE)
 
+/* ============================================================================
+ * RAM-Cached Beeps (Phase 2)
+ * ============================================================================
+ */
+
+/* Beep file paths (relative to Firmware directory) */
+#ifndef BEEP_BASE_PATH
+#define BEEP_BASE_PATH "pregen_audio/"
+#endif
+
+#define BEEP_KEYPRESS_PATH BEEP_BASE_PATH "beep_keypress.wav"
+#define BEEP_HOLD_PATH BEEP_BASE_PATH "beep_hold.wav"
+#define BEEP_ERROR_PATH BEEP_BASE_PATH "beep_error.wav"
+
+/* Structure for caching audio in RAM */
+typedef struct {
+  int16_t *samples;   /* PCM data in memory */
+  size_t num_samples; /* Number of samples */
+  int loaded;         /* 1 if successfully loaded, 0 otherwise */
+} CachedAudio;
+
+/* Cached beep sounds */
+static CachedAudio beep_keypress = {0};
+static CachedAudio beep_hold = {0};
+static CachedAudio beep_error = {0};
+
+/**
+ * @brief Load a WAV file into the cache
+ *
+ * Reads the WAV file, validates format, and stores PCM data in memory.
+ *
+ * @param filepath Path to WAV file
+ * @param cache Pointer to CachedAudio structure to fill
+ * @return 0 on success, -1 on failure
+ */
+static int load_wav_to_cache(const char *filepath, CachedAudio *cache) {
+  FILE *wav_file;
+  uint8_t header[44];
+  uint32_t data_size;
+  uint32_t sample_rate;
+  uint16_t num_channels;
+  uint16_t bits_per_sample;
+  size_t samples_read;
+
+  if (cache == NULL)
+    return -1;
+
+  /* Clear existing cache */
+  if (cache->samples != NULL) {
+    free(cache->samples);
+    cache->samples = NULL;
+  }
+  cache->num_samples = 0;
+  cache->loaded = 0;
+
+  /* Open WAV file */
+  wav_file = fopen(filepath, "rb");
+  if (wav_file == NULL) {
+    fprintf(stderr, "HAL Audio: Cannot open beep file: %s\n", filepath);
+    return -1;
+  }
+
+  /* Read and parse WAV header */
+  if (fread(header, 1, 44, wav_file) != 44) {
+    fprintf(stderr, "HAL Audio: Failed to read WAV header: %s\n", filepath);
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Verify RIFF header */
+  if (memcmp(header, "RIFF", 4) != 0 || memcmp(header + 8, "WAVE", 4) != 0) {
+    fprintf(stderr, "HAL Audio: Not a valid WAV file: %s\n", filepath);
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Parse header fields */
+  num_channels = header[22] | (header[23] << 8);
+  sample_rate =
+      header[24] | (header[25] << 8) | (header[26] << 16) | (header[27] << 24);
+  bits_per_sample = header[34] | (header[35] << 8);
+  data_size =
+      header[40] | (header[41] << 8) | (header[42] << 16) | (header[43] << 24);
+
+  /* Validate format */
+  if (sample_rate != AUDIO_SAMPLE_RATE || num_channels != AUDIO_CHANNELS ||
+      bits_per_sample != 16) {
+    fprintf(stderr,
+            "HAL Audio: Beep format mismatch (rate=%u, ch=%u, bits=%u): %s\n",
+            sample_rate, num_channels, bits_per_sample, filepath);
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Allocate memory for samples */
+  cache->num_samples = data_size / 2; /* 16-bit = 2 bytes per sample */
+  cache->samples = (int16_t *)malloc(data_size);
+  if (cache->samples == NULL) {
+    fprintf(stderr, "HAL Audio: Failed to allocate memory for beep: %s\n",
+            filepath);
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Read PCM data */
+  samples_read = fread(cache->samples, 2, cache->num_samples, wav_file);
+  fclose(wav_file);
+
+  if (samples_read != cache->num_samples) {
+    fprintf(stderr, "HAL Audio: Incomplete read (got %zu of %zu): %s\n",
+            samples_read, cache->num_samples, filepath);
+    free(cache->samples);
+    cache->samples = NULL;
+    cache->num_samples = 0;
+    return -1;
+  }
+
+  cache->loaded = 1;
+  printf("HAL Audio: Cached beep: %s (%zu samples, %zu ms)\n", filepath,
+         cache->num_samples, (cache->num_samples * 1000) / AUDIO_SAMPLE_RATE);
+  return 0;
+}
+
+/**
+ * @brief Free cached audio memory
+ */
+static void free_cached_audio(CachedAudio *cache) {
+  if (cache != NULL && cache->samples != NULL) {
+    free(cache->samples);
+    cache->samples = NULL;
+    cache->num_samples = 0;
+    cache->loaded = 0;
+  }
+}
+
 /**
  * @brief Start the persistent audio pipeline
  *
@@ -173,6 +308,18 @@ int hal_audio_init(void) {
                     "system() calls\n");
     /* Don't fail - hal_audio_play_file will fall back to system() if pipe is
      * NULL */
+  }
+
+  /* Load beep sounds into RAM cache */
+  printf("HAL Audio: Loading beep sounds...\n");
+  if (load_wav_to_cache(BEEP_KEYPRESS_PATH, &beep_keypress) != 0) {
+    fprintf(stderr, "HAL Audio: Warning - keypress beep not loaded\n");
+  }
+  if (load_wav_to_cache(BEEP_HOLD_PATH, &beep_hold) != 0) {
+    fprintf(stderr, "HAL Audio: Warning - hold beep not loaded\n");
+  }
+  if (load_wav_to_cache(BEEP_ERROR_PATH, &beep_error) != 0) {
+    fprintf(stderr, "HAL Audio: Warning - error beep not loaded\n");
   }
 
   initialized = 1;
@@ -392,9 +539,63 @@ int hal_audio_pipeline_ready(void) {
 }
 
 void hal_audio_cleanup(void) {
+  /* Free cached beeps */
+  free_cached_audio(&beep_keypress);
+  free_cached_audio(&beep_hold);
+  free_cached_audio(&beep_error);
+
   stop_audio_pipeline();
   initialized = 0;
   printf("HAL Audio: Cleaned up\n");
+}
+
+/**
+ * @brief Play a beep from RAM cache
+ *
+ * Plays a pre-loaded beep sound with minimal latency.
+ *
+ * @param type Type of beep to play (BEEP_KEYPRESS, BEEP_HOLD, BEEP_ERROR)
+ * @return 0 on success, -1 on failure
+ */
+int hal_audio_play_beep(BeepType type) {
+  CachedAudio *beep = NULL;
+
+  switch (type) {
+  case BEEP_KEYPRESS:
+    beep = &beep_keypress;
+    break;
+  case BEEP_HOLD:
+    beep = &beep_hold;
+    break;
+  case BEEP_ERROR:
+    beep = &beep_error;
+    break;
+  default:
+    fprintf(stderr, "HAL Audio: Unknown beep type: %d\n", type);
+    return -1;
+  }
+
+  if (!beep->loaded || beep->samples == NULL) {
+    fprintf(stderr, "HAL Audio: Beep not loaded (type=%d)\n", type);
+    return -1;
+  }
+
+  if (!initialized || audio_pipe == NULL) {
+    fprintf(stderr, "HAL Audio: Pipeline not ready for beep\n");
+    return -1;
+  }
+
+  /* Write beep samples directly to pipeline (fast, no file I/O) */
+  size_t written =
+      fwrite(beep->samples, sizeof(int16_t), beep->num_samples, audio_pipe);
+  fflush(audio_pipe);
+
+  if (written != beep->num_samples) {
+    fprintf(stderr, "HAL Audio: Beep write error\n");
+    return -1;
+  }
+
+  return 0;
 }
 
 const char *hal_audio_get_impl_name(void) {
