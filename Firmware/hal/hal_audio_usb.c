@@ -229,8 +229,16 @@ int hal_audio_write_raw(const int16_t *samples, size_t num_samples) {
 }
 
 int hal_audio_play_file(const char *filepath) {
-  char command[1024];
-  int result;
+  FILE *wav_file;
+  uint8_t header[44];
+  uint32_t data_size;
+  uint32_t sample_rate;
+  uint16_t num_channels;
+  uint16_t bits_per_sample;
+  uint8_t *chunk_buffer;
+  size_t bytes_remaining;
+  size_t bytes_to_read;
+  size_t bytes_read;
 
   if (!initialized) {
     fprintf(stderr, "HAL Audio: Not initialized\n");
@@ -241,14 +249,112 @@ int hal_audio_play_file(const char *filepath) {
     return -1;
   }
 
-  /* TODO: In future chunks, this will stream WAV data through the pipeline
-   * For now, fall back to system() call for compatibility */
+  /* Open WAV file */
+  wav_file = fopen(filepath, "rb");
+  if (wav_file == NULL) {
+    fprintf(stderr, "HAL Audio: Cannot open file: %s\n", filepath);
+    return -1;
+  }
 
-  /* Build aplay command with device specification */
+  /* Read WAV header (44 bytes for standard WAV) */
+  if (fread(header, 1, 44, wav_file) != 44) {
+    fprintf(stderr, "HAL Audio: Failed to read WAV header: %s\n", filepath);
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Verify RIFF header */
+  if (memcmp(header, "RIFF", 4) != 0 || memcmp(header + 8, "WAVE", 4) != 0) {
+    fprintf(stderr, "HAL Audio: Not a valid WAV file: %s\n", filepath);
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Parse WAV header fields (little-endian) */
+  num_channels = header[22] | (header[23] << 8);
+  sample_rate =
+      header[24] | (header[25] << 8) | (header[26] << 16) | (header[27] << 24);
+  bits_per_sample = header[34] | (header[35] << 8);
+  data_size =
+      header[40] | (header[41] << 8) | (header[42] << 16) | (header[43] << 24);
+
+  /* Validate format matches our pipeline configuration */
+  if (sample_rate != AUDIO_SAMPLE_RATE) {
+    fprintf(stderr, "HAL Audio: Sample rate mismatch (%u vs %d): %s\n",
+            sample_rate, AUDIO_SAMPLE_RATE, filepath);
+    /* Fall back to system() for non-matching files */
+    fclose(wav_file);
+    goto fallback_system;
+  }
+
+  if (num_channels != AUDIO_CHANNELS) {
+    fprintf(stderr, "HAL Audio: Channel mismatch (%u vs %d): %s\n",
+            num_channels, AUDIO_CHANNELS, filepath);
+    fclose(wav_file);
+    goto fallback_system;
+  }
+
+  if (bits_per_sample != 16) {
+    fprintf(stderr, "HAL Audio: Bit depth mismatch (%u vs 16): %s\n",
+            bits_per_sample, filepath);
+    fclose(wav_file);
+    goto fallback_system;
+  }
+
+  /* Check if pipeline is available */
+  if (audio_pipe == NULL) {
+    fclose(wav_file);
+    goto fallback_system;
+  }
+
+  /* Allocate chunk buffer */
+  chunk_buffer = (uint8_t *)malloc(AUDIO_CHUNK_BYTES);
+  if (chunk_buffer == NULL) {
+    fprintf(stderr, "HAL Audio: Failed to allocate chunk buffer\n");
+    fclose(wav_file);
+    return -1;
+  }
+
+  /* Stream audio data in chunks */
+  audio_playing = 1;
+  audio_interrupted = 0;
+  bytes_remaining = data_size;
+
+  while (bytes_remaining > 0 && !audio_interrupted) {
+    bytes_to_read = (bytes_remaining > AUDIO_CHUNK_BYTES) ? AUDIO_CHUNK_BYTES
+                                                          : bytes_remaining;
+    bytes_read = fread(chunk_buffer, 1, bytes_to_read, wav_file);
+
+    if (bytes_read == 0) {
+      break; /* EOF or error */
+    }
+
+    /* Write to pipeline */
+    size_t written = fwrite(chunk_buffer, 1, bytes_read, audio_pipe);
+    fflush(audio_pipe);
+
+    if (written != bytes_read) {
+      fprintf(stderr, "HAL Audio: Write error during streaming\n");
+      break;
+    }
+
+    bytes_remaining -= bytes_read;
+  }
+
+  audio_playing = 0;
+  audio_interrupted = 0;
+  free(chunk_buffer);
+  fclose(wav_file);
+  return 0;
+
+fallback_system: {
+  /* Fallback to system() call for non-matching formats */
+  char command[1024];
+  int result;
+
   snprintf(command, sizeof(command), "aplay -D %s '%s' 2>/dev/null",
            audio_device, filepath);
 
-  /* Execute command */
   audio_playing = 1;
   result = system(command);
   audio_playing = 0;
@@ -257,8 +363,8 @@ int hal_audio_play_file(const char *filepath) {
     fprintf(stderr, "HAL Audio: Failed to play file: %s\n", filepath);
     return -1;
   }
-
   return 0;
+}
 }
 
 /**
