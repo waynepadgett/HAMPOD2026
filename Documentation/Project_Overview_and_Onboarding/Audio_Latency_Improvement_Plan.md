@@ -2,6 +2,29 @@
 
 > **Goal**: Enable key beeps without overloading the speech queue or causing excessive latency. Focus on audio architecture only.
 
+> **Status**: ✅ **IMPLEMENTED** (January 2, 2026)
+
+---
+
+## Implementation Summary
+
+All phases have been implemented on the `set-mode-correction` branch:
+
+| Part | Status | Implementation |
+|------|--------|----------------|
+| **Persistent ALSA** | ✅ Complete | `hal_audio_usb.c` with persistent `aplay` pipeline |
+| **RAM-Cached Beeps** | ✅ Complete | 3 beep types loaded at init, played via `hal_audio_play_beep()` |
+| **Interruptible Audio** | ✅ Complete | 50ms chunks with interrupt flag |
+| **TTS Routing** | ✅ Complete | Piper output now streams through HAL for unified audio |
+
+### Key Architecture Decision
+
+Instead of running two separate `aplay` processes (one for beeps/WAV, one for Piper TTS), **all audio now routes through a single persistent pipeline**:
+
+- `hal_audio_write_raw()` - Used by beeps and TTS
+- TTS (`hal_tts_piper.c`) runs `piper --output_raw` and streams PCM through the HAL
+- This eliminates device conflicts and makes TTS interruptible
+
 ---
 
 ## Problem Summary
