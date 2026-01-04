@@ -153,13 +153,14 @@ int main(int argc, char *argv[]) {
   int volume = config_get_volume();
   printf("Setting volume to %d%%...\n", volume);
   char vol_cmd[256];
-  // Try card 3 (USB2.0 Device) first, then card 4 (USB Audio CODEC), then
-  // default
+  // Try USB audio cards in order (2, 3, 4) then default
+  // Card numbers can change on reboot depending on USB enumeration order
   snprintf(vol_cmd, sizeof(vol_cmd),
+           "amixer -c 2 -q sset PCM %d%% 2>/dev/null || "
            "amixer -c 3 -q sset PCM %d%% 2>/dev/null || "
            "amixer -c 4 -q sset PCM %d%% 2>/dev/null || "
            "amixer -q sset PCM %d%% 2>/dev/null",
-           volume, volume, volume);
+           volume, volume, volume, volume);
   system(vol_cmd);
 
   // Initialize comm (Firmware pipes)
