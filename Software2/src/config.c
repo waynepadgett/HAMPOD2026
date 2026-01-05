@@ -514,7 +514,8 @@ static int config_parse_file(const char *path) {
       int idx = atoi(section + 6) - 1;
       if (idx >= 0 && idx < MAX_RADIOS) {
         if (strcmp(key, "enabled") == 0)
-          g_config.radios[idx].enabled = (atoi(value) != 0);
+          g_config.radios[idx].enabled =
+              (strcmp(value, "true") == 0 || atoi(value) != 0);
         else if (strcmp(key, "name") == 0)
           strncpy(g_config.radios[idx].name, value, 63);
         else if (strcmp(key, "model") == 0)
