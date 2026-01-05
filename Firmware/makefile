@@ -28,8 +28,8 @@ endif
 
 CFLAGS += $(TTS_FLAGS)
 
-# HAL sources and objects (including TTS HAL)
-HAL_SRCS = hal/hal_keypad_usb.c hal/hal_audio_usb.c $(TTS_SRC)
+# HAL sources and objects (including TTS HAL and USB util)
+HAL_SRCS = hal/hal_keypad_usb.c hal/hal_audio_usb.c hal/hal_usb_util.c $(TTS_SRC)
 HAL_OBJS = $(HAL_SRCS:.c=.o)
 
 # Main targets
@@ -81,7 +81,11 @@ keypad_firmware.o: keypad_firmware.c keypad_firmware.h hal/hal_keypad.h
 	$(CC) $(CFLAGS) -c keypad_firmware.c -o keypad_firmware.o
 
 # HAL object files
-hal/%.o: hal/%.c hal/hal_keypad.h hal/hal_audio.h hal/hal_tts.h
+hal/%.o: hal/%.c hal/hal_keypad.h hal/hal_audio.h hal/hal_tts.h hal/hal_usb_util.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# USB util has fewer dependencies
+hal/hal_usb_util.o: hal/hal_usb_util.c hal/hal_usb_util.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Debug build with symbols
