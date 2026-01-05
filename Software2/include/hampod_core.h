@@ -104,6 +104,7 @@ typedef struct {
 #define AUDIO_TYPE_SPELL 's'     // Spell out text character by character
 #define AUDIO_TYPE_BEEP 'b'      // Play pre-cached beep
 #define AUDIO_TYPE_INTERRUPT 'i' // Interrupt current playback
+#define AUDIO_TYPE_INFO 'q' // Query audio device info (returns card number)
 
 // ============================================================================
 // Common Return Codes

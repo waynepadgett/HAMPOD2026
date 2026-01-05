@@ -140,6 +140,11 @@ void audio_process() {
       hal_audio_interrupt();
       hal_tts_interrupt();
       system_result = 0;
+    } else if (audio_type_byte == 'q') {
+      /* Query audio device info - return card number */
+      AUDIO_PRINTF("Querying audio device info\n");
+      system_result = hal_audio_get_card_number();
+      AUDIO_PRINTF("Returning card number: %d\n", system_result);
     } else {
       AUDIO_PRINTF("Audio error. Unrecognized packet data %s\n",
                    requested_string);

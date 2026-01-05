@@ -149,20 +149,6 @@ int main(int argc, char *argv[]) {
     printf("WARNING: Config init failed, using defaults\n");
   }
 
-  // Apply volume setting to USB audio
-  int volume = config_get_volume();
-  printf("Setting volume to %d%%...\n", volume);
-  char vol_cmd[256];
-  // Try USB audio cards in order (2, 3, 4) then default
-  // Card numbers can change on reboot depending on USB enumeration order
-  snprintf(vol_cmd, sizeof(vol_cmd),
-           "amixer -c 2 -q sset PCM %d%% 2>/dev/null || "
-           "amixer -c 3 -q sset PCM %d%% 2>/dev/null || "
-           "amixer -c 4 -q sset PCM %d%% 2>/dev/null || "
-           "amixer -q sset PCM %d%% 2>/dev/null",
-           volume, volume, volume, volume);
-  system(vol_cmd);
-
   // Initialize comm (Firmware pipes)
   printf("Connecting to Firmware...\n");
   if (comm_init() != 0) {
@@ -179,6 +165,28 @@ int main(int argc, char *argv[]) {
     comm_close();
     config_cleanup();
     return 1;
+  }
+
+  // Apply volume setting to USB audio
+  // Query the actual card number from Firmware (determined at startup)
+  int card_number = 2; // Default fallback
+  if (comm_query_audio_card_number(&card_number) == 0) {
+    printf("Audio card detected: %d\n", card_number);
+  } else {
+    printf("WARNING: Could not query audio card, using default card %d\n",
+           card_number);
+  }
+
+  int volume = config_get_volume();
+  printf("Setting volume to %d%% on card %d...\n", volume, card_number);
+  char vol_cmd[256];
+  snprintf(vol_cmd, sizeof(vol_cmd),
+           "amixer -c %d -q sset PCM %d%% 2>/dev/null", card_number, volume);
+  if (system(vol_cmd) != 0) {
+    printf("WARNING: Volume command failed, trying default device\n");
+    snprintf(vol_cmd, sizeof(vol_cmd), "amixer -q sset PCM %d%% 2>/dev/null",
+             volume);
+    system(vol_cmd);
   }
 
   // Initialize speech
