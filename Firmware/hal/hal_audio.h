@@ -136,4 +136,29 @@ typedef enum {
  */
 int hal_audio_play_beep(BeepType type);
 
+/* ============================================================================
+ * Device Info API (for volume control and change detection)
+ * ============================================================================
+ */
+
+/**
+ * @brief Get the selected ALSA card number
+ *
+ * Returns the card number of the detected audio device.
+ * Used by Software2 for volume control via amixer.
+ *
+ * @return Card number (0-255), or -1 if not initialized
+ */
+int hal_audio_get_card_number(void);
+
+/**
+ * @brief Get the USB port path of the audio device
+ *
+ * Returns the sysfs path of the USB port the audio device is connected to.
+ * Used for configuration change detection.
+ *
+ * @return Pointer to static string containing port path, or NULL if not USB
+ */
+const char *hal_audio_get_port_path(void);
+
 #endif /* HAL_AUDIO_H */

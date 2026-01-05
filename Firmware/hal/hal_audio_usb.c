@@ -12,6 +12,7 @@
  */
 
 #include "hal_audio.h"
+#include "hal_usb_util.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,9 @@
  * dmix */
 static char audio_device[256] = "default";
 static int initialized = 0;
+
+/* Selected audio device info (from USB enumeration) */
+static AudioDeviceInfo selected_audio_device = {0};
 
 /* Persistent audio pipeline for raw PCM streaming */
 static FILE *audio_pipe = NULL;
@@ -223,59 +227,25 @@ static void stop_audio_pipeline(void) {
 }
 
 /**
- * @brief Detect USB audio device
+ * @brief Detect USB audio device using enumeration utility
  *
- * Parses output of 'aplay -l' to find USB audio device
+ * Uses hal_usb_find_audio to find the best audio device with this priority:
+ * 1. "USB2.0 Device" (preferred external speaker)
+ * 2. Any USB audio device
+ * 3. Headphones
+ * 4. Default
  *
  * @return 0 on success, -1 on failure
  */
 static int detect_usb_audio(void) {
-  FILE *fp;
-  char line[512];
-  char card_name[64] = "";
+  AudioDeviceInfo result;
 
-  /* Run aplay -l to list audio devices */
-  fp = popen("aplay -l 2>/dev/null", "r");
-  if (fp == NULL) {
-    fprintf(stderr, "HAL Audio: Failed to run aplay -l\n");
-    return -1;
-  }
-
-  /* Parse output looking for USB device */
-  while (fgets(line, sizeof(line), fp) != NULL) {
-    /* Look for card line, typically: "card 1: Device [...]" */
-    if (strstr(line, "card") && strstr(line, ":")) {
-      /* Extract card number and name */
-      int card_num;
-      char name[128];
-      if (sscanf(line, "card %d: %127s", &card_num, name) == 2) {
-        /* Remove trailing colon if present */
-        char *colon = strchr(name, ',');
-        if (colon)
-          *colon = '\0';
-
-        /* Prefer USB or Device in the name */
-        if (strstr(line, "USB") || strstr(name, "Device")) {
-          /* Use plughw format for direct access without needing .asoundrc */
-          snprintf(audio_device, sizeof(audio_device), "plughw:%d,0", card_num);
-          pclose(fp);
-          return 0;
-        }
-
-        /* Save first device as fallback */
-        if (card_name[0] == '\0') {
-          strncpy(card_name, name, sizeof(card_name) - 1);
-        }
-      }
-    }
-  }
-
-  pclose(fp);
-
-  /* If USB not found but we have a device, use that */
-  if (card_name[0] != '\0') {
-    snprintf(audio_device, sizeof(audio_device), "sysdefault:CARD=%s",
-             card_name);
+  /* Use the USB enumeration utility with "USB2.0 Device" as preferred */
+  if (hal_usb_find_audio("USB2.0 Device", &result) == 0) {
+    /* Copy the selected device info */
+    selected_audio_device = result;
+    strncpy(audio_device, result.device_path, sizeof(audio_device) - 1);
+    audio_device[sizeof(audio_device) - 1] = '\0';
     return 0;
   }
 
@@ -600,4 +570,18 @@ int hal_audio_play_beep(BeepType type) {
 
 const char *hal_audio_get_impl_name(void) {
   return "USB Audio (ALSA Persistent Pipeline)";
+}
+
+int hal_audio_get_card_number(void) {
+  if (!initialized) {
+    return -1;
+  }
+  return selected_audio_device.card_number;
+}
+
+const char *hal_audio_get_port_path(void) {
+  if (!initialized || !selected_audio_device.is_usb) {
+    return NULL;
+  }
+  return selected_audio_device.usb_port;
 }
