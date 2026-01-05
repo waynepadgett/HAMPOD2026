@@ -154,14 +154,21 @@ int hal_usb_enumerate_audio(AudioDeviceInfo *devices, int max_devices,
 
 /**
  * Find the best audio device by preference
+ *
+ * Priority order:
+ * 1. Preferred device by name (e.g., "USB2.0 Device") - external USB
+ * 2. Any external USB device (excluding internal headphone adapters)
+ * 3. Internal headphone (bcm2835 Headphones on Pi3/4, USB Audio CODEC on Pi5)
+ * 4. HDMI (only as last resort)
  */
 int hal_usb_find_audio(const char *preferred_name, AudioDeviceInfo *result) {
   AudioDeviceInfo devices[MAX_AUDIO_DEVICES];
   int found = 0;
   int i;
   AudioDeviceInfo *preferred = NULL;
-  AudioDeviceInfo *any_usb = NULL;
-  AudioDeviceInfo *headphones = NULL;
+  AudioDeviceInfo *external_usb = NULL;
+  AudioDeviceInfo *internal_headphone = NULL;
+  AudioDeviceInfo *hdmi = NULL;
   AudioDeviceInfo *fallback = NULL;
 
   if (result == NULL) {
@@ -181,31 +188,55 @@ int hal_usb_find_audio(const char *preferred_name, AudioDeviceInfo *result) {
   for (i = 0; i < found; i++) {
     AudioDeviceInfo *dev = &devices[i];
 
-    /* Priority 1: Preferred device by name */
-    if (preferred_name && preferred == NULL) {
-      if (strstr(dev->card_name, preferred_name) != NULL && dev->is_usb) {
+    /* Check if this is an internal headphone device:
+     * - "bcm2835 Headphones" - Pi 3/4 built-in 3.5mm jack
+     * - "USB Audio CODEC" on internal hub - Pi 5 headphone adapter
+     * - Anything with "Headphone" in name
+     */
+    int is_internal_headphone = 0;
+    if (strstr(dev->card_name, "bcm2835") != NULL ||
+        strstr(dev->card_name, "Headphone") != NULL ||
+        strstr(dev->card_name, "headphone") != NULL) {
+      is_internal_headphone = 1;
+    }
+    /* USB Audio CODEC on internal hub (port 1-1.x) is Pi 5 headphone */
+    if (strstr(dev->card_name, "USB Audio CODEC") != NULL) {
+      if (strstr(dev->usb_port, "1-1.") != NULL) {
+        is_internal_headphone = 1;
+      }
+    }
+
+    /* Check if this is HDMI */
+    int is_hdmi = (strstr(dev->card_name, "HDMI") != NULL ||
+                   strstr(dev->card_name, "hdmi") != NULL ||
+                   strstr(dev->card_name, "vc4-hdmi") != NULL);
+
+    /* Priority 1: Preferred device by name (must be external USB) */
+    if (preferred_name && preferred == NULL && dev->is_usb) {
+      if (strstr(dev->card_name, preferred_name) != NULL &&
+          !is_internal_headphone) {
         preferred = dev;
         printf("HAL USB: Found preferred device: %s\n", dev->card_name);
       }
     }
 
-    /* Priority 2: Any USB device (first one found) */
-    if (any_usb == NULL && dev->is_usb) {
-      any_usb = dev;
+    /* Priority 2: Any external USB device (not internal headphone, not HDMI) */
+    if (external_usb == NULL && dev->is_usb && !is_internal_headphone &&
+        !is_hdmi) {
+      external_usb = dev;
     }
 
-    /* Priority 3: Headphones */
-    if (headphones == NULL) {
-      if (strstr(dev->card_name, "Headphone") != NULL ||
-          strstr(dev->card_name, "headphone") != NULL ||
-          strstr(dev->card_name, "HDMI") == NULL) { /* Prefer non-HDMI */
-        if (!dev->is_usb) {
-          headphones = dev;
-        }
-      }
+    /* Priority 3: Internal headphone */
+    if (internal_headphone == NULL && is_internal_headphone) {
+      internal_headphone = dev;
     }
 
-    /* Priority 4: Any device as fallback */
+    /* Priority 4: HDMI */
+    if (hdmi == NULL && is_hdmi) {
+      hdmi = dev;
+    }
+
+    /* Fallback: first device found */
     if (fallback == NULL) {
       fallback = dev;
     }
@@ -216,13 +247,17 @@ int hal_usb_find_audio(const char *preferred_name, AudioDeviceInfo *result) {
     *result = *preferred;
     printf("HAL USB: Selected preferred device: %s (%s)\n", result->card_name,
            result->device_path);
-  } else if (any_usb != NULL) {
-    *result = *any_usb;
-    printf("HAL USB: Selected USB device: %s (%s)\n", result->card_name,
+  } else if (external_usb != NULL) {
+    *result = *external_usb;
+    printf("HAL USB: Selected external USB: %s (%s)\n", result->card_name,
            result->device_path);
-  } else if (headphones != NULL) {
-    *result = *headphones;
-    printf("HAL USB: Selected headphones: %s (%s)\n", result->card_name,
+  } else if (internal_headphone != NULL) {
+    *result = *internal_headphone;
+    printf("HAL USB: Selected internal headphone: %s (%s)\n", result->card_name,
+           result->device_path);
+  } else if (hdmi != NULL) {
+    *result = *hdmi;
+    printf("HAL USB: Selected HDMI: %s (%s)\n", result->card_name,
            result->device_path);
   } else if (fallback != NULL) {
     *result = *fallback;
