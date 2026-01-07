@@ -1,76 +1,169 @@
 # HAMPOD2026
 
-**HAMPOD** is an accessibility interface designed to make amateur radios (like the Icom IC-7300) accessible to visually impaired operators. It uses a Raspberry Pi-based controller with a tactile keypad and text-to-speech (TTS) feedback to provide audio menus, frequency readouts, and full radio control via Hamlib.
+HAMPOD is an accessibility interface designed to make amateur radios accessible to visually impaired operators. It uses a Raspberry Pi-based controller with a tactile USB keypad and text-to-speech feedback to provide audio menus, frequency readouts, and radio control via Hamlib.
 
-## 🚧 Status: Active Reconstruction (Fresh Start)
+## Status
 
-This project is currently undergoing a major software rewrite ("Fresh Start"). The goal is to replace the original monolithic software layer with a modular, testable, and responsive architecture.
+Most basic functions are implemented. The system can read frequency, change bands, and control the radio. Some advanced features from the original ICOMReader are still in development.
 
-- **Firmware Layer:** Stable. Handles raw hardware I/O (Keypad, Audio extraction) and communicates via Named Pipes.
-- **Software Layer:** Being rewritten from scratch to support robust polling, zero-latency feedback, and reliable Hamlib control.
+Current capabilities:
+- Multi-radio configuration: Supports up to 10 radios including IC-7300, TS-570, and TS-2000
+- Deterministic audio device selection: Prioritizes external USB audio devices
+- Piper text-to-speech: Fast, natural-sounding speech synthesis
+- USB keypad input: Standard numeric keypad for tactile operation
+- Hamlib radio control: Frequency, mode, and band control
 
-## 📂 Repository Structure
+## Supported Radios
 
-*   **`Documentation/`** - **Start Here.** Contains build guides, architectural plans, and developer onboarding.
-    *   `Project_Overview_and_Onboarding/` - Critical reading for developers.
-        *   [`fresh-start-big-plan.md`](Documentation/Project_Overview_and_Onboarding/fresh-start-big-plan.md) - The master plan for the rewrite.
-        *   [`fresh-start-phase-zero-plan.md`](Documentation/Project_Overview_and_Onboarding/fresh-start-phase-zero-plan.md) - Immediate steps for core infrastructure.
-*   **`Firmware/`** - The low-level C code that runs on the Pi. It manages the keypad hardware and separates audio output.
-*   **`Software/`** - The legacy (2025 team) software implementation. It is currently serving as a reference but is slated for replacement.
-*   **`Hardware_Files/`** - Schematics and PCB design files for the custom keypad/hat.
+Tested radios:
+- ICOM IC-7300: Hamlib model 3073, primary development radio
+- Kenwood TS-570: Hamlib model 2004, tested working
+- Kenwood TS-2000: Hamlib model 2014, configured but not yet tested
 
-## 🚀 Quick Install (Raspberry Pi)
+## Supported Platforms
 
-We have an automated install script that sets up everything for you! Just flash your Pi with Debian Trixie, enable SSH, and run:
+- Raspberry Pi 5 with Debian Trixie: Primary development platform
+- Raspberry Pi 4 with Debian Trixie: Supported
+- Raspberry Pi 3 with Debian Trixie: Supported
 
-### Option 1: Feature Branch (Current - Working ✅)
-```bash
-# SSH into your Pi, then:
-git clone -b feature/set-mode https://github.com/waynepadgett/HAMPOD2026.git
+## Repository Structure
+
+- Documentation folder: Build guides, plans, and install scripts
+  - Project_Overview_and_Onboarding subfolder: Developer onboarding documents
+  - scripts subfolder: Install and run scripts
+- Firmware folder: Low-level hardware code for keypad, audio, and text-to-speech
+- Software2 folder: Application layer with radio control and user modes
+  - config subfolder: Contains hampod.conf configuration file
+  - src subfolder: Source code files
+- Hardware_Files folder: Schematics and PCB designs
+
+## Quick Start
+
+### Prerequisites
+
+- Raspberry Pi 3, 4, or 5 with Debian Trixie installed
+
+If you need to set up the operating system on your Raspberry Pi and flash an SD card, see RPi_Setup_Guide.md in the Documentation/Project_Overview_and_Onboarding folder.
+- USB numeric keypad
+- USB audio device (such as USB2.0 Device)
+- Amateur radio with USB or serial interface
+
+### Installation
+
+SSH into your Raspberry Pi and run these commands:
+
+```
+git clone https://github.com/waynepadgett/HAMPOD2026.git
 cd HAMPOD2026/Documentation/scripts
 ./install_hampod.sh
 ```
 
-### Option 2: Main Branch One-Liner (Coming Soon ⏳)
-> **Note:** This will work once the install script is merged to main.
-```bash
-# SSH into your Pi, then:
-curl -sSL https://raw.githubusercontent.com/waynepadgett/HAMPOD2026/main/Documentation/scripts/install_hampod.sh | bash
+The install script will update system packages, install dependencies including Hamlib and Piper text-to-speech, build the firmware and software, and configure audio permissions.
+
+### Running HAMPOD
+
+To start the system:
+
+```
+cd HAMPOD2026
+./Documentation/scripts/run_hampod.sh
 ```
 
-The script will:
-- Update system packages
-- Install all dependencies (git, gcc, ALSA, Hamlib)
-- Clone the repository
-- Install Piper TTS for speech
-- Build the Firmware
-- Build integration tests
-- Configure audio permissions
+To stop, press Control-C.
 
-After completion, it will prompt you to run the first regression test to verify your setup.
+## Configuration
 
-📖 For detailed manual setup instructions, see [`Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md`](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md).
+The configuration file is located at Software2/config/hampod.conf. Edit this file to configure your radios.
 
----
+### Audio Settings
 
-## 🛠️ Getting Started (Developers)
+- volume: Speaker volume level, default is 25
+- speech_speed: Text-to-speech speed, default is 1.0
+- key_beep: Enable key beep sounds, 1 for on, 0 for off
+- preferred_device: Name of preferred USB audio device
 
-1.  **Review the Plans:** Read `Documentation/Project_Overview_and_Onboarding/fresh-start-big-plan.md` to understand the architecture.
-2.  **Setup Environment:**
-    *   Target hardware: Raspberry Pi 5 (Debian Trixie).
-    *   Dependencies: `libhamlib-dev`, `festival`, `alsa-utils`, `libasound2-dev`.
-3.  **Deployment:** use the scripts in `Documentation/scripts/` to deploy code to the Pi.
+### Radio Settings
 
-## Architecture Overview
+You can configure multiple radios. Only one radio can be enabled at a time. Each radio section includes:
 
-The system runs as two main processes communicating via **Named Pipes**:
+- name: Descriptive name for the radio
+- enabled: Set to true for the active radio, false for others
+- model: Hamlib model number
+- device: Serial port path, usually /dev/ttyUSB0
+- baud: Baud rate for serial communication
 
-1.  **Firmware Process:**
-    *   Reads GPIO pins for the Keypad.
-    *   Manages direct ALSA audio (or Festival TTS).
-    *   Sends raw key events to the Software.
-2.  **Software Process (New):**
-    *   Receives key events.
-    *   Manages application state (Menu, Frequency, Settings).
-    *   Controls the physical radio via `hamlib`.
-    *   Sends text strings back to Firmware for speech output.
+### Switching Radios
+
+To switch to a different radio:
+1. Open Software2/config/hampod.conf in a text editor
+2. Find the currently enabled radio and change enabled = true to enabled = false
+3. Find the radio you want to use and change enabled = false to enabled = true
+4. Save the file and restart HAMPOD
+
+## Architecture
+
+The system runs as two processes that communicate through named pipes.
+
+### Firmware Process
+
+The firmware handles hardware input and output:
+- Reads key presses from the USB keypad
+- Manages audio output through ALSA
+- Runs the Piper text-to-speech engine
+- Detects and selects audio devices
+
+### Software2 Process
+
+The software handles application logic:
+- Receives key events from firmware
+- Manages operating modes including Normal, Frequency, and Set modes
+- Controls the physical radio through Hamlib
+- Sends speech text to firmware for audio output
+
+## Development
+
+### Building Manually
+
+To build the firmware:
+
+```
+cd Firmware
+make clean all
+```
+
+To build the software:
+
+```
+cd Software2
+make clean all
+```
+
+### Running Tests
+
+HAL Integration Test:
+
+```
+cd Documentation/scripts
+./Regression_HAL_Integration.sh
+```
+
+Phase 0 Integration Test:
+
+```
+cd Documentation/scripts
+./Regression_Phase0_Integration.sh
+```
+
+## Documentation
+
+Key documents for developers:
+- RPi_Setup_Guide.md in Documentation/Project_Overview_and_Onboarding: Manual setup instructions
+- startup_device_handling_plan.md in Documentation/Project_Overview_and_Onboarding: Audio and radio device handling
+- Currently_Implemented_Keys.md in Documentation/Project_Overview_and_Onboarding: Keypad mapping reference
+- ICOMReaderManual2.md in Documentation/Original_Hampod_Docs: Original feature specification
+
+## License
+
+This project is maintained for accessibility purposes. See repository for license details.
+
+Last updated: January 2026
