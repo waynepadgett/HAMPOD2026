@@ -1,323 +1,303 @@
 # Raspberry Pi Development Setup Guide
 
-This guide provides detailed, step-by-step instructions for setting up a Raspberry Pi (RPi) from scratch to run the HAMPOD project.
+This guide provides step-by-step instructions for setting up a Raspberry Pi to run the HAMPOD project.
 
-> **Note**: This guide focuses on installing the code and dependencies **directly on the Raspberry Pi**. For a standard development workflow, you will likely also want to clone the repository on your **Development Machine** (PC/Mac) to edit files locally and then sync them to the Pi for testing (e.g., using the `remote_install.sh` script mentioned in the Tips section). Steps for setting up your local Development Machine environment are not covered in detail here.
+Note: This guide focuses on installing the code and dependencies directly on the Raspberry Pi. For standard development, you will also clone the repository on your development machine (PC or Mac) to edit files locally and sync them to the Pi for testing using the remote_install.sh script.
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following:
 
-- **Raspberry Pi**: Recommended RPi 5 or RPi 4 (4GB+ RAM preferred, though 2GB works).
-- **microSD Card**: 16GB or larger (Class 10 / UHS-1 recommended).
-- **Power Supply**: Official USB-C power supply for your specific RPi model.
-- **Computer**: A Windows, Mac, or Linux computer to flash the SD card.
-- **Internet Connection**: Wi-Fi credentials or an Ethernet cable.
+- Raspberry Pi: Recommended RPi 5 or RPi 4 (4GB+ RAM preferred, though 2GB works)
+- microSD Card: 16GB or larger (Class 10 or UHS-1 recommended)
+- Power Supply: Official USB-C power supply for your specific RPi model
+- Computer: A Windows, Mac, or Linux computer to flash the SD card
+- Internet Connection: Wi-Fi credentials or an Ethernet cable
 
----
 
-## 🚀 Step 1: Install Debian Trixie
+## Step 1: Install Debian Trixie
 
-The project is currently being developed on **Debian Trixie**. Please install this version using the Raspberry Pi Imager.
+The project is currently being developed on Debian Trixie. Install this version using the Raspberry Pi Imager.
 
-1.  **Download & Install Raspberry Pi Imager**:
-    - Go to [raspberrypi.com/software](https://www.raspberrypi.com/software/) and download the imager for your computer.
+1. Download and install Raspberry Pi Imager from raspberrypi.com/software
 
-2.  **Configure the Image**:
-    - Open Raspberry Pi Imager.
-    - **Choose Device**: Select your RPi model (e.g., Raspberry Pi 5).
-    - **Choose OS**:
-        - Click "Choose OS".
-        - Select  **Debian** -> **Raspberry Pi OS (64-bit) - (debian trixie)** (or the specific Trixie image if listed differently).
-    - **Choose Storage**: Select your microSD card. (it should be plugged in and visible in the list), if it is not visible, make sure it is plugged in and try again.
-    - **Choose hostname: `hampod` (or whatever you prefer).
-    - enter your localization settings. (capital city washington for USA based, new york for timezone )
-    - click "Next".
-    - set your username and password. (you can also use hampod for this as well)
-    - set your password to something strong (diceware is a good option)
-    - click "Next".
-    - enter your Wi-Fi SSID and password (if not using Ethernet)
-    - click "Next".
-    - make sure to enable SSH
-    - if you can, use public key authentication, it makes everything easier for passwordless login
-    - if you can't use public key authentication, use password authentication
-    - click "Next".
-    - leave raspberry pi connect disabled
-    - click "Next".
-    - click "Write".
-    - confirm the write and make absolutely sure its the correct drive - you will destroy all data on the drive when it writes
-    - wait for it to complete, it will take a few minutes
-    - once it's done, remove the microSD card and insert it into your RPi
-    - power on the RPi
-    - wait for it to boot up
-    -  **(DEV:)** Connect using the hostname and username you set:
-    ```bash
+2. Open Raspberry Pi Imager and configure the image:
+   - Choose Device: Select your RPi model (e.g., Raspberry Pi 5)
+   - Choose OS: Select Raspberry Pi OS (64-bit) - debian trixie
+   - Choose Storage: Select your microSD card
+   - Click Next
+
+3. Configure system settings:
+   - Set hostname to: hampod (or your preference)
+   - Enter your localization settings (timezone for your location)
+   - Click Next
+
+4. Configure user account:
+   - Set username (you can use "hampod")
+   - Set a strong password (diceware is recommended)
+   - Click Next
+
+5. Configure network:
+   - Enter your Wi-Fi SSID and password (if not using Ethernet)
+   - Click Next
+
+6. Configure SSH:
+   - Enable SSH
+   - Use public key authentication if possible (makes passwordless login easier)
+   - Otherwise use password authentication
+   - Click Next
+
+7. Disable Raspberry Pi Connect, then click Next
+
+8. Verify you selected the correct drive. This is critical to avoid overwriting a system drive.
+
+9. Click Write to flash the image, then confirm the write. Wait for completion (a few minutes).
+
+10. Insert the microSD card into your Pi and power it on
+
+11. Connect via SSH from your development machine:
+    ```
     ssh hampod@hampod.local
     ```
-    *(If prompted about authenticity, type `yes`)*
-    - if you used public key authentication, you should be able to connect without a password
-    - if you used password authentication, you will be prompted for a password
-    - once connected, you should see the terminal prompt for the user you created
+    If prompted about authenticity, type "yes"
+
+Troubleshooting: If hampod.local does not work, check your router's device list to find the Pi's IP address and use ssh hampod@192.168.x.x instead.
 
 
-> **Troubleshooting**: If `hampod.local` doesn't work, check your router's device list to find the IP address of the Pi and use `ssh hampod@192.168.x.x` instead.
+## Optional: Set up an SSH Key
 
----
+To avoid typing your password every time, generate an SSH key on your computer and copy it to the Pi.
 
-TODO: fix this section 2025-12-27--12-31-PM 
+1. Generate a key on your development machine (if you don't have one):
+   On Windows PowerShell or Mac/Linux Terminal:
+   ```
+   ssh-keygen -t ed25519
+   ```
+   Press Enter to accept defaults.
 
-### Optional: Set up an SSH Key
-To avoid typing your password every time, you can generate an SSH key on your computer and copy it to the Pi.
+2. Copy the key to the Pi:
+   On Windows PowerShell:
+   ```
+   type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh hampod@hampod.local "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+   ```
+   On Mac or Linux:
+   ```
+   ssh-copy-id hampod@hampod.local
+   ```
 
-1.  **(DEV:)** **Generate a key** (if you don't have one):
-    *On Windows (PowerShell) or Mac/Linux (Terminal):*
-    ```bash
-    ssh-keygen -t ed25519
-    ```
-    *(Press Enter to accept defaults. If using Windows Command Prompt, ensure OpenSSH is installed/enabled)*
-
-2.  **(DEV:)** **Copy the key to the Pi**:
-    *On Windows (PowerShell):*
-    ```powershell
-    type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh hampod@hampod.local "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
-    ```
-    *On Mac/Linux:*
-    ```bash
-    ssh-copy-id hampod@hampod.local
-    ```
-
-3.  **Verify**: Log out and log back in. You should not be asked for a password.
-
----
-
-## 🛠️ Step 3: Install System Dependencies
-
-Once logged in, update the system and install the required build tools and libraries.
-
-1.  **(RPI:)** **Update Package Lists**:
-    ```bash
-    sudo apt update && sudo apt upgrade -y
-    ```
-2.  **(RPI:)** **Install Development Tools & Audio Libraries**:
-    HAMPOD requires `git`, `make`, `gcc`, ALSA (audio), Hamlib (rig control), and `sox` (audio generation).
-    ```bash
-    sudo apt install -y git make gcc libasound2-dev libhamlib-dev sox
-    ```
-
-3.  **(RPI:)** **Configure ALSA for Audio Mixing (dmix)**:
-    To allow beeps and speech to play simultaneously, configure ALSA's dmix plugin:
-    ```bash
-    cat >> ~/.asoundrc << 'EOF'
-# ALSA dmix configuration for audio mixing (beeps + speech)
-pcm.!default {
-    type plug
-    slave.pcm "dmixer"
-}
-
-pcm.dmixer {
-    type dmix
-    ipc_key 1024
-    slave {
-        pcm "hw:0,0"
-        period_time 0
-        period_size 1024
-        buffer_size 4096
-        rate 44100
-    }
-    bindings {
-        0 0
-        1 1
-    }
-}
-
-ctl.dmixer {
-    type hw
-    card 0
-}
-EOF
-    ```
-    > **Note**: If using a USB audio device instead of the built-in audio, change `hw:0,0` to match your device (use `aplay -l` to list devices).
-
----
-
-## 📂 Step 4: Clone the HAMPOD Repository
-
-Now, download the project code to your home directory.
-
-1.  **(RPI:)** **Clone the Repository**:
-    > **Note**: The HAMPOD2026 repository is **public**, so you do **not** need a GitHub account simply to clone and run it. You only need a GitHub account if you plan to **contribute** changes back to the project. If you plan to contribute and don't have an account, you can create one for free at [github.com/join](https://github.com/join).
-    ```bash
-    cd ~
-    git clone https://github.com/waynepadgett/HAMPOD2026.git
-    ```
-
----
-
-## 🗣️ Step 5: Install Piper TTS
-
-HAMPOD uses **Piper** for high-quality, low-latency text-to-speech. We have a script to automate this installation.
+3. Verify by logging out and back in. You should not be asked for a password.
 
 
-1.  **(RPI:)** **Make Scripts Executable**:
-    ```bash
-    cd HAMPOD2026
-    chmod +x Documentation/scripts/*.sh
-    ```
-2.  **(RPI:)** **Run the Installer**:
-    ```bash
-    cd ~/HAMPOD2026/Documentation/scripts
-    ./install_piper.sh
-    ```
-    *This script downloads the Piper binary, installs it to `/usr/local/bin/piper`, and downloads the required voice model (`en_US-lessac-low.onnx`) to `Firmware/models/`.*
+## Step 2: Run the Automated Installer
 
----
+The install_hampod.sh script automates the complete setup process. It installs all dependencies, clones the repository, installs Piper TTS, and builds the firmware.
 
-## 🏗️ Step 6: Build the Project
+1. Clone the repository and run the installer:
+   ```
+   cd ~
+   git clone https://github.com/waynepadgett/HAMPOD2026.git
+   cd HAMPOD2026/Documentation/scripts
+   chmod +x install_hampod.sh
+   ./install_hampod.sh
+   ```
 
-Currently, the primary component to build is the **Firmware** (which handles hardware, audio, and keypad input).
+   The script will:
+   - Update system packages
+   - Install dependencies: git, gcc, ALSA audio libraries, Hamlib
+   - Clone the HAMPOD repository to ~/HAMPOD2026
+   - Install Piper TTS for speech synthesis
+   - Build the Firmware
+   - Build the HAL Integration Tests
+   - Add your user to the audio group
 
-> **Note on Software Layer**: The high-level Software layer is currently under active development ("Fresh Start" refactoring in `Software2/`). The legacy `Software/` directory may not build cleanly on a fresh system. For now, focus on building the Firmware and running the **HAL Integration Test** (see Step 7) to verify your setup.
+2. Wait for completion. The script shows progress and takes approximately 5-15 minutes depending on your internet speed.
 
-### Build Firmware (RPI:)
-```bash
-cd ~/HAMPOD2026/Firmware
-make clean   # Remove any stale object files (prevents architecture mismatch errors)
-make
+3. If the script fails, see the Manual Installation section below.
+
+
+## Step 3: Verify Your Setup
+
+After installation, run the Phase 0 integration test to verify everything works.
+
+1. Run the test:
+   ```
+   cd ~/HAMPOD2026/Documentation/scripts
+   ./Regression_Phase0_Integration.sh
+   ```
+
+2. What to expect:
+   - The system announces "System Ready"
+   - Pressing keys on the keypad announces "You pressed [Key Name]"
+   - Holding keys announces "You held [Key Name]"
+   - Press Ctrl+C to exit
+
+3. If the test works, you can run the full software:
+   ```
+   ./run_hampod.sh
+   ```
+
+4. If you only hear clicks but no speech, see the Troubleshooting section below.
+
+### Other Available Tests
+
+These tests help verify different aspects of the system:
+
+- Regression_HAL_Integration.sh: Tests the hardware abstraction layer for keypad and audio
+- Regression_Imitation_Software.sh: Tests low-level pipe communication between Firmware and Software
+
+
+## Troubleshooting Audio and TTS
+
+If the integration test runs but you only hear a click sound with no spoken words, the issue is likely with Piper TTS or audio configuration.
+
+### Verify Piper is Installed
+
 ```
-*If successful, you will see a `firmware.elf` file created.*
-
----
-
-## ▶️ Step 7: Verify Your Setup (HAL Integration Test)
-
-The recommended way to verify your Raspberry Pi setup is to run the **HAL Integration Test**. This standalone test verifies that the keypad and audio/TTS subsystems are working correctly.
-
-1.  **(RPI:)** **Build the Test**:
-    ```bash
-    cd ~/HAMPOD2026/Firmware/hal/tests
-    make
-    ```
-
-2.  **(RPI:)** **Run the Test** (from the Firmware directory, required for model paths):
-    ```bash
-    cd ~/HAMPOD2026/Documentation/scripts
-    ./Regression_HAL_Integration.sh
-    ```
-
-    List of tests that generate audio but do not need the radio plugged in:
-
-    - **Regression_Phase0_Integration.sh**: Tests the router thread and basic keypad/audio interaction.
-        - **What to Expect**:
-            - The system should announce **"System Ready"** (or similar).
-            - Pressing keys should announce **"You pressed [Key Name]"** (e.g., "You pressed One").
-            - Holding keys should announce **"You held [Key Name]"**.
-            - Use `Ctrl+C` to exit (or wait for timeout).
-
-    - **Regression_Imitation_Software.sh**: Tests the low-level pipe communication between Firmware and Software.
-        - **What to Expect**:
-            - You should hear an initial TTS announcement.
-            - Pressing keys will trigger audio feedback.
-            - Use `Ctrl+C` to exit (or wait for timeout).
-
-    - **Regression_HAL_Integration.sh**: Verifies the hardware abstraction layer for keypad and audio/TTS.
-        - **What to Expect**:
-            - The system should announce **"System Ready"** (or similar).
-            - Pressing keys on the keypad should announce the key name (e.g., "One", "Enter").
-            - Use `Ctrl+C` to exit (or wait for timeout).
-
-
-> **If you only hear a click sound (no speech)**, see the **Troubleshooting Audio/TTS** section below.
-
-### Running the Full System (Advanced)
-
-Once the Software layer development is complete, you will run Firmware and Software in separate terminals:
-
-
-## 🔧 Troubleshooting Audio/TTS
-
-If the integration test runs but you **only hear a click sound** (no spoken words), the issue is likely with Piper TTS or the audio configuration.
-
-### 1. Verify Piper is Installed (RPI:)
-```bash
 which piper
 piper --version
 ```
-If `piper` is not found, re-run the installer:
-```bash
-./Documentation/scripts/install_piper.sh
+
+If piper is not found, re-run the Piper installer:
+```
+cd ~/HAMPOD2026/Documentation/scripts
+./install_piper.sh
 ```
 
-### 2. Verify Voice Model Exists (RPI:)
-The voice model files must be in `~/HAMPOD2026/Firmware/models/`:
-```bash
+### Verify Voice Model Exists
+
+The voice model files must be in ~/HAMPOD2026/Firmware/models/:
+```
 ls -la ~/HAMPOD2026/Firmware/models/
 ```
-You should see `en_US-lessac-low.onnx` and `en_US-lessac-low.onnx.json`. If missing, re-run the installer script.
+You should see en_US-lessac-low.onnx and en_US-lessac-low.onnx.json files. If missing, re-run the Piper installer.
 
-### 3. Test Piper Manually (RPI:)
+### Test Piper Manually
+
 Test that Piper can generate and play speech:
-```bash
+```
 echo "Hello World" | piper --model ~/HAMPOD2026/Firmware/models/en_US-lessac-low.onnx --output_raw | aplay -r 16000 -c 1 -f S16_LE
 ```
-- **If you hear "Hello World"**: Piper is working. The issue may be in how the integration test invokes it.
-- **If you hear nothing**: Continue to step 4.
 
-### 4. Test Basic Audio Output (RPI:)
-Verify that the audio hardware itself is working:
-```bash
-# List available audio devices
+If you hear "Hello World", Piper is working. The issue may be in how the integration test invokes it.
+
+If you hear nothing, continue to the next step.
+
+### Test Basic Audio Output
+
+Verify that the audio hardware is working:
+```
 aplay -l
-
-# Play a test tone (you should hear a voice saying "Front Left", "Front Right")
 speaker-test -c 2 -t wav
 ```
-If no audio is heard, check:
-- Is the speaker/headphones connected and powered on?
-- Is the correct audio output selected? (HDMI vs. headphone jack vs. USB audio)
-- Try forcing audio output: `sudo raspi-config` → System Options → Audio.
 
-### 5. Check User Permissions (RPI:)
-Ensure your user is in the `audio` group:
-```bash
+You should hear a voice saying "Front Left" and "Front Right". If no audio is heard, check:
+- Is the speaker or headphones connected and powered on?
+- Is the correct audio output selected? (HDMI vs. headphone jack vs. USB audio)
+- Try selecting audio output: sudo raspi-config, then System Options, then Audio
+
+### Check User Permissions
+
+Ensure your user is in the audio group:
+```
 groups
 ```
-If `audio` is not listed, add yourself:
-```bash
+
+If "audio" is not listed:
+```
 sudo usermod -aG audio $USER
 ```
-Then **log out and log back in** for the change to take effect.
+Then log out and log back in for the change to take effect.
 
----
 
-## 📝 Tips for Developers
+## Manual Installation (If Automated Script Fails)
 
-- **Remote Install Script**: **(DEV:)** For rapid development, use the `remote_install.sh` script from your local machine to push code and rebuild on the Pi automatically.
-  ```bash
-  # From your local machine
-  ./Documentation/scripts/remote_install.sh "Update description"
-  ```
+If the install_hampod.sh script fails, you can perform these steps manually.
 
-- **Cleaning Builds**: **(RPI:)** If you run into weird issues, try cleaning:
-  ```bash
-  make clean
-  make
-  ```
+### Update System Packages
 
-- **Process Cleanup (After a crash)**:
-  **(RPI:)** If the firmware or software crashes, it might leave "ghost" processes or named pipes that prevent restarting. Run this to clean up:
-  ```bash
-  # Kill lingering processes
-  sudo pkill -9 firmware
-  sudo pkill -9 imitation_software
-  pkill -9 Software.elf
+```
+sudo apt update && sudo apt upgrade -y
+```
 
-  # Remove stale pipes
-  rm -f ~/HAMPOD2026/Firmware/Firmware_i
-  rm -f ~/HAMPOD2026/Firmware/Firmware_o
-  ```
+### Install Dependencies
 
-- **Remote Reboot**:
-  **(RPI:)** If the system becomes unresponsive or audio drivers lock up:
-  ```bash
-  sudo reboot
-  ```
+HAMPOD requires git, make, gcc, ALSA (audio), Hamlib (rig control), and supporting tools.
+```
+sudo apt install -y git make gcc libasound2-dev libhamlib-dev wget bc
+```
+
+### Clone the Repository
+
+```
+cd ~
+git clone https://github.com/waynepadgett/HAMPOD2026.git
+```
+
+### Install Piper TTS
+
+```
+cd ~/HAMPOD2026/Documentation/scripts
+chmod +x *.sh
+./install_piper.sh
+```
+
+### Build the Firmware
+
+```
+cd ~/HAMPOD2026/Firmware
+make clean
+make
+```
+
+If successful, you will see a firmware.elf file created.
+
+### Build the HAL Integration Tests
+
+```
+cd ~/HAMPOD2026/Firmware/hal/tests
+make clean
+make
+```
+
+### Add User to Audio Group
+
+```
+sudo usermod -aG audio $USER
+```
+Log out and back in for this to take effect.
+
+
+## Tips for Developers
+
+### Remote Install Script
+
+For rapid development, use the remote_install.sh script from your development machine to push code and rebuild on the Pi automatically:
+```
+./Documentation/scripts/remote_install.sh "Update description"
+```
+
+### Cleaning Builds
+
+If you encounter strange build issues, try cleaning:
+```
+make clean
+make
+```
+
+### Process Cleanup After a Crash
+
+If the firmware or software crashes, it might leave ghost processes or named pipes that prevent restarting. Run this to clean up:
+```
+sudo pkill -9 firmware
+sudo pkill -9 imitation_software
+pkill -9 Software.elf
+rm -f ~/HAMPOD2026/Firmware/Firmware_i
+rm -f ~/HAMPOD2026/Firmware/Firmware_o
+```
+
+### Remote Reboot
+
+If the system becomes unresponsive or audio drivers lock up:
+```
+sudo reboot
+```
