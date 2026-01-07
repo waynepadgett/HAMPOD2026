@@ -328,8 +328,8 @@ Run all existing regression tests:
 ### Phase 2: Multi-Radio Config
 - [x] Config parses up to 10 radios
 - [x] Only one radio can be enabled
-- [ ] Radio module uses active radio
-- [ ] Changing enabled radio in config switches device
+- [x] Radio module uses active radio
+- [x] Changing enabled radio in config switches device
 
 ### Phase 3: Configuration Validation
 - [ ] Port paths are stored in config
