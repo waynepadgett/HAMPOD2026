@@ -109,6 +109,8 @@ The install_hampod.sh script automates the complete setup process. It installs a
    - Build the Firmware
    - Build the HAL Integration Tests
    - Add your user to the audio group
+   - Configure HAMPOD to start automatically on boot
+   - Optionally enable SD card protection (recommended for end users, not developers)
 
 2. Wait for completion. The script shows progress and takes approximately 5-15 minutes depending on your internet speed.
 
@@ -301,3 +303,78 @@ If the system becomes unresponsive or audio drivers lock up:
 ```
 sudo reboot
 ```
+
+
+## SD Card Protection Mode
+
+HAMPOD supports an optional SD card protection mode that prevents filesystem corruption if the Pi loses power unexpectedly. This is recommended for end-user deployments.
+
+### How It Works
+
+When enabled:
+- The SD card is mounted read-only
+- All file changes go to RAM and are lost on reboot
+- Your terminal prompt shows **[RO]** in red
+- The system is protected from power-loss corruption
+
+When disabled (normal mode):
+- Standard read-write operation
+- Your terminal prompt shows **[RW]** in green
+- File changes persist normally
+
+### Managing Protection Mode
+
+```bash
+# Check current status
+./power_down_protection.sh --status
+
+# Enable protection (requires reboot)
+sudo ./power_down_protection.sh --enable
+
+# Disable protection (requires reboot)
+sudo ./power_down_protection.sh --disable
+```
+
+### Saving Config Changes in Protected Mode
+
+When protection is enabled, use the persistent write helper:
+```bash
+hampod_persist_write /tmp/my_config.txt /home/hampod/destination.txt
+```
+
+### When to Disable Protection
+
+| Activity | Protection Mode |
+|----------|-----------------|
+| Normal HAMPOD operation | ✅ Enabled |
+| Changing hampod.conf settings | ✅ Enabled (use persist helper) |
+| Developing/modifying code | ❌ Disabled |
+| Installing new packages | ❌ Disabled |
+| System updates (apt upgrade) | ❌ Disabled |
+
+
+## Auto-Start Management
+
+HAMPOD is configured to start automatically on boot by default.
+
+### Managing Auto-Start
+
+```bash
+# Check status
+./hampod_on_powerup.sh --status
+
+# Enable auto-start
+sudo ./hampod_on_powerup.sh --enable
+
+# Disable auto-start
+sudo ./hampod_on_powerup.sh --disable
+
+
+# View HAMPOD logs
+sudo journalctl -u hampod -f
+
+# Manually start/stop the service
+sudo systemctl start hampod
+sudo systemctl stop hampod
+```
+
