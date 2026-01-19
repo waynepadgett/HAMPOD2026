@@ -93,10 +93,11 @@ is_overlay_active() {
 }
 
 # Check if overlay is configured for boot
+# raspi-config nonint get_overlay_now outputs: 0 = enabled, 1 = not enabled
 is_overlay_configured() {
-    # raspi-config nonint get_overlay_now returns 0 if overlay is enabled
-    raspi-config nonint get_overlay_now 2>/dev/null
-    return $?
+    local result
+    result=$(raspi-config nonint get_overlay_now 2>/dev/null)
+    [ "$result" = "0" ]
 }
 
 # ============================================================================
