@@ -92,11 +92,11 @@ is_overlay_active() {
     grep -q " / overlay " /proc/mounts 2>/dev/null
 }
 
-# Check if overlay is configured for boot
-# raspi-config nonint get_overlay_now outputs: 0 = enabled, 1 = not enabled
+# Check if overlay is configured for boot (will be active after reboot)
+# raspi-config nonint get_overlay_conf outputs: 0 = enabled, 1 = not enabled
 is_overlay_configured() {
     local result
-    result=$(raspi-config nonint get_overlay_now 2>/dev/null)
+    result=$(raspi-config nonint get_overlay_conf 2>/dev/null)
     [ "$result" = "0" ]
 }
 
