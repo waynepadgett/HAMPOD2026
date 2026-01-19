@@ -120,6 +120,58 @@ enable_autostart() {
     echo -e "${CYAN}Enabling HAMPOD Auto-Start...${NC}"
     echo ""
     
+    # Check that required binaries exist, offer to build if missing
+    FIRMWARE_BIN="$REPO_ROOT/Firmware/firmware.elf"
+    SOFTWARE_BIN="$REPO_ROOT/Software2/bin/hampod"
+    NEEDS_BUILD=false
+    
+    if [ ! -f "$FIRMWARE_BIN" ]; then
+        print_warning "Firmware binary not found: firmware.elf"
+        NEEDS_BUILD=true
+    else
+        print_success "Firmware binary found: firmware.elf"
+    fi
+    
+    if [ ! -f "$SOFTWARE_BIN" ]; then
+        print_warning "Software binary not found: hampod"
+        NEEDS_BUILD=true
+    else
+        print_success "Software binary found: hampod"
+    fi
+    
+    if [ "$NEEDS_BUILD" = true ]; then
+        echo ""
+        read -p "Build missing binaries now? [Y/n] " response
+        if [[ ! "$response" =~ ^[Nn]$ ]]; then
+            echo ""
+            print_info "Building Firmware..."
+            cd "$REPO_ROOT/Firmware"
+            make clean > /dev/null 2>&1 || true
+            if make; then
+                print_success "Firmware built successfully"
+            else
+                print_error "Firmware build failed"
+                exit 1
+            fi
+            
+            echo ""
+            print_info "Building Software2..."
+            cd "$REPO_ROOT/Software2"
+            make clean > /dev/null 2>&1 || true
+            if make; then
+                print_success "Software2 built successfully"
+            else
+                print_error "Software2 build failed"
+                exit 1
+            fi
+            echo ""
+        else
+            print_error "Cannot enable auto-start without binaries"
+            print_info "Build manually and re-run this script"
+            exit 1
+        fi
+    fi
+    
     # Create the service wrapper script
     WRAPPER_SCRIPT="$SCRIPT_DIR/run_hampod_service.sh"
     
