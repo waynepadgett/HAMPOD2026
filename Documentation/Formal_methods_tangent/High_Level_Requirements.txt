@@ -1,14 +1,15 @@
-HAMPOD HIGH-LEVEL REQUIREMENTS DOCUMENT
-========================================
 
-Document Status: DRAFT - Requirements Elicitation In Progress
-Created: 2026-01-21
-Last Updated: 2026-01-30
-Methodology: Aerospace-style requirements engineering (DO-178C/DO-254 inspired)
+HAMPOD High-Level Requirements Document
+
+  Document Status: DRAFT - Requirements Elicitation In Progress  
+  Created: 2026-01-21  
+  Last Updated: 2026-01-21  
+  Methodology: Aerospace-style requirements engineering (DO-178C/DO-254 inspired)
 
 
-SECTION 1: DOCUMENT PURPOSE AND SCOPE
---------------------------------------
+
+
+1. Document Purpose and Scope
 
 This document captures the formal requirements for the HAMPOD system, structured in a hierarchical manner suitable for verification and validation:
 
@@ -29,689 +30,1829 @@ Every requirement shall:
 1.2 Requirement Notation
 
 Requirements use the following format:
-  [ID] The system SHALL/SHOULD/MAY (behavior) WHEN (condition).
-       Rationale: (why this requirement exists)
-       Parent: (parent requirement ID)
-       Verification: Test or Analysis or Inspection or Demonstration
-
+```
+[ID] The system SHALL/SHOULD/MAY <behavior> WHEN <condition>.
+     Rationale: <why this requirement exists>
+     Parent: <parent requirement ID>
+     Verification: <Test  Analysis  Inspection  Demonstration>
+```
 
 Priority Keywords:
-- SHALL means Mandatory requirement (must be implemented)
-- SHOULD means Strongly desired (implement unless technically infeasible or cost-prohibitive)
-- MAY means Optional or Nice-to-have (implement if resources permit)
+- SHALL = Mandatory requirement (must be implemented)
+- SHOULD = Strongly desired (implement unless technically infeasible or cost-prohibitive)
+- MAY = Optional/Nice-to-have (implement if resources permit)
 
 
-SECTION 2: SYSTEM-LEVEL REQUIREMENTS (SLR)
-------------------------------------------
 
 
-2.1 SYSTEM PURPOSE
+2. System-Level Requirements (SLR)
+
+
+2.1 System Purpose
 
 [SLR-001] Mission Statement
-The HAMPOD SHALL provide audible output and tactile (keypad) input to vision-impaired ham radio operators with CAT-controlled radios in order to assist them in effectively using the features of their radios that would require seeing the display.
-  Priority: SHALL (Mandatory)
-  Rationale: This is the core mission of the system, enabling blind or visually impaired operators to independently operate amateur radios
-  Verification: Demonstration
+  The HAMPOD SHALL provide audible output and tactile (keypad) input to vision-impaired ham radio operators with CAT-controlled radios in order to assist them in effectively using the features of their radios that would require seeing the display.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Rationale  This is the core mission of the system—enabling blind/visually impaired operators to independently operate amateur radios 
+ Verification  Demonstration 
 
 
-2.2 OPERATIONAL ENVIRONMENT
+
+
+2.2 Operational Environment
 
 [SLR-002] Primary Operating Environment
-The HAMPOD SHALL be designed for use in a home or shack environment.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Most amateur radio operation occurs in fixed home stations
-  Verification: Demonstration
+  The HAMPOD SHALL be designed for use in a home/shack environment.
 
-[SLR-003] Portable and Field Operation Capability
-The HAMPOD SHOULD be capable of use in portable and field operations where adequate battery or generator power is available.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-001
-  Rationale: Many operators participate in field day, portable operations, or emergency communications
-  Verification: Demonstration
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Most amateur radio operation occurs in fixed home stations 
+ Verification  Demonstration 
+
+[SLR-003] Portable/Field Operation Capability
+  The HAMPOD SHOULD be capable of use in portable and field operations where adequate battery or generator power is available.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-001 
+ Rationale  Many operators participate in field day, portable operations, or emergency communications 
+ Verification  Demonstration 
 
 [SLR-004] Physical Form Factor
-The HAMPOD SHOULD be fairly compact, ideally very small, but SHALL NOT occupy more space than a typical ham radio desktop transceiver.
-  Priority: SHOULD (compact) and SHALL NOT (size limit)
-  Parent: SLR-002, SLR-003
-  Rationale: Desk space is limited in most shacks; portability requires compact size
-  Verification: Inspection
+  The HAMPOD SHOULD be fairly compact, ideally very small, but SHALL NOT occupy more space than a typical ham radio desktop transceiver.
+
+ Attribute  Value 
+
+ Priority  SHOULD (compact) / SHALL NOT (size limit) 
+ Parent  SLR-002, SLR-003 
+ Rationale  Desk space is limited in most shacks; portability requires compact size 
+ Verification  Inspection 
 
 
-2.3 DEVICE CONTROL SCOPE
+
+
+2.3 Device Control Scope
 
 [SLR-005] Single Device Optimized Control
-The HAMPOD SHALL handle one radio or device well at any given time.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Primary use case is controlling one radio; this must work excellently
-  Verification: Test
+  The HAMPOD SHALL handle one radio or device well at any given time.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Primary use case is controlling one radio; this must work excellently 
+ Verification  Test 
 
 [SLR-006] Multi-Device Switching
-The HAMPOD SHOULD be switchable to control multiple other devices, such as other radios, antenna tuners, or antenna rotors that have computer interfaces.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-001
-  Rationale: Many operators have multiple radios or accessories; seamless switching improves usability
-  Verification: Demonstration
+  The HAMPOD SHOULD be switchable to control multiple other devices, such as other radios, antenna tuners, or antenna rotors that have computer interfaces.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-001 
+ Rationale  Many operators have multiple radios or accessories; seamless switching improves usability 
+ Verification  Demonstration 
 
 
-2.4 USER CLASSES AND PERSONALIZATION
+
+
+2.4 User Classes and Personalization
 
 [SLR-007] Single User Configuration
-The HAMPOD SHALL be intended for configuration for a single user's preferences.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Simplifies configuration; most operators have their own dedicated equipment
-  Verification: Inspection
+  The HAMPOD SHALL be intended for configuration for a single user's preferences.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Simplifies configuration; most operators have their own dedicated equipment 
+ Verification  Inspection 
 
 
-2.5 COMPATIBILITY AND LEGACY BEHAVIOR
+
+
+2.5 Compatibility and Legacy Behavior
 
 [SLR-008] Original HAMPOD Functional Compatibility
-The HAMPOD SHALL reproduce very similar functionality and interface behavior to the original HAMPOD as defined in the ICOMReaderManual.txt and associated files for other radio types.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Existing users expect familiar behavior; proven interface design should be preserved
-  Verification: Demonstration, Inspection
-  Reference: Documentation/Original_Hampod_Docs/ICOMReaderManual.txt
+  The HAMPOD SHALL reproduce very similar functionality and interface behavior to the original HAMPOD as defined in the ICOMReaderManual.txt and associated files for other radio types.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Existing users expect familiar behavior; proven interface design should be preserved 
+ Verification  Demonstration, Inspection 
+ Reference  `Documentation/Original_Hampod_Docs/ICOMReaderManual.txt` 
 
 
-2.6 PERFORMANCE REQUIREMENTS
+
+
+2.6 Performance Requirements
 
 [SLR-009] Responsive and Fast Operation
-The HAMPOD interface SHALL be responsive and fast to operate.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Slow audio feedback interrupts operator flow and degrades user experience
-  Verification: Test
+  The HAMPOD interface SHALL be responsive and fast to operate.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Slow audio feedback interrupts operator flow and degrades user experience 
+ Verification  Test 
 
 [SLR-010] Terse Mode Speech Control
-The HAMPOD SHALL provide the ability to shorten speech feedback via a terse mode.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-009
-  Rationale: Experienced users want minimal speech to operate quickly
-  Verification: Test
+  The HAMPOD SHALL provide the ability to shorten speech feedback via a "terse mode."
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-009 
+ Rationale  Experienced users want minimal speech to operate quickly 
+ Verification  Test 
 
 [SLR-011] Speech Speed Adjustment
-The HAMPOD SHALL allow the user to speed up or slow down speech output.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-009
-  Rationale: Different users have different preferences and comprehension speeds
-  Verification: Test
+  The HAMPOD SHALL allow the user to speed up or slow down speech output.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-009 
+ Rationale  Different users have different preferences and comprehension speeds 
+ Verification  Test 
 
 [SLR-012] Elimination of Unnecessary Speech
-The HAMPOD SHALL minimize or eliminate unnecessary speech to improve user experience.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-009
-  Rationale: Verbose output slows operation and frustrates experienced users
-  Verification: Test, Inspection
+  The HAMPOD SHALL minimize or eliminate unnecessary speech to improve user experience.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-009 
+ Rationale  Verbose output slows operation and frustrates experienced users 
+ Verification  Test, Inspection 
 
 
-2.7 RELIABILITY REQUIREMENTS
+
+
+2.7 Reliability Requirements
 
 [SLR-013] Robustness to Unusual Inputs
-The HAMPOD SHALL be very reliable and SHALL NOT crash when presented with unusual inputs, such as when the radio is turned off and back on during operation.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Operators must not lose functionality due to normal radio power cycling
-  Verification: Test
+  The HAMPOD SHALL be very reliable and SHALL NOT crash when presented with unusual inputs, such as when the radio is turned off and back on during operation.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Operators must not lose functionality due to normal radio power cycling 
+ Verification  Test 
 
 [SLR-014] Idle Stability
-The HAMPOD SHALL be especially reliable when idle; it SHALL NOT require a power cycle to restore operation after sitting idle for a week or more.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-013
-  Rationale: Operators may not use their radios daily; system must remain functional
-  Verification: Test
+  The HAMPOD SHALL be especially reliable when idle; it SHALL NOT require a power cycle to restore operation after sitting idle for a week or more.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-013 
+ Rationale  Operators may not use their radios daily; system must remain functional 
+ Verification  Test 
 
 [SLR-015] Power Failure Resilience
-The HAMPOD system SHALL NOT be corrupted by an unexpected power-down event.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-013
-  Rationale: Power interruptions must not require user intervention or reinstallation
-  Verification: Test
+  The HAMPOD system SHALL NOT be corrupted by an unexpected power-down event.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-013 
+ Rationale  Power interruptions must not require user intervention or reinstallation 
+ Verification  Test 
 
 [SLR-016] Fast Boot Time
-The HAMPOD SHOULD boot up and be operational in less than 30 seconds.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-009
-  Rationale: Shorter boot times improve user experience, especially for portable use
-  Verification: Test
+  The HAMPOD SHOULD boot up and be operational in less than 30 seconds.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-009 
+ Rationale  Shorter boot times improve user experience, especially for portable use 
+ Verification  Test 
 
 
-2.8 USER INTERFACE REQUIREMENTS
+
+
+2.8 User Interface Requirements
 
 [SLR-017] Intuitive Without Manual
-The HAMPOD interface SHOULD be easy to understand without the manual.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-001
-  Rationale: Users should be able to discover functionality through the interface
-  Verification: Demonstration
+  The HAMPOD interface SHOULD be easy to understand without the manual.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-001 
+ Rationale  Users should be able to discover functionality through the interface 
+ Verification  Demonstration 
 
 [SLR-018] Key Function Announcement
-The HAMPOD SHALL announce the behavior of a key (or with hold or shift modifiers) when appropriate.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-017
-  Rationale: Provides discoverability and confirmation of key functions
-  Verification: Test
+  The HAMPOD SHALL announce the behavior of a key (or with hold or shift modifiers) when appropriate.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-017 
+ Rationale  Provides discoverability and confirmation of key functions 
+ Verification  Test 
 
 [SLR-019] Set Modifier Pattern
-The HAMPOD SHALL allow adjustment of a parameter using the same key combination with the set modifier.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-017
-  Rationale: Consistent interface pattern - query with key, adjust with set plus key
-  Verification: Test
+  The HAMPOD SHALL allow adjustment of a parameter using the same key combination with the "set" modifier.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-017 
+ Rationale  Consistent interface pattern: query with key, adjust with set+key 
+ Verification  Test 
 
 [SLR-020] Mode Change Announcements
-The HAMPOD SHALL inform the user via audio when modes change (for example, to configuration mode, DTMF mode, etc.).
-  Priority: SHALL (Mandatory)
-  Parent: SLR-017, SLR-001
-  Rationale: Users must always know what mode they are in since they cannot see a display
-  Verification: Test
+  The HAMPOD SHALL inform the user via audio when modes change (e.g., to configuration mode, DTMF mode, etc.).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-017, SLR-001 
+ Rationale  Users must always know what mode they are in since they cannot see a display 
+ Verification  Test 
 
 [SLR-021] Frequency and Mode Awareness
-The HAMPOD SHALL make it easy for the user to know the frequency and transmitter mode even if it is changed on the radio rather than on the HAMPOD.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Critical for situational awareness; changes may occur via radio knobs
-  Verification: Test
+  The HAMPOD SHALL make it easy for the user to know the frequency and transmitter mode even if it is changed on the radio rather than on the HAMPOD.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Critical for situational awareness; changes may occur via radio knobs 
+ Verification  Test 
 
 
-2.9 SPEECH SYNTHESIS REQUIREMENTS
+
+
+2.9 Speech Synthesis Requirements
 
 [SLR-022] Speech Clarity
-The HAMPOD SHALL have a clear speech synthesizer of quality at least as good as Piper on the Raspberry Pi 5.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Clear speech is essential for accurate frequency and mode comprehension
-  Verification: Demonstration
+  The HAMPOD SHALL have a clear speech synthesizer of quality at least as good as Piper on the Raspberry Pi 5.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Clear speech is essential for accurate frequency/mode comprehension 
+ Verification  Demonstration 
 
 [SLR-023] Lower Performance Platform Speech
-The HAMPOD MAY accept a lower performance synthesizer (such as Festival) to enable operation on lower performance platforms.
-  Priority: MAY (Optional)
-  Parent: SLR-022
-  Rationale: Trade-off acceptable if it enables broader hardware support
-  Verification: Demonstration
+  The HAMPOD MAY accept a lower performance synthesizer (such as Festival) to enable operation on lower performance platforms.
+
+ Attribute  Value 
+
+ Priority  MAY (Optional) 
+ Parent  SLR-022 
+ Rationale  Trade-off acceptable if it enables broader hardware support 
+ Verification  Demonstration 
 
 [SLR-024] Ideal Speech Synthesizer
-A high-quality synthesizer with lower computational performance requirements SHOULD be preferred if available.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-022
-  Rationale: Best of both worlds - quality plus performance
-  Verification: Analysis
+  A high-quality synthesizer with lower computational performance requirements SHOULD be preferred if available.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-022 
+ Rationale  Best of both worlds: quality + performance 
+ Verification  Analysis 
 
 
-2.10 PLATFORM AND HARDWARE REQUIREMENTS
+
+
+2.10 Platform and Hardware Requirements
 
 [SLR-025] Primary Platform Support
-The HAMPOD SHALL work on a system with the performance of a Raspberry Pi 5 or lower.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Pi 5 is the current reference platform
-  Verification: Test
+  The HAMPOD SHALL work on a system with the performance of a Raspberry Pi 5 or lower.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Pi 5 is the current reference platform 
+ Verification  Test 
 
 [SLR-026] Legacy Platform Support
-The HAMPOD SHOULD work on older Raspberry Pi platforms (Pi 4, Pi 3, Pi 3B, Pi 3B+) with minimal delay.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-025
-  Rationale: Older hardware is less expensive and more widely available
-  Verification: Test
+  The HAMPOD SHOULD work on older Raspberry Pi platforms (Pi 4, Pi 3, Pi 3B, Pi 3B+) with minimal delay.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-025 
+ Rationale  Older hardware is less expensive and more widely available 
+ Verification  Test 
 
 [SLR-027] Commodity Hardware
-The HAMPOD SHALL be able to operate entirely on hardware (processor, keypad, speaker, cables, etc.) that can be purchased online (for example, Amazon) as commodity parts.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Ensures accessibility; users must be able to source parts easily
-  Verification: Inspection
+  The HAMPOD SHALL be able to operate entirely on hardware (processor, keypad, speaker, cables, etc.) that can be purchased online (e.g., Amazon) as commodity parts.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Ensures accessibility; users must be able to source parts easily 
+ Verification  Inspection 
 
 [SLR-028] Integrated Hardware Support
-The HAMPOD SHOULD support more customized integrated keypads or speaker hats for the RPi that would allow a more compact system.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-004
-  Rationale: Enables more polished, compact builds for advanced users
-  Verification: Demonstration
+  The HAMPOD SHOULD support more customized integrated keypads or speaker hats for the RPi that would allow a more compact system.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-004 
+ Rationale  Enables more polished, compact builds for advanced users 
+ Verification  Demonstration 
 
 
-2.11 EXTENSIBILITY REQUIREMENTS
+
+
+2.11 Extensibility Requirements
 
 [SLR-029] Easy Radio Model Addition
-The HAMPOD SHALL be easy to modify to support a new radio model, including new features or behaviors that might be added.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: The amateur radio market has many radio models; extensibility is essential
-  Verification: Inspection, Demonstration
+  The HAMPOD SHALL be easy to modify to support a new radio model, including new features or behaviors that might be added.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  The amateur radio market has many radio models; extensibility is essential 
+ Verification  Inspection, Demonstration 
 
 [SLR-030] Hamlib Library Usage
-The HAMPOD SHALL use the Hamlib library to control radios.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-029
-  Rationale: Hamlib provides standardized CAT control for hundreds of radio models
-  Verification: Inspection
+  The HAMPOD SHALL use the Hamlib library to control radios.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-029 
+ Rationale  Hamlib provides standardized CAT control for hundreds of radio models 
+ Verification  Inspection 
 
 [SLR-031] Automatic Radio Detection
-The HAMPOD SHOULD provide an automated way to detect what radio is plugged in to the USB port or serial adapter cable without much input from the user.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-029
-  Rationale: Reduces user configuration burden
-  Verification: Test
+  The HAMPOD SHOULD provide an automated way to detect what radio is plugged in to the USB port or serial adapter cable without much input from the user.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-029 
+ Rationale  Reduces user configuration burden 
+ Verification  Test 
 
 
-2.12 ANTI-GOALS (EXPLICIT NON-REQUIREMENTS)
+
+
+2.12 Anti-Goals (Explicit Non-Requirements)
 
 [SLR-032] Sighted-User Features Not Required
-The HAMPOD does NOT need to provide functions that are only useful for sighted users.
-  Priority: NOT REQUIRED
-  Rationale: Focus development effort on accessibility features
-  Verification: Inspection
+  The HAMPOD does NOT need to provide functions that are only useful for sighted users.
+
+ Attribute  Value 
+
+ Priority  NOT REQUIRED 
+ Rationale  Focus development effort on accessibility features 
+ Verification  Inspection 
 
 [SLR-033] Non-Technical User Assumption
-The HAMPOD SHALL NOT assume great technical familiarity from the primary user.
-  Priority: SHALL NOT
-  Parent: SLR-017
-  Rationale: Users are ham radio operators, not necessarily computer experts
-  Verification: Demonstration
+  The HAMPOD SHALL NOT assume great technical familiarity from the primary user.
+
+ Attribute  Value 
+
+ Priority  SHALL NOT 
+ Parent  SLR-017 
+ Rationale  Users are ham radio operators, not necessarily computer experts 
+ Verification  Demonstration 
 
 [SLR-034] Minimal Non-Keypad Interaction
-The HAMPOD SHALL NOT require a lot of interaction other than with the speaker and keypad interface, except that some initial computer setup MAY be required but SHOULD be minimized or eliminated.
-  Priority: SHALL NOT (ongoing) and MAY (initial setup)
-  Parent: SLR-001
-  Rationale: Daily operation must be entirely via the accessible keypad and speaker interface
-  Verification: Demonstration
+  The HAMPOD SHALL NOT require a lot of interaction other than with the speaker/keypad interface, except that some initial computer setup MAY be required but SHOULD be minimized or eliminated.
+
+ Attribute  Value 
+
+ Priority  SHALL NOT (ongoing) / MAY (initial setup) 
+ Parent  SLR-001 
+ Rationale  Daily operation must be entirely via the accessible keypad/speaker interface 
+ Verification  Demonstration 
 
 
-2.13 PHYSICAL INTERFACE REQUIREMENTS
 
-2.13.1 User Input Interfaces
+
+2.13 Physical Interface Requirements
+
+#### 2.13.1 User Input Interfaces
 
 [SLR-035] Primary Input Device
-The HAMPOD SHALL support a USB numeric keypad as the primary input device, typically with a 5-row by 4-column layout and a double-size Enter key at the lower right (19 keys total).
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001, SLR-027
-  Rationale: Standard USB numeric keypads are widely available commodity hardware
-  Verification: Test
+  The HAMPOD SHALL support a USB numeric keypad as the primary input device, typically with a 5-row by 4-column layout and a double-size Enter key at the lower right (19 keys total).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001, SLR-027 
+ Rationale  Standard USB numeric keypads are widely available commodity hardware 
+ Verification  Test 
 
 [SLR-036] Alternative Input Device Support
-The HAMPOD SHOULD work with other keypads or keyboards as much as practical.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-035
-  Rationale: Flexibility accommodates users with different available hardware
-  Verification: Test
+  The HAMPOD SHOULD work with other keypads or keyboards as much as practical.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-035 
+ Rationale  Flexibility accommodates users with different available hardware 
+ Verification  Test 
 
 [SLR-037] Keypad Device Preference
-The HAMPOD SHALL prefer a keypad device when both a keypad and keyboard are available.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-035
-  Rationale: Prevents keyboard input from interfering with keypad operation
-  Verification: Test
+  The HAMPOD SHALL prefer a keypad device when both a keypad and keyboard are available.
 
+ Attribute  Value 
 
-2.13.2 Audio Output Interfaces
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-035 
+ Rationale  Prevents keyboard input from interfering with keypad operation 
+ Verification  Test 
+
+#### 2.13.2 Audio Output Interfaces
 
 [SLR-038] Flexible Audio Output
-The HAMPOD SHALL support flexible audio output according to the hardware available on the Raspberry Pi.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Different Pi models and configurations have different audio capabilities
-  Verification: Test
+  The HAMPOD SHALL support flexible audio output according to the hardware available on the Raspberry Pi.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Different Pi models and configurations have different audio capabilities 
+ Verification  Test 
 
 [SLR-039] USB Speaker Priority
-The HAMPOD SHALL prefer a USB speaker connected to an external USB port as the primary audio output.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-038
-  Rationale: USB speakers are commodity hardware with consistent behavior
-  Verification: Test
+  The HAMPOD SHALL prefer a USB speaker connected to an external USB port as the primary audio output.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-038 
+ Rationale  USB speakers are commodity hardware with consistent behavior 
+ Verification  Test 
 
 [SLR-040] Pi HAT Audio Interface
-The HAMPOD SHOULD use a Pi HAT audio interface as a second choice when available.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-038, SLR-028
-  Rationale: Enables more compact builds with integrated audio
-  Verification: Test
+  The HAMPOD SHOULD use a Pi HAT audio interface as a second choice when available.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-038, SLR-028 
+ Rationale  Enables more compact builds with integrated audio 
+ Verification  Test 
 
 [SLR-041] Headphone Output Fallback
-The HAMPOD MAY use a headphone interface as a last choice (external connector, header pins, or internal USB).
-  Priority: MAY (Optional)
-  Parent: SLR-038
-  Rationale: Provides fallback for configurations without USB or HAT audio
-  Verification: Test
+  The HAMPOD MAY use a headphone interface as a last choice (external connector, header pins, or internal USB).
+
+ Attribute  Value 
+
+ Priority  MAY (Optional) 
+ Parent  SLR-038 
+ Rationale  Provides fallback for configurations without USB or HAT audio 
+ Verification  Test 
 
 [SLR-042] HDMI Audio Exclusion
-The HAMPOD SHALL assume HDMI audio output is NOT connected and SHALL NOT require it.
-  Priority: SHALL NOT
-  Parent: SLR-038
-  Rationale: HDMI requires a monitor which is not useful for visually impaired users
-  Verification: Inspection
+  The HAMPOD SHALL assume HDMI audio output is NOT connected and SHALL NOT require it.
 
+ Attribute  Value 
 
-2.13.3 Radio Connection Interfaces
+ Priority  SHALL NOT 
+ Parent  SLR-038 
+ Rationale  HDMI requires a monitor which is not useful for visually impaired users 
+ Verification  Inspection 
+
+#### 2.13.3 Radio Connection Interfaces
 
 [SLR-043] USB Radio Connection
-The HAMPOD SHALL support radios connected directly via USB port for CAT control.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001, SLR-030
-  Rationale: Many modern radios provide USB CAT control
-  Verification: Test
+  The HAMPOD SHALL support radios connected directly via USB port for CAT control.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001, SLR-030 
+ Rationale  Many modern radios provide USB CAT control 
+ Verification  Test 
 
 [SLR-044] Serial Port Radio Connection
-The HAMPOD SHALL support radios connected via serial port using USB-to-serial adapters of various types.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001, SLR-030
-  Rationale: Older radios and some accessories use RS-232 serial communication
-  Verification: Test
+  The HAMPOD SHALL support radios connected via serial port using USB-to-serial adapters of various types.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001, SLR-030 
+ Rationale  Older radios and some accessories use RS-232 serial communication 
+ Verification  Test 
 
 [SLR-045] CAT-Only USB Connection
-The HAMPOD SHALL support USB connections for CAT control only (not audio), even when a radio supports both on one USB port.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-043
-  Rationale: Audio routing is handled separately; CAT control is the primary interface
-  Verification: Test
+  The HAMPOD SHALL support USB connections for CAT control only (not audio), even when a radio supports both on one USB port.
 
+ Attribute  Value 
 
-2.13.4 Power Interfaces
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-043 
+ Rationale  Audio routing is handled separately; CAT control is the primary interface 
+ Verification  Test 
+
+#### 2.13.4 Power Interfaces
 
 [SLR-046] Raspberry Pi Power Input
-The HAMPOD SHALL be powered via the Raspberry Pi's standard power input (typically USB-type connector, varies by model).
-  Priority: SHALL (Mandatory)
-  Parent: SLR-025
-  Rationale: Uses standard Pi power infrastructure; no custom power design needed
-  Verification: Inspection
+  The HAMPOD SHALL be powered via the Raspberry Pi's standard power input (typically USB-type connector, varies by model).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-025 
+ Rationale  Uses standard Pi power infrastructure; no custom power design needed 
+ Verification  Inspection 
 
 [SLR-047] Power Adapter Flexibility
-The HAMPOD MAY support power adapters for both 12V (field or mobile) and 120V (home) sources, but this MAY be left to the user to provide.
-  Priority: MAY (Optional)
-  Parent: SLR-046, SLR-003
-  Rationale: Power conversion is external to the system; users can select appropriate adapters
-  Verification: Inspection
+  The HAMPOD MAY support power adapters for both 12V (field/mobile) and 120V (home) sources, but this MAY be left to the user to provide.
 
+ Attribute  Value 
 
-2.13.5 Visual Indicators
+ Priority  MAY (Optional) 
+ Parent  SLR-046, SLR-003 
+ Rationale  Power conversion is external to the system; users can select appropriate adapters 
+ Verification  Inspection 
+
+#### 2.13.5 Visual Indicators
 
 [SLR-048] Visual Indicators Non-Essential
-The HAMPOD SHALL NOT require visual indicators (LEDs, displays) for normal operation; all feedback SHALL be audible.
-  Priority: SHALL NOT
-  Parent: SLR-001
-  Rationale: System must be fully usable by visually impaired operators
-  Verification: Demonstration
+  The HAMPOD SHALL NOT require visual indicators (LEDs, displays) for normal operation; all feedback SHALL be audible.
 
+ Attribute  Value 
 
-2.13.6 Setup and Maintenance Interfaces
+ Priority  SHALL NOT 
+ Parent  SLR-001 
+ Rationale  System must be fully usable by visually impaired operators 
+ Verification  Demonstration 
+
+#### 2.13.6 Setup and Maintenance Interfaces
 
 [SLR-049] Network Setup Acceptable
-The HAMPOD MAY require an internet connection (WiFi or Ethernet) for initial setup, but this is not desirable.
-  Priority: MAY (but discouraged)
-  Parent: SLR-034
-  Rationale: Internet may be needed for software installation but should be minimized
-  Verification: Demonstration
+  The HAMPOD MAY require an internet connection (WiFi or Ethernet) for initial setup, but this is not desirable.
+
+ Attribute  Value 
+
+ Priority  MAY (but discouraged) 
+ Parent  SLR-034 
+ Rationale  Internet may be needed for software installation but should be minimized 
+ Verification  Demonstration 
 
 [SLR-050] Keyboard/Mouse/Monitor Avoidance
-The HAMPOD SHALL NOT require a keyboard, mouse, or monitor connection for normal operation; requiring them for setup is highly undesirable.
-  Priority: SHALL NOT (operation) and SHOULD NOT (setup)
-  Parent: SLR-034, SLR-001
-  Rationale: These devices are not accessible to visually impaired users
-  Verification: Demonstration
+  The HAMPOD SHALL NOT require a keyboard, mouse, or monitor connection for normal operation; requiring them for setup is highly undesirable.
+
+ Attribute  Value 
+
+ Priority  SHALL NOT (operation) / SHOULD NOT (setup) 
+ Parent  SLR-034, SLR-001 
+ Rationale  These devices are not accessible to visually impaired users 
+ Verification  Demonstration 
 
 
-2.14 SUPPORTED DEVICES
 
-2.14.1 Reference Radios
+
+2.14 Supported Devices
+
+#### 2.14.1 Reference Radios
 
 [SLR-051] Reference Radio Support
-The HAMPOD SHALL support the following reference radios used by developers and testers: ICOM IC-7300, Kenwood TS-570D, Kenwood TS-2000.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-005, SLR-030
-  Rationale: These radios are available for development and testing
-  Verification: Test
+  The HAMPOD SHALL support the following reference radios used by developers and testers: ICOM IC-7300, Kenwood TS-570D, Kenwood TS-2000.
 
+ Attribute  Value 
 
-2.14.2 Manufacturer Support
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-005, SLR-030 
+ Rationale  These radios are available for development and testing 
+ Verification  Test 
+
+#### 2.14.2 Manufacturer Support
 
 [SLR-052] Major Manufacturer Radio Support
-The HAMPOD SHOULD work with popular models from ICOM, Kenwood, Yaesu, and Elecraft.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-029, SLR-030
-  Rationale: These are the major amateur radio manufacturers
-  Verification: Test, Demonstration
+  The HAMPOD SHOULD work with popular models from ICOM, Kenwood, Yaesu, and Elecraft.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-029, SLR-030 
+ Rationale  These are the major amateur radio manufacturers 
+ Verification  Test, Demonstration 
 
 [SLR-053] Hamlib-Supported Radio Support
-The HAMPOD SHOULD support any radio with Hamlib support.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-030
-  Rationale: Leverages Hamlib's broad radio support library
-  Verification: Test
+  The HAMPOD SHOULD support any radio with Hamlib support.
 
+ Attribute  Value 
 
-2.14.3 Radio Extensibility
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-030 
+ Rationale  Leverages Hamlib's broad radio support library 
+ Verification  Test 
+
+#### 2.14.3 Radio Extensibility
 
 [SLR-054] User-Extensible Radio Support
-The HAMPOD SHALL make it easy for a moderately technical user to add support for a new radio model, especially if similar to an existing radio interface.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-029
-  Rationale: Community can expand radio support without developer involvement
-  Verification: Demonstration
+  The HAMPOD SHALL make it easy for a moderately technical user to add support for a new radio model, especially if similar to an existing radio interface.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-029 
+ Rationale  Community can expand radio support without developer involvement 
+ Verification  Demonstration 
 
 [SLR-055] Human-Readable Radio Configuration
-The HAMPOD SHOULD allow radio configuration via a human-readable text, configuration, or markup language file.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-054
-  Rationale: Text files are accessible and editable without specialized tools
-  Verification: Inspection
+  The HAMPOD SHOULD allow radio configuration via a human-readable text, configuration, or markup language file.
 
+ Attribute  Value 
 
-2.14.4 Low-Priority Radio Support
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-054 
+ Rationale  Text files are accessible and editable without specialized tools 
+ Verification  Inspection 
+
+#### 2.14.4 Low-Priority Radio Support
 
 [SLR-056] Flex Radio Support
-The HAMPOD MAY support Flex Radio for basic functions, but this is low priority given its complexity and PC-centered user interface.
-  Priority: MAY (Optional, Low Priority)
-  Parent: SLR-053
-  Rationale: Flex Radios have a fundamentally different architecture that may require special handling
-  Verification: Demonstration
+  The HAMPOD MAY support Flex Radio for basic functions, but this is low priority given its complexity and PC-centered user interface.
+
+ Attribute  Value 
+
+ Priority  MAY (Optional, Low Priority) 
+ Parent  SLR-053 
+ Rationale  Flex Radios have a fundamentally different architecture that may require special handling 
+ Verification  Demonstration 
 
 
-2.15 NON-RADIO DEVICE SUPPORT
+
+
+2.15 Non-Radio Device Support
 
 [SLR-057] Accessory Device Support
-The HAMPOD SHOULD support computer-controlled ham radio accessories such as antenna tuners, antenna rotors, and power meters (medium-term goal, after general radio support is complete).
-  Priority: SHOULD (Medium-Term)
-  Parent: SLR-006, SLR-008
-  Rationale: Required to reproduce full functionality of original HAMPOD; enhances station control
-  Verification: Demonstration
-  Reference: Original HAMPOD documentation at hampod.com
+  The HAMPOD SHOULD support computer-controlled ham radio accessories such as antenna tuners, antenna rotors, and power meters (medium-term goal, after general radio support is complete).
+
+ Attribute  Value 
+
+ Priority  SHOULD (Medium-Term) 
+ Parent  SLR-006, SLR-008 
+ Rationale  Required to reproduce full functionality of original HAMPOD; enhances station control 
+ Verification  Demonstration 
+ Reference  Original HAMPOD documentation at hampod.com 
 
 [SLR-058] Accessory Protocol Support
-The HAMPOD SHOULD support accessories with USB or serial port computer control interfaces, especially those intended for blind users.
-  Priority: SHOULD (Medium-Term)
-  Parent: SLR-057
-  Rationale: USB and serial are standard interfaces; accessible devices are priority
-  Verification: Test
+  The HAMPOD SHOULD support accessories with USB or serial port computer control interfaces, especially those intended for blind users.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Medium-Term) 
+ Parent  SLR-057 
+ Rationale  USB/serial are standard interfaces; accessible devices are priority 
+ Verification  Test 
 
 
-2.16 SOFTWARE INTERFACE REQUIREMENTS
 
-2.16.1 Development Interfaces
+
+2.16 Software Interface Requirements
+
+#### 2.16.1 Development Interfaces
 
 [SLR-059] SSH Development Access
-The HAMPOD SHALL support SSH access for development and maintenance purposes.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-034
-  Rationale: Essential for development, debugging, and advanced configuration
-  Verification: Test
+  The HAMPOD SHALL support SSH access for development and maintenance purposes.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-034 
+ Rationale  Essential for development, debugging, and advanced configuration 
+ Verification  Test 
 
 [SLR-060] SCP File Transfer
-The HAMPOD SHALL support SCP for file transfer during development and updates.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-059
-  Rationale: Required for transferring software updates and configuration files
-  Verification: Test
+  The HAMPOD SHALL support SCP for file transfer during development and updates.
 
+ Attribute  Value 
 
-2.16.2 Software Update Mechanisms
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-059 
+ Rationale  Required for transferring software updates and configuration files 
+ Verification  Test 
+
+#### 2.16.2 Software Update Mechanisms
 
 [SLR-061] Easy Software Updates
-The HAMPOD SHALL provide an easy mechanism for software updates.
-  Priority: SHALL (Mandatory)
-  Parent: SLR-001
-  Rationale: Users must be able to receive bug fixes and new features
-  Verification: Demonstration
+  The HAMPOD SHALL provide an easy mechanism for software updates.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Users must be able to receive bug fixes and new features 
+ Verification  Demonstration 
 
 [SLR-062] GitHub Update Support
-The HAMPOD SHOULD be able to pull software updates directly from GitHub.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-061
-  Rationale: Simplifies update process for end users
-  Verification: Test
+  The HAMPOD SHOULD be able to pull software updates directly from GitHub.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-061 
+ Rationale  Simplifies update process for end users 
+ Verification  Test 
 
 [SLR-063] PC-Mediated Update Support
-The HAMPOD SHOULD support software updates via a connected PC (SSH and SCP) as an alternative to direct internet access.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-061
-  Rationale: Provides update path without exposing HAMPOD to internet
-  Verification: Test
+  The HAMPOD SHOULD support software updates via a connected PC (SSH/SCP) as an alternative to direct internet access.
 
+ Attribute  Value 
 
-2.16.3 Security Requirements
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-061 
+ Rationale  Provides update path without exposing HAMPOD to internet 
+ Verification  Test 
+
+#### 2.16.3 Security Requirements
 
 [SLR-064] Internet Security
-The HAMPOD SHOULD maintain good internet security by minimizing internet connectivity.
-  Priority: SHOULD (Strongly Desired)
-  Parent: SLR-001
-  Rationale: Embedded devices are vulnerable; limiting exposure reduces attack surface
-  Verification: Analysis
+  The HAMPOD SHOULD maintain good internet security by minimizing internet connectivity.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-001 
+ Rationale  Embedded devices are vulnerable; limiting exposure reduces attack surface 
+ Verification  Analysis 
 
 [SLR-065] On-Demand Internet Connectivity
-The HAMPOD MAY provide a key combination to temporarily connect to a known WiFi network for updates, then automatically disable the connection when complete.
-  Priority: MAY (Optional)
-  Parent: SLR-062, SLR-064
-  Rationale: Balances ease of updates with security through controlled, temporary connectivity
-  Verification: Test
+  The HAMPOD MAY provide a key combination to temporarily connect to a known WiFi network for updates, then automatically disable the connection when complete.
 
+ Attribute  Value 
 
-2.16.4 Logging and External Software
+ Priority  MAY (Optional) 
+ Parent  SLR-062, SLR-064 
+ Rationale  Balances ease of updates with security through controlled, temporary connectivity 
+ Verification  Test 
+
+#### 2.16.4 Logging and External Software
 
 [SLR-066] Logging Software Interface
-The HAMPOD MAY provide an interface to amateur radio logging software (future consideration).
-  Priority: MAY (Future)
-  Parent: SLR-001
-  Rationale: Would enhance integration with operator's station logging workflow
-  Verification: Demonstration
+  The HAMPOD MAY provide an interface to amateur radio logging software (future consideration).
+
+ Attribute  Value 
+
+ Priority  MAY (Future) 
+ Parent  SLR-001 
+ Rationale  Would enhance integration with operator's station logging workflow 
+ Verification  Demonstration 
 
 
-SECTION 3: HIGH-LEVEL REQUIREMENTS (HLR)
-----------------------------------------
-
-Note: HLRs decompose the SLRs into specific functional and interface requirements. These will be elicited in subsequent sessions.
-
-3.1 Functional Requirements - To be elicited: Radio control, frequency entry, mode switching, etc.
-
-3.2 Non-Functional Requirements - To be elicited: Performance timing, memory limits, etc.
-
-3.3 Interface Requirements - To be elicited: Keypad mapping, audio output specs, CAT protocols, etc.
-
-3.4 Safety and Reliability Requirements - To be elicited: Error handling, recovery procedures, etc.
 
 
-SECTION 4: REQUIREMENTS TRACEABILITY MATRIX
--------------------------------------------
+3. High-Level Requirements (HLR)
 
-Format: Requirement ID, Parent, Priority, Verification Method, Status
-
-SLR-001, none, SHALL, Demonstration, Draft
-SLR-002, SLR-001, SHALL, Demonstration, Draft
-SLR-003, SLR-001, SHOULD, Demonstration, Draft
-SLR-004, SLR-002 and SLR-003, SHOULD and SHALL NOT, Inspection, Draft
-SLR-005, SLR-001, SHALL, Test, Draft
-SLR-006, SLR-001, SHOULD, Demonstration, Draft
-SLR-007, SLR-001, SHALL, Inspection, Draft
-SLR-008, SLR-001, SHALL, Demonstration and Inspection, Draft
-SLR-009, SLR-001, SHALL, Test, Draft
-SLR-010, SLR-009, SHALL, Test, Draft
-SLR-011, SLR-009, SHALL, Test, Draft
-SLR-012, SLR-009, SHALL, Test and Inspection, Draft
-SLR-013, SLR-001, SHALL, Test, Draft
-SLR-014, SLR-013, SHALL, Test, Draft
-SLR-015, SLR-013, SHALL, Test, Draft
-SLR-016, SLR-009, SHOULD, Test, Draft
-SLR-017, SLR-001, SHOULD, Demonstration, Draft
-SLR-018, SLR-017, SHALL, Test, Draft
-SLR-019, SLR-017, SHALL, Test, Draft
-SLR-020, SLR-017 and SLR-001, SHALL, Test, Draft
-SLR-021, SLR-001, SHALL, Test, Draft
-SLR-022, SLR-001, SHALL, Demonstration, Draft
-SLR-023, SLR-022, MAY, Demonstration, Draft
-SLR-024, SLR-022, SHOULD, Analysis, Draft
-SLR-025, SLR-001, SHALL, Test, Draft
-SLR-026, SLR-025, SHOULD, Test, Draft
-SLR-027, SLR-001, SHALL, Inspection, Draft
-SLR-028, SLR-004, SHOULD, Demonstration, Draft
-SLR-029, SLR-001, SHALL, Inspection and Demonstration, Draft
-SLR-030, SLR-029, SHALL, Inspection, Draft
-SLR-031, SLR-029, SHOULD, Test, Draft
-SLR-032, none, NOT REQUIRED, Inspection, Draft
-SLR-033, SLR-017, SHALL NOT, Demonstration, Draft
-SLR-034, SLR-001, SHALL NOT and MAY, Demonstration, Draft
-SLR-035, SLR-001 and SLR-027, SHALL, Test, Draft
-SLR-036, SLR-035, SHOULD, Test, Draft
-SLR-037, SLR-035, SHALL, Test, Draft
-SLR-038, SLR-001, SHALL, Test, Draft
-SLR-039, SLR-038, SHALL, Test, Draft
-SLR-040, SLR-038 and SLR-028, SHOULD, Test, Draft
-SLR-041, SLR-038, MAY, Test, Draft
-SLR-042, SLR-038, SHALL NOT, Inspection, Draft
-SLR-043, SLR-001 and SLR-030, SHALL, Test, Draft
-SLR-044, SLR-001 and SLR-030, SHALL, Test, Draft
-SLR-045, SLR-043, SHALL, Test, Draft
-SLR-046, SLR-025, SHALL, Inspection, Draft
-SLR-047, SLR-046 and SLR-003, MAY, Inspection, Draft
-SLR-048, SLR-001, SHALL NOT, Demonstration, Draft
-SLR-049, SLR-034, MAY, Demonstration, Draft
-SLR-050, SLR-034 and SLR-001, SHALL NOT and SHOULD NOT, Demonstration, Draft
-SLR-051, SLR-005 and SLR-030, SHALL, Test, Draft
-SLR-052, SLR-029 and SLR-030, SHOULD, Test and Demonstration, Draft
-SLR-053, SLR-030, SHOULD, Test, Draft
-SLR-054, SLR-029, SHALL, Demonstration, Draft
-SLR-055, SLR-054, SHOULD, Inspection, Draft
-SLR-056, SLR-053, MAY, Demonstration, Draft
-SLR-057, SLR-006 and SLR-008, SHOULD, Demonstration, Draft
-SLR-058, SLR-057, SHOULD, Test, Draft
-SLR-059, SLR-034, SHALL, Test, Draft
-SLR-060, SLR-059, SHALL, Test, Draft
-SLR-061, SLR-001, SHALL, Demonstration, Draft
-SLR-062, SLR-061, SHOULD, Test, Draft
-SLR-063, SLR-061, SHOULD, Test, Draft
-SLR-064, SLR-001, SHOULD, Analysis, Draft
-SLR-065, SLR-062 and SLR-064, MAY, Test, Draft
-SLR-066, SLR-001, MAY, Demonstration, Draft
+  Note: HLRs decompose the SLRs into specific functional and interface requirements. These will be elicited in subsequent sessions.
 
 
-SECTION 5: GLOSSARY
--------------------
+3.1 Operating Modes
 
-CAT: Computer-Aided Transceiver; protocol for computer control of radios
+#### 3.1.1 Mode Overview
 
-Hamlib: Open-source library for standardized radio control via CAT
+[HLR-001] Primary Operating Modes
+  The HAMPOD SHALL support the following primary operating modes:
+  1. Normal Mode - Standard user query and control operation
+  2. Frequency Entry Mode - Direct frequency entry for the radio
+  3. Set Mode - Intent to modify a parameter (modifier state, not a full mode)
+  4. Memory Mode - Access to radio's frequency memory functions
+  5. DStar Mode - Access to DStar parameters (for DStar-capable radios)
+  6. DTMF Mode - Touch-tone generation via keypad
+  7. Configuration Mode - HAMPOD system configuration
 
-Piper: Neural network-based text-to-speech engine
+ Attribute  Value 
 
-Festival: Traditional rules-based text-to-speech engine
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-008 
+ Rationale  Matches original HAMPOD functionality with proven interface design 
+ Verification  Test, Demonstration 
 
-Terse Mode: Operating mode with minimal speech output
+[HLR-002] Default Mode
+  The HAMPOD SHALL start in Normal Mode upon boot and return to Normal Mode after completing operations in other modes (unless explicitly changed).
 
-Set Modifier: Key modifier used to change values (query vs. adjust pattern)
+ Attribute  Value 
 
-DTMF: Dual-Tone Multi-Frequency; audio tones for signaling
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001 
+ Rationale  Most common mode of operation; predictable starting point 
+ Verification  Test 
 
-Pi HAT: Hardware Attached on Top; add-on board for Raspberry Pi
+[HLR-003] Mode Announcement
+  The HAMPOD SHALL audibly announce mode changes when entering or exiting any mode other than Normal Mode.
 
-SCP: Secure Copy Protocol; file transfer over SSH
+ Attribute  Value 
 
-SSH: Secure Shell; encrypted remote access protocol
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-020 
+ Rationale  Users must always know current mode since they cannot see a display 
+ Verification  Test 
+
+#### 3.1.2 Normal Mode
+
+[HLR-004] Normal Mode Function
+  In Normal Mode, the HAMPOD SHALL allow the user to query and set various parameters of the radio's operation via key presses.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001 
+ Rationale  Primary operating mode for radio interaction 
+ Verification  Test 
+
+[HLR-005] Key Function Assignment
+  In Normal Mode, each key SHALL have up to four functions accessible via key modifiers: press, shift+press, hold, and shift+hold.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-008, HLR-004 
+ Rationale  Matches original HAMPOD interface; maximizes functions per physical key 
+ Verification  Test 
+
+[HLR-006] Single Key Operation
+  The HAMPOD SHALL NOT require the user to press two keys simultaneously to perform any function.
+
+ Attribute  Value 
+
+ Priority  SHALL NOT 
+ Parent  SLR-033 
+ Rationale  Accessibility requirement; sequential key presses only 
+ Verification  Test, Demonstration 
+
+#### 3.1.3 Set Mode (Modifier State)
+
+[HLR-007] Set Mode Function
+  Set Mode SHALL function as an intent modifier indicating the user wishes to change (not just query) a radio parameter.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-019, HLR-001 
+ Rationale  Consistent pattern: query with key, adjust with set+key 
+ Verification  Test 
+
+[HLR-008] Set Mode Entry Announcement
+  The HAMPOD SHALL announce "set" when entering Set Mode.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-020, HLR-007 
+ Rationale  User confirmation of mode change 
+ Verification  Test 
+
+[HLR-009] Set Mode Cancel Announcement
+  The HAMPOD SHALL announce "set off" when Set Mode is cancelled by pressing the Set key again, but SHALL NOT announce "set off" after successfully setting a parameter (returns silently to Normal Mode).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-008, SLR-012 
+ Rationale  Reduces unnecessary speech while maintaining mode awareness 
+ Verification  Test 
+
+[HLR-010] Set Mode Parameter Entry
+  When in Set Mode and a parameter is selected, the HAMPOD SHALL announce the parameter name and current value, then wait for user input.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-007 
+ Rationale  User needs to know current value before changing it 
+ Verification  Test 
+
+[HLR-011] Set Mode Value Selection
+  For parameters with discrete options (not numeric), the Shift and Set keys (A and B) SHALL function as "up" and "down" to cycle through available options.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-010 
+ Rationale  Consistent navigation pattern for option lists 
+ Verification  Test 
+
+[HLR-012] Set Mode Enter Key
+  The Enter key (# or keypad Enter) SHALL confirm the parameter value entry and return to Normal Mode.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-010 
+ Rationale  Standard confirmation pattern 
+ Verification  Test 
+
+#### 3.1.4 Frequency Entry Mode
+
+[HLR-013] Frequency Entry Mode Function
+  Frequency Entry Mode SHALL be a sub-mode of Normal Mode for entering frequencies directly.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001 
+ Rationale  Frequency entry is critical and needs dedicated behavior 
+ Verification  Test 
+
+[HLR-014] Frequency Entry VFO Selection
+  Upon initiating Frequency Entry Mode, the HAMPOD SHALL allow selection of target VFO (A, B, or Current) by repeated presses of the entry key.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-013 
+ Rationale  User needs to specify which VFO receives the frequency 
+ Verification  Test 
+
+[HLR-015] Frequency Decimal Entry
+  The HAMPOD SHALL support a decimal point key (star key) for frequency entry.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-013 
+ Rationale  Required for precise frequency specification 
+ Verification  Test 
+
+[HLR-016] Frequency Entry Cancel
+  Pressing the decimal point key twice SHALL clear the frequency entry and return to Normal Mode.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-013 
+ Rationale  Provides cancel mechanism during entry 
+ Verification  Test 
+
+[HLR-017] Frequency Shorthand Entry
+  The HAMPOD SHOULD support frequency shorthand entry where 3-4 digits without decimal are interpreted with the decimal after the first digit (e.g., "7240" = 7.240 MHz).
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  HLR-013, SLR-009 
+ Rationale  Speeds up common frequency entries 
+ Verification  Test 
+
+[HLR-018] Frequency Entry Timeout
+  If the Keypad Timeout option is enabled, Frequency Entry Mode SHALL timeout and return to Normal Mode after a configurable period of inactivity.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-013 
+ Rationale  Prevents system from being stuck in entry mode 
+ Verification  Test 
+
+#### 3.1.5 Memory Mode
+
+[HLR-019] Memory Mode Function
+  Memory Mode SHALL allow the user to view, transfer to VFO, write from VFO, and clear radio memory locations.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001, SLR-008 
+ Rationale  Memory operations required for full radio functionality 
+ Verification  Test 
+
+[HLR-020] Memory Mode Entry
+  Memory Mode SHALL be entered via a specific key combination (Shift+C in original HAMPOD).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-019 
+ Rationale  Dedicated entry point for memory operations 
+ Verification  Test 
+
+[HLR-021] Memory Channel Navigation
+  In Memory Mode, the HAMPOD SHALL allow channel navigation via increment/decrement keys (A/B) or direct channel number entry.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-019 
+ Rationale  Flexible access to memory channels 
+ Verification  Test 
+
+[HLR-022] Memory Channel Announcement
+  When a memory channel is accessed, the HAMPOD SHALL announce: channel number, alpha-numeric label (if present), and stored frequency.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-019, SLR-001 
+ Rationale  User needs complete channel information 
+ Verification  Test 
+
+[HLR-023] Memory Bank Support
+  On radios with multiple memory banks, the HAMPOD SHOULD support bank selection.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  HLR-019 
+ Rationale  Full memory functionality for radios that support banks 
+ Verification  Test 
+
+#### 3.1.6 DTMF Mode
+
+[HLR-024] DTMF Mode Function
+  In DTMF Mode, pressing keys SHALL generate corresponding DTMF (touch-tone) audio through the speaker.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001 
+ Rationale  DTMF needed for repeater control, phone patches, etc. 
+ Verification  Test 
+
+[HLR-025] DTMF Key Mapping
+  DTMF Mode SHALL map keys to standard DTMF tones: 0-9, *, #, A-D (16 tones total).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-024 
+ Rationale  Standard DTMF telephone keypad mapping 
+ Verification  Test 
+
+[HLR-026] DTMF Mode Exit
+  The HAMPOD SHALL provide a dedicated exit mechanism from DTMF Mode (hold D key in original HAMPOD) since normal modifier keys generate DTMF tones.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-024 
+ Rationale  User must be able to exit mode when all keys generate tones 
+ Verification  Test 
+
+[HLR-027] DTMF Exit Key Consideration
+  The HAMPOD MAY provide an alternative exit key on USB keypads since additional keys are available beyond the original 16.
+
+ Attribute  Value 
+
+ Priority  MAY (Optional) 
+ Parent  HLR-026, SLR-035 
+ Rationale  USB keypad has additional keys that could improve usability 
+ Verification  Demonstration 
+
+[HLR-028] DTMF Tone Duration
+  The DTMF tone duration SHALL be configurable (default around 200ms, range 100-500ms).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-024 
+ Rationale  Different systems may require different tone lengths 
+ Verification  Test 
+
+#### 3.1.7 Configuration Mode
+
+[HLR-029] Configuration Mode Function
+  Configuration Mode SHALL allow modification of HAMPOD system parameters such as volume, speech speed, verbosity, etc.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001 
+ Rationale  Users need to customize system behavior 
+ Verification  Test 
+
+[HLR-030] Configuration Mode Entry
+  Configuration Mode SHALL be entered via a specific key combination (hold C key in original HAMPOD).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Dedicated entry prevents accidental configuration changes 
+ Verification  Test 
+
+[HLR-031] Configuration Parameter Navigation
+  In Configuration Mode, A and B keys SHALL step forward and backward through configuration options.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Consistent navigation pattern 
+ Verification  Test 
+
+[HLR-032] Configuration Value Adjustment
+  In Configuration Mode, C and D keys SHALL increment and decrement parameter values.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Consistent value adjustment pattern 
+ Verification  Test 
+
+[HLR-033] Configuration Save
+  The HAMPOD SHALL save configuration changes to persistent storage when explicitly saved (hold C to exit with save).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Settings must persist across reboots 
+ Verification  Test 
+
+[HLR-034] Configuration Exit Without Save
+  The HAMPOD SHALL allow exit from Configuration Mode without saving (hold D to exit without save).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Users may want to experiment without committing changes 
+ Verification  Test 
+
+[HLR-035] Configuration File Update
+  When configuration parameters are changed and saved, the HAMPOD SHALL update the configuration file to maintain consistency.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-033 
+ Rationale  Configuration file must reflect current settings 
+ Verification  Inspection 
+
+#### 3.1.8 DStar Mode (Radio-Specific)
+
+[HLR-036] DStar Mode Availability
+  DStar Mode SHALL only be available when connected to a DStar-capable radio.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-001 
+ Rationale  Mode only relevant for DStar radios 
+ Verification  Test 
+
+[HLR-037] DStar Mode Function
+  DStar Mode SHALL provide access to DStar parameters: My Callsign, TX Callsign (UR/RPT1/RPT2), and TX Message fields.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory, when applicable) 
+ Parent  HLR-036 
+ Rationale  Full DStar functionality for compatible radios 
+ Verification  Test 
 
 
-SECTION 6: REVISION HISTORY
----------------------------
 
-Version 0.1, 2026-01-21: Initial document structure
 
-Version 0.2, 2026-01-21, Wayne Padgett and Claude: System-Level Requirements (SLR-001 through SLR-034) captured from elicitation
+3.2 Key Modifier System
 
-Version 0.3, 2026-01-30, Wayne Padgett and Claude: Interface Requirements (SLR-035 through SLR-066) added: physical interfaces, supported devices, software interfaces
+[HLR-038] Key Modifier Types
+  The HAMPOD SHALL support the following key modifiers:
+  1. Press - Normal short press of a key
+  2. Hold - Press and continue holding for approximately 0.5 seconds
+  3. Shift+Press - Press Shift key (A), then press target key
+  4. Shift+Hold - Press Shift key (A), then press and hold target key
 
-END OF DOCUMENT
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-008, HLR-005 
+ Rationale  Matches proven original HAMPOD interface 
+ Verification  Test 
+
+[HLR-039] Shift Key Toggle
+  The Shift key (A) SHALL toggle shift state on/off rather than requiring simultaneous key press.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-038, HLR-006 
+ Rationale  Enables single-handed operation; no simultaneous keys 
+ Verification  Test 
+
+[HLR-040] Hold Detection Time
+  The hold detection time SHALL be approximately 500ms (0.5 seconds) but MAY be configurable.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-038 
+ Rationale  Distinguishes between press and hold actions 
+ Verification  Test 
+
+[HLR-041] Shift Second Level
+  On radios requiring it (e.g., Kenwood TS-2000), the HAMPOD SHOULD support a second shift level (Shift-2) accessed by pressing Shift twice.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  HLR-038, SLR-051 
+ Rationale  Some radios need more than 4 functions per key 
+ Verification  Test 
+
+
+
+
+3.3 Core Radio Operations
+
+#### 3.3.1 Frequency Operations
+
+[HLR-042] Frequency Query
+  The HAMPOD SHALL allow the user to query the current frequency of the active VFO with a single key press.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-021 
+ Rationale  Most fundamental radio operation 
+ Verification  Test 
+
+[HLR-043] Frequency Announcement Format
+  Frequencies SHALL be announced efficiently: trailing zeros beyond 1 KHz SHALL NOT be spoken, and the second decimal point SHOULD be spoken as "dot" to aid comprehension.
+
+ Attribute  Value 
+
+ Priority  SHALL / SHOULD 
+ Parent  SLR-010, SLR-012 
+ Rationale  Matches original HAMPOD; reduces speech length 
+ Verification  Test 
+
+[HLR-044] Frequency Plus Mode
+  The HAMPOD SHOULD support a "Frequency Plus" mode that appends the operating mode abbreviation to frequency announcements.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  HLR-042, SLR-021 
+ Rationale  User knows both frequency and mode in one query 
+ Verification  Test 
+
+[HLR-045] VFO Selection
+  The HAMPOD SHALL allow selection of VFO A, VFO B, or Current VFO, with selection method depending on radio capabilities.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-005 
+ Rationale  Most radios have multiple VFOs 
+ Verification  Test 
+
+[HLR-046] VFO Exchange
+  The HAMPOD SHALL provide a function to exchange VFO A and VFO B frequencies.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-045 
+ Rationale  Common operation for split frequency work 
+ Verification  Test 
+
+#### 3.3.2 Mode Operations
+
+[HLR-047] Operating Mode Query
+  The HAMPOD SHALL announce the current operating mode (USB, LSB, CW, CW-R, RTTY, FM, AM, etc.) on request.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-021 
+ Rationale  User must know modulation mode for proper operation 
+ Verification  Test 
+
+[HLR-048] Operating Mode Change
+  The HAMPOD SHALL allow changing the operating mode via Set Mode + mode key.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-047\*, SLR-019 
+ Rationale  Mode changes required for different band segments and activities 
+ Verification  Test 
+
+[HLR-049] Data Mode Control
+  For radios supporting data modes, the HAMPOD SHALL provide control of data mode on/off status.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory, where applicable) 
+ Parent  HLR-047 
+ Rationale  Data mode required for digital communication 
+ Verification  Test 
+
+#### 3.3.3 Metering Operations
+
+[HLR-050] S-Meter Query
+  The HAMPOD SHALL announce the current S-meter reading on request.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Signal strength is fundamental information 
+ Verification  Test 
+
+[HLR-051] RF Power Meter Query
+  The HAMPOD SHALL announce the RF power output reading on request.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-001 
+ Rationale  Power output monitoring essential for transmission 
+ Verification  Test 
+
+[HLR-052] SWR Query
+  The HAMPOD SHALL provide SWR (Standing Wave Ratio) reading on request, if supported by the radio.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory, where applicable) 
+ Parent  SLR-001 
+ Rationale  SWR critical for antenna system health 
+ Verification  Test 
+
+[HLR-053] Additional Meters
+  The HAMPOD SHOULD support additional meter readings where available: ALC, compression, voltage, current.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  HLR-050 
+ Rationale  Full metering capability for advanced operation 
+ Verification  Test 
+
+
+
+
+3.4 Automatic Change Detection
+
+[HLR-054] Radio Change Polling
+  The HAMPOD SHALL poll the radio for key parameter changes that may occur via the radio's front panel controls.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-021 
+ Rationale  Changes made on radio must be detectable by HAMPOD 
+ Verification  Test 
+
+[HLR-055] Delayed Frequency Announcement
+  When the user changes frequency via the radio's tuning knob, the HAMPOD SHALL wait until the frequency stabilizes (configurable delay, default ~3 seconds) before automatically announcing the new frequency.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-054, SLR-021 
+ Rationale  Prevents speech during active tuning; announces result 
+ Verification  Test 
+
+[HLR-056] Frequency Announcement Toggle
+  The automatic frequency announcement feature SHALL be toggleable on/off via a Normal Mode key.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-055 
+ Rationale  User may not always want automatic announcements 
+ Verification  Test 
+
+[HLR-057] Frequency Delay Configuration
+  The frequency announcement delay duration SHALL be configurable via Configuration Mode (range approximately 1.2 to 5.0 seconds).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-055 
+ Rationale  Different users have different tuning speeds 
+ Verification  Test 
+
+
+
+
+3.5 Keypad Mapping Configuration
+
+[HLR-058] Initial Fixed Mapping
+  During initial development, the HAMPOD SHALL use a fixed key mapping defined in software.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-008 
+ Rationale  Enables development of core features first 
+ Verification  Inspection 
+
+[HLR-059] Configurable Key Mapping
+  The HAMPOD SHOULD support key mapping definition via a human-readable configuration file.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-029, SLR-055 
+ Rationale  Users can customize keypad layout; accommodates different keypads 
+ Verification  Inspection 
+
+[HLR-060] Keypad Layout Abstraction
+  The key mapping system SHALL abstract physical key positions from logical functions to accommodate different keypad layouts (phone vs. numeric keypad).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-059, SLR-036 
+ Rationale  Phone keypad has 1-2-3 on top; numeric keypad has 7-8-9 on top 
+ Verification  Demonstration 
+
+[HLR-061] Configuration File Parser Security
+  All configuration file parsers SHALL validate input to prevent security attacks (buffer overflow, injection, etc.) and provide informative error messages.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-029, SLR-055, SLR-064 
+ Rationale  Configuration files must not be attack vectors; applies to keypad mapping, radio configuration, system settings, etc. 
+ Verification  Analysis, Test 
+
+[HLR-062] Configuration File Parser Tolerance
+  All configuration file parsers SHALL be tolerant of minor variations such as CR vs LF line endings and extra whitespace.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-061 
+ Rationale  Files may be edited on different platforms (Windows, Mac, Linux) 
+ Verification  Test 
+
+
+
+
+3.6 Configuration Parameters
+
+[HLR-063] Speech Volume
+  The HAMPOD SHALL provide adjustable speech output volume.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Users need volume control in varying environments 
+ Verification  Test 
+
+[HLR-064] Speech Speed
+  The HAMPOD SHALL provide adjustable speech rate.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-011 
+ Rationale  Different users comprehend at different speeds 
+ Verification  Test 
+
+[HLR-065] Verbosity Level
+  The HAMPOD SHALL provide a verbosity control (verbose vs. terse mode) that affects the amount of labeling and prompts spoken.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-010 
+ Rationale  Experienced users want minimal speech 
+ Verification  Test 
+
+[HLR-066] Key Beep
+  The HAMPOD SHALL provide an option to enable/disable a confirmation beep when keys are pressed.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Audio feedback that key press was registered 
+ Verification  Test 
+
+[HLR-067] Key Timeout Configuration
+  The HAMPOD SHALL provide a configurable key timeout duration (disable or 5-30 seconds) that governs the inactivity period before returning to Normal Mode during multi-key operations (as specified in HLR-018).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-018, HLR-029 
+ Rationale  Prevents getting stuck in partial entry states; user-adjustable timing 
+ Verification  Test 
+
+[HLR-076] Timeout Announcement
+  The HAMPOD SHALL announce "timeout" when returning to Normal Mode after a timeout interval is exceeded.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-067, HLR-003 
+ Rationale  User needs to know why they returned to Normal Mode unexpectedly 
+ Verification  Test 
+
+
+
+
+3.7 Non-Functional Requirements
+
+#### 3.7.1 Timing Requirements
+
+[HLR-068] Key Response Time
+  The HAMPOD SHALL respond to key presses within 100ms with audio feedback (beep or speech).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-009 
+ Rationale  Responsive feel essential for usability 
+ Verification  Test 
+
+[HLR-069] Radio Command Timeout
+  The HAMPOD SHALL have a configurable timeout for radio command responses (default 5-20 range).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-013 
+ Rationale  Detects communication failures; user can tune for their setup 
+ Verification  Test 
+
+#### 3.7.2 Audio Requirements
+
+[HLR-070] Speech Interruption
+  When a new key is pressed during speech output, the HAMPOD SHOULD interrupt current speech and immediately respond to the new key.
+
+ Attribute  Value 
+
+ Priority  SHOULD (Strongly Desired) 
+ Parent  SLR-009 
+ Rationale  Users should not have to wait for speech to complete 
+ Verification  Test 
+
+[HLR-071] DTMF Audio Routing
+  DTMF tones SHALL be routed to the speaker output for capture by microphone near the HAMPOD.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-024 
+ Rationale  Tones must be audible for mic pickup 
+ Verification  Test 
+
+
+
+
+3.8 Safety and Reliability Requirements
+
+[HLR-072] Radio Disconnect Handling
+  The HAMPOD SHALL gracefully handle radio disconnection or power cycling without crashing.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-013 
+ Rationale  Radio may be power cycled during normal operation 
+ Verification  Test 
+
+[HLR-073] Radio Reconnection
+  The HAMPOD SHALL automatically detect and reconnect when the radio connection is restored.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-072 
+ Rationale  Users should not need to restart HAMPOD 
+ Verification  Test 
+
+[HLR-074] Invalid Input Handling
+  The HAMPOD SHALL provide an error beep or announcement for invalid key sequences or parameter values.
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  SLR-013 
+ Rationale  User needs feedback when input is rejected 
+ Verification  Test 
+
+[HLR-075] Factory Reset
+  The HAMPOD SHALL provide a mechanism to restore factory default settings (special frequency entry 999 in original HAMPOD).
+
+ Attribute  Value 
+
+ Priority  SHALL (Mandatory) 
+ Parent  HLR-029 
+ Rationale  Recovery from misconfiguration 
+ Verification  Test 
+
+
+
+
+4. Requirements Traceability Matrix
+
+
+4.1 System-Level Requirements
+
+ Requirement ID  Parent  Priority  Verification Method  Status 
+
+ SLR-001  —  SHALL  Demonstration  Draft 
+ SLR-002  SLR-001  SHALL  Demonstration  Draft 
+ SLR-003  SLR-001  SHOULD  Demonstration  Draft 
+ SLR-004  SLR-002, SLR-003  SHOULD/SHALL NOT  Inspection  Draft 
+ SLR-005  SLR-001  SHALL  Test  Draft 
+ SLR-006  SLR-001  SHOULD  Demonstration  Draft 
+ SLR-007  SLR-001  SHALL  Inspection  Draft 
+ SLR-008  SLR-001  SHALL  Demonstration, Inspection  Draft 
+ SLR-009  SLR-001  SHALL  Test  Draft 
+ SLR-010  SLR-009  SHALL  Test  Draft 
+ SLR-011  SLR-009  SHALL  Test  Draft 
+ SLR-012  SLR-009  SHALL  Test, Inspection  Draft 
+ SLR-013  SLR-001  SHALL  Test  Draft 
+ SLR-014  SLR-013  SHALL  Test  Draft 
+ SLR-015  SLR-013  SHALL  Test  Draft 
+ SLR-016  SLR-009  SHOULD  Test  Draft 
+ SLR-017  SLR-001  SHOULD  Demonstration  Draft 
+ SLR-018  SLR-017  SHALL  Test  Draft 
+ SLR-019  SLR-017  SHALL  Test  Draft 
+ SLR-020  SLR-017, SLR-001  SHALL  Test  Draft 
+ SLR-021  SLR-001  SHALL  Test  Draft 
+ SLR-022  SLR-001  SHALL  Demonstration  Draft 
+ SLR-023  SLR-022  MAY  Demonstration  Draft 
+ SLR-024  SLR-022  SHOULD  Analysis  Draft 
+ SLR-025  SLR-001  SHALL  Test  Draft 
+ SLR-026  SLR-025  SHOULD  Test  Draft 
+ SLR-027  SLR-001  SHALL  Inspection  Draft 
+ SLR-028  SLR-004  SHOULD  Demonstration  Draft 
+ SLR-029  SLR-001  SHALL  Inspection, Demonstration  Draft 
+ SLR-030  SLR-029  SHALL  Inspection  Draft 
+ SLR-031  SLR-029  SHOULD  Test  Draft 
+ SLR-032  —  NOT REQUIRED  Inspection  Draft 
+ SLR-033  SLR-017  SHALL NOT  Demonstration  Draft 
+ SLR-034  SLR-001  SHALL NOT / MAY  Demonstration  Draft 
+ SLR-035  SLR-001, SLR-027  SHALL  Test  Draft 
+ SLR-036  SLR-035  SHOULD  Test  Draft 
+ SLR-037  SLR-035  SHALL  Test  Draft 
+ SLR-038  SLR-001  SHALL  Test  Draft 
+ SLR-039  SLR-038  SHALL  Test  Draft 
+ SLR-040  SLR-038, SLR-028  SHOULD  Test  Draft 
+ SLR-041  SLR-038  MAY  Test  Draft 
+ SLR-042  SLR-038  SHALL NOT  Inspection  Draft 
+ SLR-043  SLR-001, SLR-030  SHALL  Test  Draft 
+ SLR-044  SLR-001, SLR-030  SHALL  Test  Draft 
+ SLR-045  SLR-043  SHALL  Test  Draft 
+ SLR-046  SLR-025  SHALL  Inspection  Draft 
+ SLR-047  SLR-046, SLR-003  MAY  Inspection  Draft 
+ SLR-048  SLR-001  SHALL NOT  Demonstration  Draft 
+ SLR-049  SLR-034  MAY  Demonstration  Draft 
+ SLR-050  SLR-034, SLR-001  SHALL NOT / SHOULD NOT  Demonstration  Draft 
+ SLR-051  SLR-005, SLR-030  SHALL  Test  Draft 
+ SLR-052  SLR-029, SLR-030  SHOULD  Test, Demonstration  Draft 
+ SLR-053  SLR-030  SHOULD  Test  Draft 
+ SLR-054  SLR-029  SHALL  Demonstration  Draft 
+ SLR-055  SLR-054  SHOULD  Inspection  Draft 
+ SLR-056  SLR-053  MAY  Demonstration  Draft 
+ SLR-057  SLR-006, SLR-008  SHOULD  Demonstration  Draft 
+ SLR-058  SLR-057  SHOULD  Test  Draft 
+ SLR-059  SLR-034  SHALL  Test  Draft 
+ SLR-060  SLR-059  SHALL  Test  Draft 
+ SLR-061  SLR-001  SHALL  Demonstration  Draft 
+ SLR-062  SLR-061  SHOULD  Test  Draft 
+ SLR-063  SLR-061  SHOULD  Test  Draft 
+ SLR-064  SLR-001  SHOULD  Analysis  Draft 
+ SLR-065  SLR-062, SLR-064  MAY  Test  Draft 
+ SLR-066  SLR-001  MAY  Demonstration  Draft 
+
+
+4.2 High-Level Requirements
+
+ Requirement ID  Parent  Priority  Verification Method  Status 
+
+ HLR-001  SLR-008  SHALL  Test, Demonstration  Draft 
+ HLR-002  HLR-001  SHALL  Test  Draft 
+ HLR-003  SLR-020  SHALL  Test  Draft 
+ HLR-004  HLR-001  SHALL  Test  Draft 
+ HLR-005  SLR-008, HLR-004  SHALL  Test  Draft 
+ HLR-006  SLR-033  SHALL NOT  Test, Demonstration  Draft 
+ HLR-007  SLR-019, HLR-001  SHALL  Test  Draft 
+ HLR-008  SLR-020, HLR-007  SHALL  Test  Draft 
+ HLR-009  HLR-008, SLR-012  SHALL  Test  Draft 
+ HLR-010  HLR-007  SHALL  Test  Draft 
+ HLR-011  HLR-010  SHALL  Test  Draft 
+ HLR-012  HLR-010  SHALL  Test  Draft 
+ HLR-013  HLR-001  SHALL  Test  Draft 
+ HLR-014  HLR-013  SHALL  Test  Draft 
+ HLR-015  HLR-013  SHALL  Test  Draft 
+ HLR-016  HLR-013  SHALL  Test  Draft 
+ HLR-017  HLR-013, SLR-009  SHOULD  Test  Draft 
+ HLR-018  HLR-013  SHALL  Test  Draft 
+ HLR-019  HLR-001, SLR-008  SHALL  Test  Draft 
+ HLR-020  HLR-019  SHALL  Test  Draft 
+ HLR-021  HLR-019  SHALL  Test  Draft 
+ HLR-022  HLR-019, SLR-001  SHALL  Test  Draft 
+ HLR-023  HLR-019  SHOULD  Test  Draft 
+ HLR-024  HLR-001  SHALL  Test  Draft 
+ HLR-025  HLR-024  SHALL  Test  Draft 
+ HLR-026  HLR-024  SHALL  Test  Draft 
+ HLR-027  HLR-026, SLR-035  MAY  Demonstration  Draft 
+ HLR-028  HLR-024  SHALL  Test  Draft 
+ HLR-029  HLR-001  SHALL  Test  Draft 
+ HLR-030  HLR-029  SHALL  Test  Draft 
+ HLR-031  HLR-029  SHALL  Test  Draft 
+ HLR-032  HLR-029  SHALL  Test  Draft 
+ HLR-033  HLR-029  SHALL  Test  Draft 
+ HLR-034  HLR-029  SHALL  Test  Draft 
+ HLR-035  HLR-033  SHALL  Inspection  Draft 
+ HLR-036  HLR-001  SHALL  Test  Draft 
+ HLR-037  HLR-036  SHALL  Test  Draft 
+ HLR-038  SLR-008, HLR-005  SHALL  Test  Draft 
+ HLR-039  HLR-038, HLR-006  SHALL  Test  Draft 
+ HLR-040  HLR-038  SHALL  Test  Draft 
+ HLR-041  HLR-038, SLR-051  SHOULD  Test  Draft 
+ HLR-042  SLR-021  SHALL  Test  Draft 
+ HLR-043  SLR-010, SLR-012  SHALL/SHOULD  Test  Draft 
+ HLR-044  HLR-042, SLR-021  SHOULD  Test  Draft 
+ HLR-045  SLR-005  SHALL  Test  Draft 
+ HLR-046  HLR-045  SHALL  Test  Draft 
+ HLR-047  SLR-021  SHALL  Test  Draft 
+ HLR-048  HLR-047, SLR-019  SHALL  Test  Draft 
+ HLR-049  HLR-047  SHALL  Test  Draft 
+ HLR-050  SLR-001  SHALL  Test  Draft 
+ HLR-051  SLR-001  SHALL  Test  Draft 
+ HLR-052  SLR-001  SHALL  Test  Draft 
+ HLR-053  HLR-050  SHOULD  Test  Draft 
+ HLR-054  SLR-021  SHALL  Test  Draft 
+ HLR-055  HLR-054, SLR-021  SHALL  Test  Draft 
+ HLR-056  HLR-055  SHALL  Test  Draft 
+ HLR-057  HLR-055  SHALL  Test  Draft 
+ HLR-058  SLR-008  SHALL  Inspection  Draft 
+ HLR-059  SLR-029, SLR-055  SHOULD  Inspection  Draft 
+ HLR-060  HLR-059, SLR-036  SHALL  Demonstration  Draft 
+ HLR-061  SLR-029, SLR-055, SLR-064  SHALL  Analysis, Test  Draft 
+ HLR-062  HLR-061  SHALL  Test  Draft 
+ HLR-063  HLR-029  SHALL  Test  Draft 
+ HLR-064  SLR-011  SHALL  Test  Draft 
+ HLR-065  SLR-010  SHALL  Test  Draft 
+ HLR-066  HLR-029  SHALL  Test  Draft 
+ HLR-067  HLR-018, HLR-029  SHALL  Test  Draft 
+ HLR-068  SLR-009  SHALL  Test  Draft 
+ HLR-069  SLR-013  SHALL  Test  Draft 
+ HLR-070  SLR-009  SHOULD  Test  Draft 
+ HLR-071  HLR-024  SHALL  Test  Draft 
+ HLR-072  SLR-013  SHALL  Test  Draft 
+ HLR-073  HLR-072  SHALL  Test  Draft 
+ HLR-074  SLR-013  SHALL  Test  Draft 
+ HLR-075  HLR-029  SHALL  Test  Draft 
+ HLR-076  HLR-067, HLR-003  SHALL  Test  Draft 
+
+
+
+
+5. Glossary
+
+ Term  Definition 
+
+ AGC  Automatic Gain Control; adjusts receiver gain automatically 
+ ALC  Automatic Level Control; prevents transmitter overdrive 
+ CAT  Computer-Aided Transceiver; protocol for computer control of radios 
+ CI-V  ICOM's CAT protocol over serial interface 
+ DStar  Digital Smart Technologies for Amateur Radio; ICOM digital voice mode 
+ DTMF  Dual-Tone Multi-Frequency; audio tones for signaling 
+ Festival  Traditional rules-based text-to-speech engine 
+ Hamlib  Open-source library for standardized radio control via CAT 
+ HLR  High-Level Requirement 
+ NB  Noise Blanker; removes impulse noise 
+ NR  Noise Reduction; digital signal processing to reduce background noise 
+ Pi HAT  Hardware Attached on Top; add-on board for Raspberry Pi 
+ Piper  Neural network-based text-to-speech engine 
+ SCP  Secure Copy Protocol; file transfer over SSH 
+ Set Modifier  Key modifier used to change values (query vs. adjust pattern) 
+ SLR  System-Level Requirement 
+ Split  Operating mode where transmit and receive frequencies differ 
+ SSH  Secure Shell; encrypted remote access protocol 
+ SWR  Standing Wave Ratio; measure of antenna system match 
+ Terse Mode  Operating mode with minimal speech output 
+ VFO  Variable Frequency Oscillator; the tunable frequency source in a radio 
+
+
+
+
+6. Revision History
+
+ Version  Date  Author  Changes 
+
+ 0.1  2026-01-21  —  Initial document structure 
+ 0.2  2026-01-21  Wayne Padgett / Claude  System-Level Requirements (SLR-001 through SLR-034) captured from elicitation 
+ 0.3  2026-01-30  Wayne Padgett / Claude  Interface Requirements (SLR-035 through SLR-066) added: physical interfaces, supported devices, software interfaces 
+ 0.4  2026-01-30  Wayne Padgett / Claude  High-Level Requirements (HLR-001 through HLR-075) added: operating modes, key modifiers, core radio operations, configuration, timing, and reliability 
+ 0.5  2026-01-30  Wayne Padgett / Claude  Generalized parser requirements (HLR-061, HLR-062) to apply to all configuration files; added HLR-076 timeout announcement; clarified HLR-067 references HLR-018 
+
