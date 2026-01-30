@@ -1449,24 +1449,24 @@ Requirements use the following format:
 | Rationale | Phone keypad has 1-2-3 on top; numeric keypad has 7-8-9 on top |
 | Verification | Demonstration |
 
-**[HLR-061] Key Mapping Parser Security**
-> The key mapping configuration parser SHALL validate input to prevent security attacks (buffer overflow, injection, etc.) and provide informative error messages.
+**[HLR-061] Configuration File Parser Security**
+> All configuration file parsers SHALL validate input to prevent security attacks (buffer overflow, injection, etc.) and provide informative error messages.
 
 | Attribute | Value |
 |-----------|-------|
 | Priority | SHALL (Mandatory) |
-| Parent | HLR-059, SLR-064 |
-| Rationale | Configuration files must not be attack vectors |
+| Parent | SLR-029, SLR-055, SLR-064 |
+| Rationale | Configuration files must not be attack vectors; applies to keypad mapping, radio configuration, system settings, etc. |
 | Verification | Analysis, Test |
 
-**[HLR-062] Key Mapping Parser Tolerance**
-> The key mapping parser SHALL be tolerant of minor variations such as CR vs LF line endings and extra whitespace.
+**[HLR-062] Configuration File Parser Tolerance**
+> All configuration file parsers SHALL be tolerant of minor variations such as CR vs LF line endings and extra whitespace.
 
 | Attribute | Value |
 |-----------|-------|
 | Priority | SHALL (Mandatory) |
 | Parent | HLR-061 |
-| Rationale | Files may be edited on different platforms |
+| Rationale | Files may be edited on different platforms (Windows, Mac, Linux) |
 | Verification | Test |
 
 ---
@@ -1513,14 +1513,24 @@ Requirements use the following format:
 | Rationale | Audio feedback that key press was registered |
 | Verification | Test |
 
-**[HLR-067] Key Timeout**
-> The HAMPOD SHALL provide a configurable key timeout (disable or 5-30 seconds) that returns to Normal Mode after inactivity during multi-key operations.
+**[HLR-067] Key Timeout Configuration**
+> The HAMPOD SHALL provide a configurable key timeout duration (disable or 5-30 seconds) that governs the inactivity period before returning to Normal Mode during multi-key operations (as specified in HLR-018).
 
 | Attribute | Value |
 |-----------|-------|
 | Priority | SHALL (Mandatory) |
-| Parent | HLR-018 |
-| Rationale | Prevents getting stuck in partial entry states |
+| Parent | HLR-018, HLR-029 |
+| Rationale | Prevents getting stuck in partial entry states; user-adjustable timing |
+| Verification | Test |
+
+**[HLR-076] Timeout Announcement**
+> The HAMPOD SHALL announce "timeout" when returning to Normal Mode after a timeout interval is exceeded.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-067, HLR-003 |
+| Rationale | User needs to know why they returned to Normal Mode unexpectedly |
 | Verification | Test |
 
 ---
@@ -1754,13 +1764,13 @@ Requirements use the following format:
 | HLR-058 | SLR-008 | SHALL | Inspection | Draft |
 | HLR-059 | SLR-029, SLR-055 | SHOULD | Inspection | Draft |
 | HLR-060 | HLR-059, SLR-036 | SHALL | Demonstration | Draft |
-| HLR-061 | HLR-059, SLR-064 | SHALL | Analysis, Test | Draft |
+| HLR-061 | SLR-029, SLR-055, SLR-064 | SHALL | Analysis, Test | Draft |
 | HLR-062 | HLR-061 | SHALL | Test | Draft |
 | HLR-063 | HLR-029 | SHALL | Test | Draft |
 | HLR-064 | SLR-011 | SHALL | Test | Draft |
 | HLR-065 | SLR-010 | SHALL | Test | Draft |
 | HLR-066 | HLR-029 | SHALL | Test | Draft |
-| HLR-067 | HLR-018 | SHALL | Test | Draft |
+| HLR-067 | HLR-018, HLR-029 | SHALL | Test | Draft |
 | HLR-068 | SLR-009 | SHALL | Test | Draft |
 | HLR-069 | SLR-013 | SHALL | Test | Draft |
 | HLR-070 | SLR-009 | SHOULD | Test | Draft |
@@ -1769,6 +1779,7 @@ Requirements use the following format:
 | HLR-073 | HLR-072 | SHALL | Test | Draft |
 | HLR-074 | SLR-013 | SHALL | Test | Draft |
 | HLR-075 | HLR-029 | SHALL | Test | Draft |
+| HLR-076 | HLR-067, HLR-003 | SHALL | Test | Draft |
 
 ---
 
@@ -1808,4 +1819,5 @@ Requirements use the following format:
 | 0.2 | 2026-01-21 | Wayne Padgett / Claude | System-Level Requirements (SLR-001 through SLR-034) captured from elicitation |
 | 0.3 | 2026-01-30 | Wayne Padgett / Claude | Interface Requirements (SLR-035 through SLR-066) added: physical interfaces, supported devices, software interfaces |
 | 0.4 | 2026-01-30 | Wayne Padgett / Claude | High-Level Requirements (HLR-001 through HLR-075) added: operating modes, key modifiers, core radio operations, configuration, timing, and reliability |
+| 0.5 | 2026-01-30 | Wayne Padgett / Claude | Generalized parser requirements (HLR-061, HLR-062) to apply to all configuration files; added HLR-076 timeout announcement; clarified HLR-067 references HLR-018 |
 
