@@ -1,0 +1,230 @@
+// =============================================================================
+// HAMPOD Radio Configuration Model in Clafer
+// =============================================================================
+// This file models the configuration variability for HAMPOD devices.
+// Based on High-Level Requirements HLR-077 through HLR-128.
+//
+// Clafer Tutorial Notes:
+// - 'abstract' means this is a template, not a concrete instance
+// - '?' after a name means optional (0 or 1)
+// - 'xor' means exactly one child must be selected
+// - 'or' means at least one child must be selected
+// - '->' means reference to another feature
+// - ':' followed by type means an attribute
+// - '[constraint]' enforces a rule
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// SECTION 1: Audio Subsystem Configuration (HLR-109 to HLR-128)
+// -----------------------------------------------------------------------------
+
+abstract AudioConfig
+    // HLR-119: Configurable synthesizer selection
+    Synthesizer
+        xor SynthesizerType
+            Piper
+                // HLR-121: Piper with quality levels
+                xor VoiceQuality
+                    LowQuality      // Faster, less natural
+                    MediumQuality
+                    HighQuality     // Slower, more natural
+                VoiceModel : string     // e.g., "en_US-lessac-medium"
+            Festival
+                // HLR-122: Festival as low-latency alternative
+                Voice : string          // e.g., "kal_diphone"
+    
+    // HLR-109, HLR-110: Latency requirements
+    targetLatencyMs : integer
+    [targetLatencyMs >= 100]    // HLR-109: 100ms is the target
+    [targetLatencyMs <= 300]    // HLR-110: 300ms is the max
+    
+    // HLR-112 to HLR-115: Beep specifications
+    BeepConfig
+        keyPressFrequencyHz : integer = 1000    // HLR-113
+        keyPressDurationMs : integer = 50       // HLR-113
+        keyHoldFrequencyHz : integer = 700      // HLR-114
+        keyHoldDurationMs : integer = 50        // HLR-114
+        errorFrequencyHz : integer = 400        // HLR-115
+        errorDurationMs : integer = 100         // HLR-115
+        beepLatencyMaxMs : integer = 50         // HLR-112
+    
+    // HLR-123, HLR-124, HLR-125: Implementation options
+    ImplementationOptions
+        persistentLoading ?         // HLR-123: Keep synth in memory
+        continuousStream ?          // HLR-124: Always-on audio stream
+        audioBufferMs : integer     // HLR-125: Buffer size
+        [audioBufferMs >= 20]
+        [audioBufferMs <= 100]
+
+// Platform-specific constraints (HLR-126, HLR-127, HLR-128)
+abstract Platform
+    xor HardwareType
+        Pi5
+            // HLR-126: Pi5 can use Piper at 100ms
+            [AudioConfig.Synthesizer.SynthesizerType.Piper]
+            [AudioConfig.targetLatencyMs <= 100]
+        Pi4
+            // HLR-128: Pi4 needs characterization
+            [AudioConfig.targetLatencyMs <= 200]  // Estimated
+        Pi3B
+            // HLR-127: Pi3B should use Festival
+            [AudioConfig.Synthesizer.SynthesizerType.Festival]
+            [AudioConfig.targetLatencyMs <= 300]
+
+// -----------------------------------------------------------------------------
+// SECTION 2: Radio Configuration Architecture (HLR-077 to HLR-091)
+// -----------------------------------------------------------------------------
+
+abstract RadioConfig
+    // HLR-098: Device registry information
+    DeviceInfo
+        deviceType : string         // "radio", "accessory", etc.
+        manufacturer : string       // e.g., "Icom", "Kenwood", "Yaesu"
+        model : string              // e.g., "IC-7300", "TS-2000"
+        hamlibModelId : integer     // Hamlib rig number
+        uniqueId : string ?         // USB serial number if available
+    
+    // HLR-079: Key-to-action mappings
+    KeyMappings
+        // Each key can have up to 4 actions (per HLR-005)
+        KeyAction *
+            keyCode : string        // Physical key identifier
+            xor Modifier
+                Press
+                Hold
+                ShiftPress
+                ShiftHold
+            action -> Action
+    
+    // HLR-080, HLR-081: Actions with announcements and Hamlib bindings
+    Action *
+        actionId : string           // Unique identifier
+        
+        // HLR-080: Announcement text (verbose and terse)
+        Announcement
+            verboseText : string
+            terseText : string
+        
+        // HLR-081: Hamlib function binding
+        HamlibBinding ?
+            functionName : string   // e.g., "rig_get_freq", "rig_set_mode"
+            parameters : string ?   // Optional parameters
+        
+        // HLR-082: Parameter validation
+        ParameterValidation ?
+            minValue : integer ?
+            maxValue : integer ?
+            allowedValues : string ?    // Comma-separated list
+
+    // HLR-083 to HLR-086: Response handling
+    ResponseHandling
+        // HLR-069: Command timeout
+        timeoutMs : integer
+        [timeoutMs >= 1000]
+        [timeoutMs <= 20000]
+        
+        // HLR-086: Timeout announcement
+        timeoutAnnouncement : string = "no response"
+        
+        // HLR-085: Error message table (reference to global table)
+        useGlobalErrorTable : integer = 1
+
+    // HLR-087, HLR-088: Default behaviors
+    DefaultBehaviors
+        // Can inherit from a base config and override
+        inheritsFrom : string ?     // Name of parent config
+        
+        // Override flags
+        overrideKeyMappings : integer = 0
+        overrideAnnouncements : integer = 0
+        overrideTimeouts : integer = 0
+
+// -----------------------------------------------------------------------------
+// SECTION 3: Supported Features (varies by radio)
+// -----------------------------------------------------------------------------
+
+abstract RadioFeatures
+    // Core features (most radios have these)
+    CoreFeatures
+        frequencyControl        // All radios
+        modeControl             // AM, FM, SSB, CW, etc.
+        vfoControl ?            // Some radios only have one VFO
+        
+    // Optional features (HLR-089, HLR-090: handle gracefully if missing)
+    OptionalFeatures
+        splitOperation ?        // TX on different freq than RX
+        memoryChannels ?
+            channelCount : integer
+            [channelCount > 0]
+        dstarMode ?             // Digital voice (Icom)
+        dtmfTransmit ?
+        noiseBlander ?          // NB
+        noiseReduction ?        // NR
+        agcControl ?
+        filterControl ?
+        powerControl ?
+        swr_meter ?
+        
+    // Manufacturer-specific features
+    ManufacturerFeatures
+        icomFeatures ?
+            ciVAddress : integer    // CI-V bus address
+        kenwoodFeatures ?
+            // Kenwood-specific options
+        yaessuFeatures ?
+            // Yaesu-specific options
+
+// -----------------------------------------------------------------------------
+// SECTION 4: Device Registry (HLR-098 to HLR-100)
+// -----------------------------------------------------------------------------
+
+abstract DeviceRegistry
+    // HLR-098: Known devices list
+    KnownDevice *
+        config -> RadioConfig
+        portAssignment : string     // e.g., "/dev/ttyUSB0"
+        lastSeen : string ?         // Timestamp
+    
+    // HLR-099: Which device is currently active
+    activeDevice -> KnownDevice ?
+    
+    // HLR-103: Missing devices are tolerated
+    [#KnownDevice >= 0]             // Can have zero if all powered off
+
+// -----------------------------------------------------------------------------
+// SECTION 5: System Configuration (combines all components)
+// -----------------------------------------------------------------------------
+
+abstract HAMPODSystem
+    audio : AudioConfig
+    platform : Platform
+    devices : DeviceRegistry
+    
+    // HLR-077: Configuration-driven behavior
+    // The system interprets configs rather than hard-coding behavior
+    
+    // HLR-092: Config loaded to memory for fast access
+    configCacheEnabled : integer = 1
+    
+    // HLR-093: Device switching reloads config
+    // (behavioral, not structural - noted for documentation)
+
+// =============================================================================
+// CONCRETE INSTANCE EXAMPLES
+// =============================================================================
+
+// Example: A Pi5-based HAMPOD with IC-7300
+Pi5_IC7300 : HAMPODSystem
+    [platform.HardwareType.Pi5]
+    [audio.Synthesizer.SynthesizerType.Piper]
+    [audio.Synthesizer.SynthesizerType.Piper.VoiceQuality.LowQuality]
+    [audio.targetLatencyMs = 100]
+    [audio.ImplementationOptions.persistentLoading]
+    [audio.ImplementationOptions.audioBufferMs = 50]
+
+// Example: A Pi3B-based HAMPOD with TS-2000
+Pi3B_TS2000 : HAMPODSystem
+    [platform.HardwareType.Pi3B]
+    [audio.Synthesizer.SynthesizerType.Festival]
+    [audio.targetLatencyMs = 250]
+    [audio.ImplementationOptions.audioBufferMs = 75]
