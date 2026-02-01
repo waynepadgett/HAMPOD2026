@@ -1973,6 +1973,224 @@ Requirements use the following format:
 
 ---
 
+### 3.10 Audio Subsystem
+
+#### 3.10.1 Speech Latency Requirements
+
+**[HLR-109] Speech Latency Target**
+> The HAMPOD SHOULD achieve speech response latency of 100ms or less from key press to first audible speech output.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHOULD (Strongly Desired) |
+| Parent | HLR-068 |
+| Rationale | 100ms feels instantaneous to users |
+| Verification | Test |
+
+**[HLR-110] Speech Latency Maximum**
+> The HAMPOD SHALL achieve speech response latency of 300ms or less from key press to first audible speech output.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-109 |
+| Rationale | 300ms is acceptable; beyond this feels sluggish |
+| Verification | Test |
+
+**[HLR-111] Latency Hardware Dependence**
+> Actual speech latency MAY vary based on hardware platform, selected synthesizer, and implementation choices; the system SHALL be designed to minimize latency on all supported platforms.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-110, SLR-032 |
+| Rationale | Different platforms have different capabilities |
+| Verification | Test |
+
+#### 3.10.2 Beep Feedback Specifications
+
+**[HLR-112] Beep Latency**
+> Beep feedback SHALL occur within 50ms after key release or hold threshold exceeded, whichever is sooner.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-066 |
+| Rationale | Immediate tactile-like audio feedback confirms key input |
+| Verification | Test |
+
+**[HLR-113] Key Press Beep**
+> A key press SHALL generate a 50ms duration, 1000Hz tone beep.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-112 |
+| Rationale | Distinctive tone for normal key press acknowledgment |
+| Verification | Test |
+
+**[HLR-114] Key Hold Beep**
+> A key hold (threshold exceeded) SHALL generate a 50ms duration, 700Hz tone beep.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-112 |
+| Rationale | Lower tone distinguishes hold from press |
+| Verification | Test |
+
+**[HLR-115] Error Beep**
+> An invalid or rejected key input SHALL generate a 100ms duration, 400Hz tone beep.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-112, HLR-074 |
+| Rationale | Longer, lower tone clearly indicates error |
+| Verification | Test |
+
+#### 3.10.3 Speech Interruption Behavior
+
+**[HLR-116] Key Press Interrupts Speech**
+> Any key press SHALL immediately interrupt ongoing speech output.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-070 |
+| Rationale | User is taking a new action; old speech is no longer relevant |
+| Verification | Test |
+
+**[HLR-117] Radio Event Interrupts Speech**
+> If a radio event (e.g., frequency change from tuning knob) occurs during speech, the new announcement SHALL interrupt the ongoing speech after the normal delay interval.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-055, HLR-116 |
+| Rationale | Radio state changed; old announcement is stale |
+| Verification | Test |
+
+**[HLR-118] Newest Announcement Priority**
+> When multiple announcements are pending, the newest announcement SHALL take priority; older pending announcements SHALL be discarded.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-116, HLR-117 |
+| Rationale | Current state is always most relevant |
+| Verification | Test |
+
+#### 3.10.4 Speech Synthesizer Selection
+
+**[HLR-119] Configurable Synthesizer Selection**
+> The HAMPOD SHALL support selection of speech synthesizer (e.g., Piper, Festival) via configuration file at startup.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | SLR-005, SLR-029 |
+| Rationale | Different synthesizers have different latency/quality trade-offs |
+| Verification | Test |
+
+**[HLR-120] Runtime Synthesizer Switching**
+> The HAMPOD SHOULD support changing speech synthesizer during runtime without requiring restart.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHOULD (Strongly Desired) |
+| Parent | HLR-119 |
+| Rationale | Allows user to adjust based on current needs |
+| Verification | Test |
+
+**[HLR-121] Piper Synthesizer Support**
+> The HAMPOD SHALL support Piper TTS with a low-quality voice model for reduced latency.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-119, SLR-005 |
+| Rationale | Piper provides natural-sounding speech; low-quality model reduces computation |
+| Verification | Test |
+| Note | Piper works well on Pi5; too slow on Pi3B; Pi4 untested |
+
+**[HLR-122] Festival Synthesizer Support**
+> The HAMPOD SHALL support Festival TTS as a low-latency alternative to Piper.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-119, SLR-005 |
+| Rationale | Festival is less computationally expensive; works on Pi3B; some users prefer less realistic synthesis |
+| Verification | Test |
+
+#### 3.10.5 Audio Implementation Considerations
+
+**[HLR-123] Persistent Audio Subsystem**
+> The HAMPOD SHOULD keep the speech synthesizer and ALSA audio drivers loaded in memory persistently to minimize latency.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHOULD (Strongly Desired) |
+| Parent | HLR-109 |
+| Rationale | Experience shows persistent loading significantly reduces latency |
+| Verification | Analysis |
+
+**[HLR-124] Continuous Audio Stream Option**
+> The HAMPOD MAY support a mode where the audio output stream runs continuously (outputting silence when idle) to avoid stream startup latency.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | MAY (Optional) |
+| Parent | HLR-123, HLR-109 |
+| Rationale | Eliminates ALSA stream startup delay; may increase CPU usage on older hardware |
+| Verification | Test |
+
+**[HLR-125] Short Audio Buffer**
+> The HAMPOD SHOULD use a short audio buffer size (approximately 50ms) to enable quick speech interruption.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHOULD (Strongly Desired) |
+| Parent | HLR-116 |
+| Rationale | Shorter buffers allow faster interruption; too short may cause underruns |
+| Verification | Test |
+
+#### 3.10.6 Platform-Specific Audio Considerations
+
+**[HLR-126] Pi5 Audio Performance**
+> On Raspberry Pi 5, Piper TTS SHALL meet the 100ms latency target.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-109, SLR-032 |
+| Rationale | Pi5 is the reference platform; Piper is known to work well |
+| Verification | Test |
+
+**[HLR-127] Pi3B Audio Performance**
+> On Raspberry Pi 3B+, Festival TTS SHALL meet the 300ms latency maximum; Piper MAY not be usable due to computational constraints.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-110, SLR-033 |
+| Rationale | Pi3B has limited CPU; Festival is the appropriate choice |
+| Verification | Test |
+
+**[HLR-128] Pi4 Audio Performance**
+> Raspberry Pi 4 audio performance with Piper shall be characterized during development; appropriate default synthesizer recommendation shall be documented.
+
+| Attribute | Value |
+|-----------|-------|
+| Priority | SHALL (Mandatory) |
+| Parent | HLR-119 |
+| Rationale | Pi4 performance is currently untested; needs characterization |
+| Verification | Test |
+| Note | This is a derived requirement for development activity |
+
+---
+
 ## 4. Requirements Traceability Matrix
 
 ### 4.1 System-Level Requirements
@@ -2158,6 +2376,26 @@ Requirements use the following format:
 | HLR-106 | HLR-105, SLR-030 | SHOULD | Test | Draft |
 | HLR-107 | HLR-096 | MAY | Demonstration | Draft |
 | HLR-108 | HLR-096, SLR-059 | SHALL | Inspection | Draft |
+| HLR-109 | HLR-068 | SHOULD | Test | Draft |
+| HLR-110 | HLR-109 | SHALL | Test | Draft |
+| HLR-111 | HLR-110, SLR-032 | SHALL | Test | Draft |
+| HLR-112 | HLR-066 | SHALL | Test | Draft |
+| HLR-113 | HLR-112 | SHALL | Test | Draft |
+| HLR-114 | HLR-112 | SHALL | Test | Draft |
+| HLR-115 | HLR-112, HLR-074 | SHALL | Test | Draft |
+| HLR-116 | HLR-070 | SHALL | Test | Draft |
+| HLR-117 | HLR-055, HLR-116 | SHALL | Test | Draft |
+| HLR-118 | HLR-116, HLR-117 | SHALL | Test | Draft |
+| HLR-119 | SLR-005, SLR-029 | SHALL | Test | Draft |
+| HLR-120 | HLR-119 | SHOULD | Test | Draft |
+| HLR-121 | HLR-119, SLR-005 | SHALL | Test | Draft |
+| HLR-122 | HLR-119, SLR-005 | SHALL | Test | Draft |
+| HLR-123 | HLR-109 | SHOULD | Analysis | Draft |
+| HLR-124 | HLR-123, HLR-109 | MAY | Test | Draft |
+| HLR-125 | HLR-116 | SHOULD | Test | Draft |
+| HLR-126 | HLR-109, SLR-032 | SHALL | Test | Draft |
+| HLR-127 | HLR-110, SLR-033 | SHALL | Test | Draft |
+| HLR-128 | HLR-119 | SHALL | Test | Draft |
 
 ---
 
@@ -2187,6 +2425,7 @@ Requirements use the following format:
 | SWR | Standing Wave Ratio; measure of antenna system match |
 | Terse Mode | Operating mode with minimal speech output |
 | VFO | Variable Frequency Oscillator; the tunable frequency source in a radio |
+| ALSA | Advanced Linux Sound Architecture; Linux kernel audio framework |
 
 ---
 
@@ -2202,4 +2441,5 @@ Requirements use the following format:
 | 0.6 | 2026-01-30 | Wayne Padgett / Claude | Radio Configuration Architecture (HLR-077 through HLR-091): interpreter model, config file contents, response handling, defaults, unsupported features |
 | 0.7 | 2026-01-30 | Wayne Padgett / Claude | Runtime Configuration Management (HLR-092 through HLR-097): memory loading, device switching, multi-device support, port management placeholder |
 | 0.8 | 2026-01-31 | Wayne Padgett / Claude | Device Discovery and Port Management (HLR-098 through HLR-108): device registry, startup behavior, change detection, reconnection and activity-based discovery methods |
+| 0.9 | 2026-02-01 | Wayne Padgett / Claude | Audio Subsystem (HLR-109 through HLR-128): latency requirements, beep specifications, interruption behavior, synthesizer selection, implementation considerations, platform-specific performance |
 
