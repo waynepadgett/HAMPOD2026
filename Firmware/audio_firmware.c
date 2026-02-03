@@ -69,6 +69,7 @@ void audio_process() {
   pthread_t audio_io_buffer;
   audio_io_packet thread_input;
   thread_input.pipe_fd = input_pipe_fd;
+  thread_input.output_pipe_fd = output_pipe_fd;
   thread_input.queue = input_queue;
 
   AUDIO_PRINTF("Launching IO thread\n");
@@ -177,12 +178,14 @@ void audio_process() {
 void *audio_io_thread(void *arg) {
   AUDIO_IO_PRINTF("Audio IO thread created\n");
 
-  audio_io_packet *new_packet = (audio_io_packet *)arg;
-  int i_pipe = new_packet->pipe_fd;
-  Packet_queue *queue = new_packet->queue;
+  audio_io_packet *io_args = (audio_io_packet *)arg;
+  int i_pipe = io_args->pipe_fd;
+  int o_pipe = io_args->output_pipe_fd;
+  Packet_queue *queue = io_args->queue;
   unsigned char buffer[256];
 
-  AUDIO_IO_PRINTF("Input pipe = %d, queue ptr = %p\n", i_pipe, queue);
+  AUDIO_IO_PRINTF("Input pipe = %d, output pipe = %d, queue ptr = %p\n", i_pipe,
+                  o_pipe, (void *)queue);
 
   while (audio_running) {
     pthread_mutex_lock(&audio_queue_lock);
@@ -231,13 +234,37 @@ void *audio_io_thread(void *arg) {
       continue;
     }
 
-    Inst_packet *new_packet = create_inst_packet(type, size, buffer, tag);
+    /* ===== INTERRUPT BYPASS =====
+     * Handle interrupt packets ('i') immediately without queueing.
+     * This allows interrupts to take effect even when TTS is blocking.
+     */
+    if (size > 0 && buffer[0] == 'i') {
+      AUDIO_IO_PRINTF("INTERRUPT BYPASS: Handling interrupt immediately\n");
+      hal_audio_interrupt();
+      hal_tts_interrupt();
+
+      /* Send acknowledgment directly to output pipe */
+      int ack_result = 0;
+      Inst_packet *ack_packet = create_inst_packet(
+          AUDIO, sizeof(int), (unsigned char *)&ack_result, tag);
+      write(o_pipe, ack_packet, 8);
+      write(o_pipe, ack_packet->data, sizeof(int));
+      destroy_inst_packet(&ack_packet);
+
+      /* Release queue lock if we held it, then skip normal queue processing */
+      if (queue_empty) {
+        pthread_mutex_unlock(&audio_queue_available);
+      }
+      continue;
+    }
+
+    Inst_packet *queued_packet = create_inst_packet(type, size, buffer, tag);
 
     AUDIO_IO_PRINTF("Locking queue\n");
     pthread_mutex_lock(&audio_queue_lock);
 
     AUDIO_IO_PRINTF("Queueing packet\n");
-    enqueue(queue, new_packet);
+    enqueue(queue, queued_packet);
 
     AUDIO_IO_PRINTF("Releasing queue & making it accessible\n");
     pthread_mutex_unlock(&audio_queue_lock);

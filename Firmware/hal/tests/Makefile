@@ -14,7 +14,7 @@ HAL_TTS = $(HAL_DIR)/hal_tts_piper.c
 HAL_USB_UTIL = $(HAL_DIR)/hal_usb_util.c
 
 # Test executables
-TARGETS = test_hal_audio test_hal_usb_util test_hal_keypad test_hal_integration
+TARGETS = test_hal_audio test_hal_usb_util test_hal_keypad test_hal_integration test_interrupt_bypass
 
 .PHONY: all clean test
 
@@ -46,12 +46,19 @@ test_hal_integration: test_hal_integration.c $(HAL_KEYPAD) $(HAL_AUDIO) $(HAL_TT
 	@echo "Run with: sudo ./test_hal_integration"
 	@echo "NOTE: This test requires manual interaction (pressing keys)"
 
+# Interrupt bypass tests (Phase 1 feature)
+test_interrupt_bypass: test_interrupt_bypass.c $(HAL_AUDIO) $(HAL_TTS) $(HAL_USB_UTIL)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lpthread
+	@echo "Built: test_interrupt_bypass"
+	@echo "Run with: ./test_interrupt_bypass"
+
 # Run automated tests only
-test: test_hal_audio test_hal_usb_util
+test: test_hal_audio test_hal_usb_util test_interrupt_bypass
 	@echo ""
 	@echo "=== Running Automated HAL Tests ==="
 	./test_hal_audio
 	./test_hal_usb_util
+	./test_interrupt_bypass
 	@echo ""
 	@echo "=== Automated Tests Complete ==="
 	@echo "For manual tests, run: sudo ./test_hal_keypad or sudo ./test_hal_integration"

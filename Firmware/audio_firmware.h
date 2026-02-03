@@ -54,7 +54,9 @@
 #endif
 
 typedef struct audio_io_packet {
-  int pipe_fd;
+  int pipe_fd;        /* Input pipe for receiving packets */
+  int output_pipe_fd; /* Output pipe for sending ack (used for interrupt bypass)
+                       */
   Packet_queue *queue;
 } audio_io_packet;
 
