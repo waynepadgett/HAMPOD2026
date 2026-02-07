@@ -341,10 +341,20 @@ void speech_interrupt(void) {
   // 1. Clear the local queue
   speech_clear_queue();
 
-  // 2. Send interrupt command to Firmware immediately (bypassing the queue)
-  // We use AUDIO_TYPE_INTERRUPT ('i')
+  // 2. Send interrupt command to Firmware and WAIT for acknowledgment
+  // This ensures the interrupt is processed before we queue new speech
   if (comm_send_audio(AUDIO_TYPE_INTERRUPT, "") != HAMPOD_OK) {
     LOG_ERROR("Failed to send interrupt command to Firmware");
+    return;
+  }
+
+  // 3. Wait for acknowledgment from firmware (with short timeout)
+  // This blocks until firmware confirms interrupt was processed
+  CommPacket ack;
+  if (comm_wait_audio_response(&ack, 100) == HAMPOD_OK) {
+    LOG_DEBUG("Interrupt acknowledged by firmware");
+  } else {
+    LOG_ERROR("Interrupt acknowledgment timeout");
   }
 }
 
