@@ -77,6 +77,21 @@ static int start_persistent_piper(void) {
 
   if (piper_pid == 0) {
     /* ===== CHILD PROCESS ===== */
+
+    /* Close ALL inherited file descriptors (except the pipes we need)
+     * This is CRITICAL - inherited handles to USB devices, sockets, or
+     * system files could cause unexpected behavior if kept open.
+     */
+    int max_fd = sysconf(_SC_OPEN_MAX);
+    if (max_fd < 0)
+      max_fd = 1024; /* Fallback */
+    for (int fd = 3; fd < max_fd; fd++) {
+      /* Skip the pipe fds we need */
+      if (fd != stdin_pipe[0] && fd != stdout_pipe[1]) {
+        close(fd);
+      }
+    }
+
     /* Redirect stdin to read end of stdin_pipe */
     dup2(stdin_pipe[0], STDIN_FILENO);
     close(stdin_pipe[0]);

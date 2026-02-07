@@ -32,6 +32,15 @@ log() {
 cleanup() {
     log "Cleaning up stale processes and pipes..."
     
+    # =========================================================================
+    # DEFENSIVE: Unblock WiFi in case something (possibly our code) blocked it
+    # See: https://github.com/waynepadgett/HAMPOD2026/issues/TBD
+    # =========================================================================
+    if command -v rfkill &> /dev/null; then
+        rfkill unblock wifi 2>/dev/null || true
+        log "Ensured WiFi is unblocked (defensive measure)"
+    fi
+    
     # Kill any existing processes
     killall -9 firmware.elf 2>/dev/null || true
     killall -9 hampod 2>/dev/null || true
