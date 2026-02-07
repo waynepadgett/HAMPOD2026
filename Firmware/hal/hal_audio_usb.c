@@ -333,6 +333,11 @@ int hal_audio_write_raw(const int16_t *samples, size_t num_samples) {
     return 0;
   }
 
+  /* Check if we've been interrupted - return early without writing */
+  if (audio_interrupted) {
+    return 0; /* Silently drop audio - we're being interrupted */
+  }
+
   size_t written = fwrite(samples, sizeof(int16_t), num_samples, audio_pipe);
   fflush(audio_pipe);
 
