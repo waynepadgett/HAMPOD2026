@@ -98,6 +98,14 @@ int hal_audio_write_raw(const int16_t *samples, size_t num_samples);
 void hal_audio_interrupt(void);
 
 /**
+ * @brief Clear the interrupt flag
+ *
+ * Resets the interrupt flag to allow new audio playback.
+ * Should be called at the start of a new audio/TTS operation.
+ */
+void hal_audio_clear_interrupt(void);
+
+/**
  * @brief Check if audio is currently playing
  *
  * @return 1 if playing, 0 otherwise

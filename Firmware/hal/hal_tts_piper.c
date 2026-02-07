@@ -268,8 +268,9 @@ int hal_tts_speak(const char *text, const char *output_file) {
     return -1;
   }
 
-  /* Clear interrupt flag */
+  /* Clear interrupt flags - allow new speech to proceed */
   tts_interrupted = 0;
+  hal_audio_clear_interrupt();
 
   /* Send text to Piper via stdin (with newline to trigger processing) */
   if (fprintf(piper_stdin, "%s\n", text) < 0 || fflush(piper_stdin) != 0) {

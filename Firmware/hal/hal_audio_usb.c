@@ -498,6 +498,14 @@ fallback_system: {
 void hal_audio_interrupt(void) { audio_interrupted = 1; }
 
 /**
+ * @brief Clear the interrupt flag to allow new audio playback
+ *
+ * This should be called at the start of a new audio operation
+ * to reset from a previous interrupt.
+ */
+void hal_audio_clear_interrupt(void) { audio_interrupted = 0; }
+
+/**
  * @brief Check if audio is currently playing
  *
  * @return 1 if playing, 0 otherwise
