@@ -648,6 +648,8 @@ void hal_audio_cleanup(void) {
 int hal_audio_play_beep(BeepType type) {
   CachedAudio *beep = NULL;
 
+  printf("HAL Audio: play_beep called, type=%d\n", type);
+
   switch (type) {
   case BEEP_KEYPRESS:
     beep = &beep_keypress;
@@ -664,7 +666,9 @@ int hal_audio_play_beep(BeepType type) {
   }
 
   if (!beep->loaded || beep->samples == NULL) {
-    fprintf(stderr, "HAL Audio: Beep not loaded (type=%d)\n", type);
+    fprintf(stderr,
+            "HAL Audio: Beep not loaded (type=%d, loaded=%d, samples=%p)\n",
+            type, beep->loaded, (void *)beep->samples);
     return -1;
   }
 
@@ -673,11 +677,16 @@ int hal_audio_play_beep(BeepType type) {
     return -1;
   }
 
+  printf("HAL Audio: Writing %zu samples for beep\n", beep->num_samples);
+
   /* Write beep samples directly to ALSA (fast, no file I/O) */
   snd_pcm_sframes_t frames =
       snd_pcm_writei(pcm_handle, beep->samples, beep->num_samples);
 
+  printf("HAL Audio: snd_pcm_writei returned %ld\n", (long)frames);
+
   if (frames < 0) {
+    printf("HAL Audio: Attempting recovery from %ld\n", (long)frames);
     frames = snd_pcm_recover(pcm_handle, frames, 0);
     if (frames < 0) {
       fprintf(stderr, "HAL Audio: Beep write error: %s\n",
@@ -688,9 +697,12 @@ int hal_audio_play_beep(BeepType type) {
 
   /* Drain to ensure beep plays completely before returning.
    * This prevents TTS from starting before the beep is heard. */
+  printf("HAL Audio: Draining...\n");
   snd_pcm_drain(pcm_handle);
+  printf("HAL Audio: Preparing for next audio...\n");
   snd_pcm_prepare(pcm_handle); /* Prepare for next audio */
 
+  printf("HAL Audio: Beep complete\n");
   return 0;
 }
 
