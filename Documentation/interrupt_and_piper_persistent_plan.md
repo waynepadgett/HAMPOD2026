@@ -1,258 +1,212 @@
 # Interrupt Fix and Persistent Piper Implementation Plan
 
-> [!NOTE]
-> **STATUS: IMPLEMENTATION COMPLETE - READY FOR TESTING**
-> - Phase 1 (Interrupt Bypass): ✅ Committed
-> - Phase 2 (Persistent Piper): ✅ Committed
+> [!CAUTION]
+> **STATUS: INTERRUPT NEEDS PHASE 3 - DIRECT ALSA**
+> - Phase 1 (Interrupt Bypass): Implemented but insufficient (aplay buffering)
+> - Phase 2 (Persistent Piper): ✅ Working - Latency improved
+> - Phase 3 (Direct ALSA): Planned - will enable true interrupt
 > - Branch: `feature/interrupt-and-persistent-piper`
-
-## Problem Summary
-
-Two critical issues were identified in the HAMPOD audio system:
-
-### Issue 1: Speech Cannot Be Interrupted
-
-**Root Cause**: The firmware audio processor is single-threaded with a queue. When `hal_tts_speak()` is called, it **blocks** while streaming Piper output. Interrupt commands ('i') are queued behind the blocking TTS call and only processed after speech completes.
-
-```
-Timeline (current broken behavior):
-─────────────────────────────────────────────────────────────────────▶
-│ TTS request queued → hal_tts_speak() BLOCKS
-│                              │
-│                              │ User presses key → 'i' packet QUEUED
-│                              │   → But blocked behind TTS!
-│                              ▼
-│                        TTS finishes → NOW 'i' processed (too late!)
-```
-
-### Issue 2: Piper Starts Fresh for Each Utterance (High Latency)
-
-**Root Cause**: Each call to `hal_tts_speak()` spawns a new Piper process via `popen()`. This incurs:
-- Shell fork overhead
-- Piper ONNX model loading (~150-300ms on Pi 5)
-
-The Speech Comparison test (`speech_latency_test.c`) already demonstrated a persistent approach that eliminates this latency.
 
 ---
 
-## Proposed Solution
+## Problem Summary
 
-### Fix 1: Interrupt Bypass
+Two critical issues in the HAMPOD audio system:
 
-Modify the firmware IO thread to handle interrupt packets ('i') **immediately** rather than queuing them. This allows interrupts to reach the TTS while it's still running.
+1. **Speech Cannot Be Interrupted** - Needs Phase 3
+2. **Piper High Latency** - ✅ Resolved with persistent Piper
 
-### Fix 2: Persistent Piper Process
+---
 
-Keep Piper running as a persistent subprocess. Send text via stdin, read audio from stdout. This eliminates model loading latency after the first utterance.
+## Phase 2: Persistent Piper - COMPLETE ✅
+
+Latency improvement is working. Piper runs as a persistent subprocess.
+
+---
+
+## Phase 1: Interrupt Bypass - IMPLEMENTED BUT INSUFFICIENT
+
+### What We Tried
+
+| Attempt | Result |
+|---------|--------|
+| IO Thread Bypass for 'i' packets | ✅ Interrupt IS received |
+| Check `audio_interrupted` in `hal_audio_write_raw()` | ❌ Flag cleared by next TTS |
+| Clear queue on interrupt | ❌ New packets arrive after clear |
+| Synchronous interrupt ack | ❌ New TTS already in flight |
+
+### Root Cause: `aplay` Buffering
+
+We pipe audio to `aplay`, which has internal buffering. Even when we stop writing, `aplay` continues playing from its buffer. **We cannot interrupt audio already in aplay's buffer.**
+
+---
+
+## Phase 3: Direct ALSA Audio - PROPOSED SOLUTION
+
+Replace the `popen("aplay ...")` pipeline with direct ALSA `snd_pcm_*` API calls. This gives us:
+
+- **`snd_pcm_drop()`** - Immediately stops playback and discards buffer
+- **`snd_pcm_prepare()`** - Resets for new audio
+- **No subprocess** - One less thing to manage
+
+### Benefits
+
+1. True interrupt capability via `snd_pcm_drop()`
+2. Slightly lower latency (no shell/aplay overhead)
+3. Better error handling and recovery
+4. Cleaner architecture
 
 ---
 
 ## User Review Required
 
 > [!IMPORTANT]
-> **Breaking Change Consideration**: The persistent Piper approach changes the TTS initialization behavior. If Piper fails to start, it will be detected at `hal_tts_init()` time rather than silently failing on first speak.
+> **Breaking Change**: This replaces the audio pipeline implementation. Extensive testing required before merge.
 
 > [!WARNING]
-> **Memory Usage**: Keeping Piper running consumes ~50-100MB RAM continuously. On Pi 3B+ with 1GB RAM, this may be significant. Please confirm this is acceptable.
-
-**Questions for user**:
-1. Is the increased memory usage acceptable for all target platforms?
-2. Should we add a configuration option to disable persistent mode for low-memory systems?
+> **Complexity**: Direct ALSA is more complex than popen/aplay. Error handling for ALSA quirks needed.
 
 ---
 
 ## Proposed Changes
 
-### Phase 1: Interrupt Bypass (Chunk 1)
+### [MODIFY] [hal_audio_usb.c](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/hal/hal_audio_usb.c)
 
-Makes interrupt signals reach TTS immediately even during speech playback.
-
----
-
-#### [MODIFY] [audio_firmware.c](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/audio_firmware.c)
-
-**Change**: In `audio_io_thread()`, check for interrupt packets ('i') **before** queuing and handle them immediately.
+#### 1. Replace popen pipeline with ALSA PCM handle
 
 ```diff
- // In audio_io_thread(), after reading the packet data:
- 
-+    /* Handle interrupt packets immediately (bypass queue) */
-+    if (type == AUDIO && size > 0 && buffer[0] == 'i') {
-+      AUDIO_IO_PRINTF("Interrupt received - handling immediately\n");
-+      hal_audio_interrupt();
-+      hal_tts_interrupt();
-+      
-+      /* Send acknowledgment directly */
-+      int ack_result = 0;
-+      Inst_packet *ack_packet = create_inst_packet(
-+          AUDIO, sizeof(int), (unsigned char *)&ack_result, tag);
-+      write(output_pipe_fd, ack_packet, 8);
-+      write(output_pipe_fd, ack_packet->data, sizeof(int));
-+      destroy_inst_packet(&ack_packet);
-+      continue;  /* Don't queue this packet */
-+    }
-+
-     Inst_packet *new_packet = create_inst_packet(type, size, buffer, tag);
++#include <alsa/asoundlib.h>
+
+-static FILE *audio_pipe = NULL;
++static snd_pcm_t *pcm_handle = NULL;
++static snd_pcm_hw_params_t *hw_params = NULL;
 ```
 
-**Rationale**: The IO thread runs independently of the main audio processing loop. By handling interrupts here, they bypass the queue and take effect immediately.
+#### 2. Replace `start_audio_pipeline()` with `open_pcm_device()`
 
----
-
-#### [NEW] [test_interrupt_bypass.c](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/hal/tests/test_interrupt_bypass.c)
-
-**Purpose**: Unit test that verifies interrupt handling works during TTS playback.
-
-Test cases:
-1. Verify `hal_tts_interrupt()` sets the `tts_interrupted` flag
-2. Verify a long TTS utterance can be stopped mid-stream
-3. Measure time from interrupt call to audio stop (should be <100ms)
-
----
-
-### Phase 2: Persistent Piper (Chunks 2-4)
-
----
-
-#### Chunk 2.1: Persistent Process Management
-
-#### [MODIFY] [hal_tts_piper.c](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/hal/hal_tts_piper.c)
-
-**Changes**:
-
-1. Add static variables for persistent Piper pipes:
 ```c
-static FILE *piper_stdin = NULL;   /* Write text here */
-static FILE *piper_stdout = NULL;  /* Read PCM from here */
-static pid_t piper_pid = -1;       /* Process ID for cleanup */
-```
-
-2. Modify `hal_tts_init()` to start persistent Piper:
-```c
-int hal_tts_init(void) {
-    // ... existing checks ...
+static int open_pcm_device(void) {
+    int err;
     
-    /* Start persistent Piper process */
-    int stdin_pipe[2], stdout_pipe[2];
-    pipe(stdin_pipe);
-    pipe(stdout_pipe);
-    
-    piper_pid = fork();
-    if (piper_pid == 0) {
-        /* Child: run Piper */
-        dup2(stdin_pipe[0], STDIN_FILENO);
-        dup2(stdout_pipe[1], STDOUT_FILENO);
-        close(stdin_pipe[1]);
-        close(stdout_pipe[0]);
-        execlp("piper", "piper", "--model", PIPER_MODEL_PATH,
-               "--length_scale", PIPER_SPEED, "--output_raw", NULL);
-        exit(1);
+    err = snd_pcm_open(&pcm_handle, audio_device, SND_PCM_STREAM_PLAYBACK, 0);
+    if (err < 0) {
+        fprintf(stderr, "HAL Audio: Cannot open device %s: %s\n", 
+                audio_device, snd_strerror(err));
+        return -1;
     }
     
-    /* Parent: save pipe handles */
-    piper_stdin = fdopen(stdin_pipe[1], "w");
-    piper_stdout = fdopen(stdout_pipe[0], "r");
-    close(stdin_pipe[0]);
-    close(stdout_pipe[1]);
+    /* Allocate hardware parameters */
+    snd_pcm_hw_params_malloc(&hw_params);
+    snd_pcm_hw_params_any(pcm_handle, hw_params);
     
-    initialized = 1;
+    /* Set parameters: 16kHz, mono, 16-bit signed little-endian */
+    snd_pcm_hw_params_set_access(pcm_handle, hw_params,
+                                  SND_PCM_ACCESS_RW_INTERLEAVED);
+    snd_pcm_hw_params_set_format(pcm_handle, hw_params, SND_PCM_FORMAT_S16_LE);
+    snd_pcm_hw_params_set_channels(pcm_handle, hw_params, AUDIO_CHANNELS);
+    
+    unsigned int rate = AUDIO_SAMPLE_RATE;
+    snd_pcm_hw_params_set_rate_near(pcm_handle, hw_params, &rate, NULL);
+    
+    /* Set buffer size for low latency (~100ms total, ~25ms period) */
+    snd_pcm_uframes_t buffer_size = AUDIO_SAMPLE_RATE / 10;  /* 100ms */
+    snd_pcm_uframes_t period_size = buffer_size / 4;          /* 25ms */
+    snd_pcm_hw_params_set_buffer_size_near(pcm_handle, hw_params, &buffer_size);
+    snd_pcm_hw_params_set_period_size_near(pcm_handle, hw_params, &period_size, NULL);
+    
+    /* Apply parameters */
+    err = snd_pcm_hw_params(pcm_handle, hw_params);
+    if (err < 0) {
+        fprintf(stderr, "HAL Audio: Cannot set parameters: %s\n", 
+                snd_strerror(err));
+        snd_pcm_close(pcm_handle);
+        pcm_handle = NULL;
+        return -1;
+    }
+    
+    snd_pcm_prepare(pcm_handle);
+    printf("HAL Audio: ALSA PCM device opened (device=%s, rate=%d)\n",
+           audio_device, rate);
     return 0;
 }
 ```
 
-3. Modify `hal_tts_speak()` to use persistent pipes:
+#### 3. Modify `hal_audio_write_raw()` to use ALSA
+
 ```c
-int hal_tts_speak(const char *text, const char *output_file) {
-    (void)output_file;
-    
-    if (!initialized || piper_stdin == NULL) {
-        return hal_tts_init() == 0 ? hal_tts_speak(text, output_file) : -1;
+int hal_audio_write_raw(const int16_t *samples, size_t num_samples) {
+    if (!initialized || pcm_handle == NULL) {
+        fprintf(stderr, "HAL Audio: PCM device not available\n");
+        return -1;
     }
     
-    tts_interrupted = 0;
+    if (samples == NULL || num_samples == 0) {
+        return 0;
+    }
     
-    /* Send text to Piper (with newline to trigger processing) */
-    fprintf(piper_stdin, "%s\n", text);
-    fflush(piper_stdin);
+    /* Check interrupt flag */
+    if (audio_interrupted) {
+        return 0;  /* Drop audio - interrupted */
+    }
     
-    /* Stream PCM output in chunks */
-    int16_t chunk_buffer[TTS_CHUNK_SAMPLES];
-    while (!tts_interrupted) {
-        size_t bytes_read = fread(chunk_buffer, 1, TTS_CHUNK_BYTES, piper_stdout);
-        if (bytes_read == 0) break;
-        if (hal_audio_write_raw(chunk_buffer, bytes_read / 2) != 0) break;
+    snd_pcm_sframes_t frames = snd_pcm_writei(pcm_handle, samples, num_samples);
+    
+    if (frames < 0) {
+        /* Handle underrun or other errors */
+        frames = snd_pcm_recover(pcm_handle, frames, 0);
+        if (frames < 0) {
+            fprintf(stderr, "HAL Audio: Write failed: %s\n", 
+                    snd_strerror(frames));
+            return -1;
+        }
     }
     
     return 0;
 }
 ```
 
-4. Modify `hal_tts_cleanup()` to terminate Piper:
+#### 4. Implement true interrupt with `snd_pcm_drop()`
+
 ```c
-void hal_tts_cleanup(void) {
-    if (piper_stdin) { fclose(piper_stdin); piper_stdin = NULL; }
-    if (piper_stdout) { fclose(piper_stdout); piper_stdout = NULL; }
-    if (piper_pid > 0) { kill(piper_pid, SIGTERM); waitpid(piper_pid, NULL, 0); }
-    initialized = 0;
+void hal_audio_interrupt(void) {
+    audio_interrupted = 1;
+    
+    /* Immediately stop playback and discard buffer */
+    if (pcm_handle != NULL) {
+        snd_pcm_drop(pcm_handle);
+    }
+}
+
+void hal_audio_clear_interrupt(void) {
+    audio_interrupted = 0;
+    
+    /* Prepare device for new audio */
+    if (pcm_handle != NULL) {
+        snd_pcm_prepare(pcm_handle);
+    }
 }
 ```
 
----
-
-#### Chunk 2.2: End-of-Utterance Detection
-
-**Challenge**: How do we know when Piper has finished generating audio for one utterance?
-
-**Solution Options**:
-1. **Silence detection**: Read until we get a chunk of all zeros (risky - what if the audio has silence?)
-2. **Timeout**: Wait for N ms of no data (adds latency)
-3. **Sentinel text**: Send a special marker after each utterance that Piper will produce a known audio pattern for
-4. **Pre-calculate duration**: Send text, estimate duration from text length (unreliable)
-
-**Recommended**: Option 2 with a short timeout (50ms). If no data arrives within 50ms after receiving at least some data, assume utterance is complete.
+#### 5. Update cleanup
 
 ```c
-/* In hal_tts_speak read loop */
-while (!tts_interrupted) {
-    /* Set read timeout using select() */
-    fd_set fds;
-    struct timeval tv = {0, 50000}; /* 50ms timeout */
-    FD_ZERO(&fds);
-    FD_SET(fileno(piper_stdout), &fds);
-    
-    int ready = select(fileno(piper_stdout) + 1, &fds, NULL, NULL, &tv);
-    if (ready <= 0) break;  /* Timeout or error = end of utterance */
-    
-    size_t bytes_read = fread(chunk_buffer, 1, TTS_CHUNK_BYTES, piper_stdout);
-    // ...
+void hal_audio_cleanup(void) {
+    if (pcm_handle != NULL) {
+        snd_pcm_drain(pcm_handle);
+        snd_pcm_close(pcm_handle);
+        pcm_handle = NULL;
+    }
+    if (hw_params != NULL) {
+        snd_pcm_hw_params_free(hw_params);
+        hw_params = NULL;
+    }
+    /* ... existing cleanup ... */
 }
 ```
 
----
+### [MODIFY] [Makefile](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/Makefile)
 
-#### [NEW] [test_persistent_piper.c](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/hal/tests/test_persistent_piper.c)
-
-**Purpose**: Unit tests for persistent Piper functionality.
-
-Test cases:
-1. Verify `hal_tts_init()` starts Piper process (check piper_pid > 0)
-2. Verify `hal_tts_speak("hello", NULL)` produces audio
-3. Verify multiple sequential speaks work (second speak faster than first)
-4. Verify `hal_tts_cleanup()` terminates Piper
-5. Verify interrupt during persistent speak stops audio
-
----
-
-#### [MODIFY] [Makefile](file:///Users/waynepadgett/Documents/developer/HAMPOD2026/Firmware/hal/tests/Makefile)
-
-Add new test targets:
-```makefile
-test_interrupt_bypass: test_interrupt_bypass.c $(HAL_AUDIO) $(HAL_TTS) $(HAL_USB_UTIL)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-test_persistent_piper: test_persistent_piper.c $(HAL_AUDIO) $(HAL_TTS) $(HAL_USB_UTIL)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-```
+Add ALSA library to link flags (already present: `-lasound`).
 
 ---
 
@@ -260,142 +214,79 @@ test_persistent_piper: test_persistent_piper.c $(HAL_AUDIO) $(HAL_TTS) $(HAL_USB
 
 ### Automated Tests
 
-#### Unit Tests (Run on Raspberry Pi)
+#### Existing Tests (Regression)
 
 ```bash
-# Build all tests
 cd ~/HAMPOD2026/Firmware/hal/tests
-make clean
-make all
-
-# Run automated tests (Phase 1)
-./test_interrupt_bypass
-
-# Run automated tests (Phase 2)  
-./test_persistent_piper
-
-# Run existing audio tests (regression)
-./test_hal_audio
+make clean && make
+./test_hal_audio         # Verify basic audio still works
+./test_interrupt_bypass  # Verify interrupt flag handling
+./test_persistent_piper  # Verify TTS still works
 ```
 
-**Expected Results**:
-- All tests pass with 0 failures
-- Interrupt test shows <100ms interrupt latency
-- Persistent Piper test shows second utterance faster than first
+#### New Test: Direct ALSA Interrupt
+
+Add test case to `test_interrupt_bypass.c` that verifies:
+1. Audio starts playing
+2. `hal_audio_interrupt()` is called
+3. Audio stops immediately (within 50ms)
+4. `hal_audio_clear_interrupt()` + new audio plays
 
 ---
 
-#### Integration Test
+### Manual Testing
 
-```bash
-# Run full integration test
-cd ~/HAMPOD2026/Firmware/hal/tests
-sudo ./test_hal_integration
-```
-
-Press keys on the keypad and verify:
-1. Key names are spoken
-2. Pressing a key during speech interrupts previous speech
-3. Audio latency feels responsive (sub-500ms from keypress to first audio)
-
----
-
-### Manual Testing on Raspberry Pi
-
-#### Test 1: Interrupt During Speech (Phase 1)
-
-**Setup**:
-1. SSH into Raspberry Pi
-2. Build and start HAMPOD: `./run_hampod.sh`
+#### Test 1: Basic Audio Playback
 
 **Steps**:
-1. Press `[1]` key to trigger frequency announcement
-2. While frequency is being announced, press any other key (e.g., `[2]`)
-3. Observe: Does the frequency announcement stop?
+1. SSH to Pi: `ssh hampod@hampod.local`
+2. Build and start HAMPOD: `cd ~/HAMPOD2026 && ./run_hampod.sh`
+3. Press a key on the keypad
+4. **Expected**: Beep + speech plays correctly
 
-**Expected Result**: 
-- First announcement stops immediately when second key is pressed
-- Second key's action begins (beep and/or announcement)
-
-**Pass Criteria**: Speech stops within ~100ms of keypress
-
----
-
-#### Test 2: Latency Improvement (Phase 2)
-
-**Setup**:
-1. Time how long from keypress to first audio
+#### Test 2: Interrupt During Speech (Critical Test)
 
 **Steps**:
-1. Press `[1]` key
-2. Measure time from key press to first sound (use stopwatch or subjective feel)
-3. Compare to pre-change behavior
+1. HAMPOD running
+2. Press a key that triggers frequency announcement (e.g., `[1]`)
+3. While announcement is playing, quickly press another key (e.g., `[2]`)
+4. **Expected**: First announcement STOPS, second key's response begins
 
-**Expected Result**:
-- First utterance after startup: similar latency (Piper still loading model)
-- Second and subsequent utterances: noticeably faster (~100-200ms improvement)
+**Pass Criteria**: Speech stops within ~100ms of second keypress
 
----
+#### Test 3: Long Session Stability
 
-#### Test 3: Long Session Stability (Phase 2)
-
-**Setup**:
+**Steps**:
 1. Leave HAMPOD running for 10+ minutes
-
-**Steps**:
-1. Press keys periodically over 10 minutes
-2. Verify speech continues to work
-3. Check for memory leaks: `ps aux | grep hampod`
-
-**Expected Result**:
-- Memory usage stays stable
-- Speech continues to work correctly
+2. Press keys periodically
+3. Check memory usage: `ps aux | grep hampod`
+4. **Expected**: Memory stable, no crashes
 
 ---
 
-### Regression Tests
+## Implementation Chunks
 
-Run the existing test suite to ensure no regressions:
-
-```bash
-# Firmware HAL tests
-cd ~/HAMPOD2026/Firmware/hal/tests
-make test
-
-# Software2 tests  
-cd ~/HAMPOD2026/Software2
-make test
-```
-
-**Expected**: All existing tests still pass.
-
----
-
-## Implementation Chunks (Build Order)
-
-| Chunk | Description | Files Modified | Can Build? | Can Test? |
-|-------|-------------|----------------|------------|-----------|
-| 1.1 | Interrupt bypass in IO thread | `audio_firmware.c` | ✅ | ✅ Manual |
-| 1.2 | Interrupt bypass unit test | `test_interrupt_bypass.c`, `Makefile` | ✅ | ✅ Automated |
-| 2.1 | Persistent Piper process management | `hal_tts_piper.c` | ✅ | ✅ Manual |
-| 2.2 | End-of-utterance detection with timeout | `hal_tts_piper.c` | ✅ | ✅ Manual |
-| 2.3 | Persistent Piper unit tests | `test_persistent_piper.c`, `Makefile` | ✅ | ✅ Automated |
-| 3.1 | Integration testing | — | — | ✅ Manual |
-| 3.2 | Regression testing | — | — | ✅ Automated |
+| Chunk | Description | Files | Risk |
+|-------|-------------|-------|------|
+| 3.1 | Add ALSA includes and PCM handle | `hal_audio_usb.c` | Low |
+| 3.2 | Implement `open_pcm_device()` | `hal_audio_usb.c` | Medium |
+| 3.3 | Replace `hal_audio_write_raw()` | `hal_audio_usb.c` | Medium |
+| 3.4 | Implement `snd_pcm_drop()` interrupt | `hal_audio_usb.c` | Low |
+| 3.5 | Update cleanup | `hal_audio_usb.c` | Low |
+| 3.6 | Test and debug | Tests | Variable |
 
 ---
 
 ## Rollback Plan
 
-If issues are found after merging:
-1. `git revert HEAD` to undo the merge commit
-2. Or cherry-pick only the interrupt fix if persistent Piper has issues
+If direct ALSA has issues:
+1. Revert to `popen("aplay ...")` which is still in git history
+2. Or use kill/restart aplay as fallback interrupt mechanism
 
 ---
 
-## Approval Gates
+## Questions for User
 
-- [ ] **Gate 1**: User approves this plan before implementation begins
-- [ ] **Gate 2**: User approves Phase 1 (interrupt fix) after testing
-- [ ] **Gate 3**: User approves Phase 2 (persistent Piper) after testing
-- [ ] **Gate 4**: User approves merge to main after all tests pass
+1. **Buffer size tradeoff**: Smaller buffer = faster interrupt but higher CPU/risk of underruns. Suggested 100ms total buffer, 25ms periods. Is this acceptable?
+
+2. **Device selection**: Current code auto-detects USB speaker. Should we keep this behavior with direct ALSA?

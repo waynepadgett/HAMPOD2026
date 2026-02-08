@@ -3,16 +3,17 @@
  * @brief USB Audio implementation of the audio HAL
  *
  * This implementation plays audio through a USB audio device
- * using ALSA with a persistent pipeline for low latency.
+ * using direct ALSA PCM API for low latency and true interrupt support.
  *
- * Changes for Audio Latency Improvement:
- * - Persistent aplay process for raw PCM streaming
- * - Support for interruptible playback
+ * Phase 3: Direct ALSA Implementation
+ * - Uses snd_pcm_* API instead of popen("aplay")
+ * - snd_pcm_drop() for immediate interrupt
  * - RAM-cached beep support
  */
 
 #include "hal_audio.h"
 #include "hal_usb_util.h"
+#include <alsa/asoundlib.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,8 +27,8 @@ static int initialized = 0;
 /* Selected audio device info (from USB enumeration) */
 static AudioDeviceInfo selected_audio_device = {0};
 
-/* Persistent audio pipeline for raw PCM streaming */
-static FILE *audio_pipe = NULL;
+/* Direct ALSA PCM handle (replaces popen/aplay pipeline) */
+static snd_pcm_t *pcm_handle = NULL;
 
 /* Audio playback state for interrupt support */
 static volatile int audio_interrupted = 0;
@@ -178,51 +179,132 @@ static void free_cached_audio(CachedAudio *cache) {
 }
 
 /**
- * @brief Start the persistent audio pipeline
+ * @brief Open the ALSA PCM device for direct audio output
  *
- * Opens an aplay process in raw PCM mode for streaming audio data
+ * Uses snd_pcm_* API for low latency and interruptible playback.
+ * Buffer size: 100ms total, 25ms periods - allows interrupt within 25ms
  *
  * @return 0 on success, -1 on failure
  */
-static int start_audio_pipeline(void) {
-  char command[512];
+static int open_pcm_device(void) {
+  int err;
+  snd_pcm_hw_params_t *hw_params = NULL;
+  unsigned int rate = AUDIO_SAMPLE_RATE;
+  snd_pcm_uframes_t buffer_frames;
+  snd_pcm_uframes_t period_frames;
 
-  if (audio_pipe != NULL) {
-    return 0; /* Already running */
+  if (pcm_handle != NULL) {
+    return 0; /* Already open */
   }
 
-  /* Build aplay command for raw PCM streaming:
-   * -D device: audio device
-   * -r 16000: 16kHz sample rate (matches Piper TTS)
-   * -f S16_LE: 16-bit signed little-endian
-   * -c 1: mono
-   * -t raw: raw PCM data (no header)
-   * -q: quiet mode
-   * -: read from stdin
-   */
-  snprintf(command, sizeof(command),
-           "aplay -D %s -r %d -f S16_LE -c %d -t raw -q - 2>/dev/null",
-           audio_device, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS);
-
-  audio_pipe = popen(command, "w");
-  if (audio_pipe == NULL) {
-    fprintf(stderr, "HAL Audio: Failed to start audio pipeline\n");
+  /* Open PCM device for playback */
+  err = snd_pcm_open(&pcm_handle, audio_device, SND_PCM_STREAM_PLAYBACK, 0);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot open device '%s': %s\n", audio_device,
+            snd_strerror(err));
     return -1;
   }
 
-  printf("HAL Audio: Pipeline started (device=%s, rate=%d, channels=%d)\n",
-         audio_device, AUDIO_SAMPLE_RATE, AUDIO_CHANNELS);
+  /* Allocate hardware parameters */
+  snd_pcm_hw_params_malloc(&hw_params);
+  snd_pcm_hw_params_any(pcm_handle, hw_params);
+
+  /* Set access type: interleaved read/write */
+  err = snd_pcm_hw_params_set_access(pcm_handle, hw_params,
+                                     SND_PCM_ACCESS_RW_INTERLEAVED);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot set access type: %s\n",
+            snd_strerror(err));
+    goto error;
+  }
+
+  /* Set sample format: 16-bit signed little-endian */
+  err = snd_pcm_hw_params_set_format(pcm_handle, hw_params,
+                                     SND_PCM_FORMAT_S16_LE);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot set format: %s\n", snd_strerror(err));
+    goto error;
+  }
+
+  /* Set channel count: mono */
+  err = snd_pcm_hw_params_set_channels(pcm_handle, hw_params, AUDIO_CHANNELS);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot set channels: %s\n", snd_strerror(err));
+    goto error;
+  }
+
+  /* Set sample rate (16kHz - matching Piper TTS) */
+  err = snd_pcm_hw_params_set_rate_near(pcm_handle, hw_params, &rate, NULL);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot set rate: %s\n", snd_strerror(err));
+    goto error;
+  }
+  if (rate != AUDIO_SAMPLE_RATE) {
+    fprintf(stderr, "HAL Audio: Rate mismatch, got %u instead of %d\n", rate,
+            AUDIO_SAMPLE_RATE);
+  }
+
+  /* Set buffer size: 100ms = 1600 samples at 16kHz */
+  buffer_frames = AUDIO_SAMPLE_RATE / 10; /* 100ms */
+  err = snd_pcm_hw_params_set_buffer_size_near(pcm_handle, hw_params,
+                                               &buffer_frames);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot set buffer size: %s\n",
+            snd_strerror(err));
+    goto error;
+  }
+
+  /* Set period size: 25ms = 400 samples (4 periods per buffer) */
+  period_frames = buffer_frames / 4;
+  err = snd_pcm_hw_params_set_period_size_near(pcm_handle, hw_params,
+                                               &period_frames, NULL);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot set period size: %s\n",
+            snd_strerror(err));
+    goto error;
+  }
+
+  /* Apply hardware parameters */
+  err = snd_pcm_hw_params(pcm_handle, hw_params);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot apply hw params: %s\n",
+            snd_strerror(err));
+    goto error;
+  }
+
+  /* Prepare device for playback */
+  err = snd_pcm_prepare(pcm_handle);
+  if (err < 0) {
+    fprintf(stderr, "HAL Audio: Cannot prepare device: %s\n",
+            snd_strerror(err));
+    goto error;
+  }
+
+  snd_pcm_hw_params_free(hw_params);
+  printf("HAL Audio: ALSA PCM device opened (device=%s, rate=%u, buffer=%lu, "
+         "period=%lu)\n",
+         audio_device, rate, buffer_frames, period_frames);
   return 0;
+
+error:
+  if (hw_params)
+    snd_pcm_hw_params_free(hw_params);
+  if (pcm_handle) {
+    snd_pcm_close(pcm_handle);
+    pcm_handle = NULL;
+  }
+  return -1;
 }
 
 /**
- * @brief Stop the persistent audio pipeline
+ * @brief Close the ALSA PCM device
  */
-static void stop_audio_pipeline(void) {
-  if (audio_pipe != NULL) {
-    pclose(audio_pipe);
-    audio_pipe = NULL;
-    printf("HAL Audio: Pipeline stopped\n");
+static void close_pcm_device(void) {
+  if (pcm_handle != NULL) {
+    snd_pcm_drain(pcm_handle);
+    snd_pcm_close(pcm_handle);
+    pcm_handle = NULL;
+    printf("HAL Audio: PCM device closed\n");
   }
 }
 
@@ -272,12 +354,11 @@ int hal_audio_init(void) {
     printf("HAL Audio: Detected audio device: %s\n", audio_device);
   }
 
-  /* Start the persistent audio pipeline */
-  if (start_audio_pipeline() != 0) {
-    fprintf(stderr, "HAL Audio: Failed to start pipeline, falling back to "
-                    "system() calls\n");
-    /* Don't fail - hal_audio_play_file will fall back to system() if pipe is
-     * NULL */
+  /* Open the PCM device for direct audio output */
+  if (open_pcm_device() != 0) {
+    fprintf(stderr,
+            "HAL Audio: Failed to open PCM device, audio will not work\n");
+    /* Don't fail - we'll try again on first write */
   }
 
   /* Load beep sounds into RAM cache */
@@ -304,10 +385,10 @@ int hal_audio_set_device(const char *device_name) {
   strncpy(audio_device, device_name, sizeof(audio_device) - 1);
   audio_device[sizeof(audio_device) - 1] = '\0';
 
-  /* Restart pipeline with new device if already initialized */
-  if (initialized && audio_pipe != NULL) {
-    stop_audio_pipeline();
-    start_audio_pipeline();
+  /* Restart PCM device with new device if already initialized */
+  if (initialized && pcm_handle != NULL) {
+    close_pcm_device();
+    open_pcm_device();
   }
 
   printf("HAL Audio: Device set to: %s\n", audio_device);
@@ -324,8 +405,10 @@ const char *hal_audio_get_device(void) { return audio_device; }
  * @return 0 on success, -1 on failure
  */
 int hal_audio_write_raw(const int16_t *samples, size_t num_samples) {
-  if (!initialized || audio_pipe == NULL) {
-    fprintf(stderr, "HAL Audio: Pipeline not available\n");
+  snd_pcm_sframes_t frames;
+
+  if (!initialized || pcm_handle == NULL) {
+    fprintf(stderr, "HAL Audio: PCM device not available\n");
     return -1;
   }
 
@@ -338,13 +421,16 @@ int hal_audio_write_raw(const int16_t *samples, size_t num_samples) {
     return 0; /* Silently drop audio - we're being interrupted */
   }
 
-  size_t written = fwrite(samples, sizeof(int16_t), num_samples, audio_pipe);
-  fflush(audio_pipe);
+  /* Write samples to ALSA PCM device */
+  frames = snd_pcm_writei(pcm_handle, samples, num_samples);
 
-  if (written != num_samples) {
-    fprintf(stderr, "HAL Audio: Write failed (%zu of %zu samples)\n", written,
-            num_samples);
-    return -1;
+  if (frames < 0) {
+    /* Try to recover from underrun or other errors */
+    frames = snd_pcm_recover(pcm_handle, frames, 0);
+    if (frames < 0) {
+      fprintf(stderr, "HAL Audio: Write failed: %s\n", snd_strerror(frames));
+      return -1;
+    }
   }
 
   return 0;
@@ -451,13 +537,16 @@ int hal_audio_play_file(const char *filepath) {
       break; /* EOF or error */
     }
 
-    /* Write to pipeline */
-    size_t written = fwrite(chunk_buffer, 1, bytes_read, audio_pipe);
-    fflush(audio_pipe);
+    /* Write to ALSA PCM device */
+    snd_pcm_sframes_t frames =
+        snd_pcm_writei(pcm_handle, chunk_buffer, bytes_read / 2);
 
-    if (written != bytes_read) {
-      fprintf(stderr, "HAL Audio: Write error during streaming\n");
-      break;
+    if (frames < 0) {
+      frames = snd_pcm_recover(pcm_handle, frames, 0);
+      if (frames < 0) {
+        fprintf(stderr, "HAL Audio: Write error during streaming\n");
+        break;
+      }
     }
 
     bytes_remaining -= bytes_read;
@@ -490,20 +579,35 @@ fallback_system: {
 }
 
 /**
- * @brief Interrupt current audio playback
+ * @brief Interrupt current audio playback immediately
  *
- * Sets the interrupt flag to stop playback at the next chunk boundary.
- * Playback will stop within approximately 50ms.
+ * Uses snd_pcm_drop() to immediately stop playback and discard any
+ * buffered audio. This provides true interrupt capability.
  */
-void hal_audio_interrupt(void) { audio_interrupted = 1; }
+void hal_audio_interrupt(void) {
+  audio_interrupted = 1;
+
+  /* Immediately stop playback and discard buffer */
+  if (pcm_handle != NULL) {
+    snd_pcm_drop(pcm_handle);
+  }
+}
 
 /**
- * @brief Clear the interrupt flag to allow new audio playback
+ * @brief Clear the interrupt flag and prepare device for new audio
  *
  * This should be called at the start of a new audio operation
- * to reset from a previous interrupt.
+ * to reset from a previous interrupt. Uses snd_pcm_prepare() to
+ * reset the device state.
  */
-void hal_audio_clear_interrupt(void) { audio_interrupted = 0; }
+void hal_audio_clear_interrupt(void) {
+  audio_interrupted = 0;
+
+  /* Prepare device for new audio after interrupt */
+  if (pcm_handle != NULL) {
+    snd_pcm_prepare(pcm_handle);
+  }
+}
 
 /**
  * @brief Check if audio is currently playing
@@ -518,7 +622,7 @@ int hal_audio_is_playing(void) { return audio_playing; }
  * @return 1 if ready, 0 otherwise
  */
 int hal_audio_pipeline_ready(void) {
-  return (initialized && audio_pipe != NULL) ? 1 : 0;
+  return (initialized && pcm_handle != NULL) ? 1 : 0;
 }
 
 void hal_audio_cleanup(void) {
@@ -527,7 +631,7 @@ void hal_audio_cleanup(void) {
   free_cached_audio(&beep_hold);
   free_cached_audio(&beep_error);
 
-  stop_audio_pipeline();
+  close_pcm_device();
   initialized = 0;
   printf("HAL Audio: Cleaned up\n");
 }
@@ -563,26 +667,29 @@ int hal_audio_play_beep(BeepType type) {
     return -1;
   }
 
-  if (!initialized || audio_pipe == NULL) {
-    fprintf(stderr, "HAL Audio: Pipeline not ready for beep\n");
+  if (!initialized || pcm_handle == NULL) {
+    fprintf(stderr, "HAL Audio: PCM device not ready for beep\n");
     return -1;
   }
 
-  /* Write beep samples directly to pipeline (fast, no file I/O) */
-  size_t written =
-      fwrite(beep->samples, sizeof(int16_t), beep->num_samples, audio_pipe);
-  fflush(audio_pipe);
+  /* Write beep samples directly to ALSA (fast, no file I/O) */
+  snd_pcm_sframes_t frames =
+      snd_pcm_writei(pcm_handle, beep->samples, beep->num_samples);
 
-  if (written != beep->num_samples) {
-    fprintf(stderr, "HAL Audio: Beep write error\n");
-    return -1;
+  if (frames < 0) {
+    frames = snd_pcm_recover(pcm_handle, frames, 0);
+    if (frames < 0) {
+      fprintf(stderr, "HAL Audio: Beep write error: %s\n",
+              snd_strerror(frames));
+      return -1;
+    }
   }
 
   return 0;
 }
 
 const char *hal_audio_get_impl_name(void) {
-  return "USB Audio (ALSA Persistent Pipeline)";
+  return "USB Audio (Direct ALSA PCM)";
 }
 
 int hal_audio_get_card_number(void) {
