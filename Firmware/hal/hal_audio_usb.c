@@ -509,8 +509,8 @@ int hal_audio_play_file(const char *filepath) {
     goto fallback_system;
   }
 
-  /* Check if pipeline is available */
-  if (audio_pipe == NULL) {
+  /* Check if PCM device is available */
+  if (pcm_handle == NULL) {
     fclose(wav_file);
     goto fallback_system;
   }
