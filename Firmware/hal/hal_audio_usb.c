@@ -597,16 +597,17 @@ void hal_audio_interrupt(void) {
  * @brief Clear the interrupt flag and prepare device for new audio
  *
  * This should be called at the start of a new audio operation
- * to reset from a previous interrupt. Uses snd_pcm_prepare() to
- * reset the device state.
+ * to reset from a previous interrupt. Only calls snd_pcm_prepare() if
+ * we were actually interrupted (after snd_pcm_drop was called).
  */
 void hal_audio_clear_interrupt(void) {
-  audio_interrupted = 0;
-
-  /* Prepare device for new audio after interrupt */
-  if (pcm_handle != NULL) {
+  /* Only call snd_pcm_prepare if we were actually interrupted.
+   * This prevents clearing the buffer when transitioning between
+   * audio packets (e.g., beep -> TTS) without an interrupt. */
+  if (audio_interrupted && pcm_handle != NULL) {
     snd_pcm_prepare(pcm_handle);
   }
+  audio_interrupted = 0;
 }
 
 /**
