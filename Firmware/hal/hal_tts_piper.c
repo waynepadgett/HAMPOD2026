@@ -350,6 +350,18 @@ void hal_tts_interrupt(void) {
   /* Also interrupt the audio HAL to stop any buffered audio */
   hal_audio_interrupt();
   printf("HAL TTS: Interrupt requested\n");
+
+  /* Drain any buffered audio from Piper's stdout pipe.
+   * This prevents old audio from playing on the next TTS request. */
+  if (piper_stdout_fd >= 0) {
+    char drain_buf[4096];
+    int flags = fcntl(piper_stdout_fd, F_GETFL, 0);
+    fcntl(piper_stdout_fd, F_SETFL, flags | O_NONBLOCK);
+    while (read(piper_stdout_fd, drain_buf, sizeof(drain_buf)) > 0) {
+      /* Discard the data */
+    }
+    fcntl(piper_stdout_fd, F_SETFL, flags); /* Restore blocking mode */
+  }
 }
 
 void hal_tts_cleanup(void) {

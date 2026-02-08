@@ -125,6 +125,7 @@ void audio_process() {
     } else if (audio_type_byte == 'b') {
       /* Beep request: remaining_string is beep type ('k'=keypress, 'h'=hold,
        * 'e'=error) */
+      hal_audio_clear_interrupt(); /* Clear interrupt so beep can play */
       BeepType beep_type;
       switch (remaining_string[0]) {
       case 'k':
