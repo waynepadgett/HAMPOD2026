@@ -693,6 +693,21 @@ int hal_audio_play_beep(BeepType type) {
               snd_strerror(frames));
       return -1;
     }
+    /* After recovery, we need to write again */
+    frames = snd_pcm_writei(pcm_handle, beep->samples, beep->num_samples);
+    if (frames < 0) {
+      fprintf(stderr, "HAL Audio: Beep write after recovery failed: %s\n",
+              snd_strerror(frames));
+      return -1;
+    }
+  }
+
+  /* Ensure playback has started - device may be in prepared state */
+  snd_pcm_state_t state = snd_pcm_state(pcm_handle);
+  printf("HAL Audio: PCM state after write: %d\n", state);
+  if (state == SND_PCM_STATE_PREPARED) {
+    printf("HAL Audio: Starting playback explicitly\n");
+    snd_pcm_start(pcm_handle);
   }
 
   /* Drain to ensure beep plays completely before returning.
