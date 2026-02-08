@@ -271,6 +271,50 @@ void *audio_io_thread(void *arg) {
       continue;
     }
 
+    /* ===== BEEP BYPASS =====
+     * Handle beep packets ('b') immediately without queueing.
+     * This ensures beeps play right away and aren't cleared by subsequent
+     * interrupts that may come from the callback processing the key event.
+     */
+    if (size > 0 && buffer[0] == 'b') {
+      AUDIO_IO_PRINTF("BEEP BYPASS: Playing beep immediately\n");
+
+      /* Clear interrupt to allow beep to play */
+      hal_audio_clear_interrupt();
+
+      /* Determine beep type from second character */
+      BeepType beep_type = BEEP_KEYPRESS;
+      if (size > 1) {
+        switch (buffer[1]) {
+        case 'k':
+          beep_type = BEEP_KEYPRESS;
+          break;
+        case 'h':
+          beep_type = BEEP_HOLD;
+          break;
+        case 'e':
+          beep_type = BEEP_ERROR;
+          break;
+        }
+      }
+
+      int beep_result = hal_audio_play_beep(beep_type);
+      AUDIO_IO_PRINTF("BEEP BYPASS: Beep returned %d\n", beep_result);
+
+      /* Send acknowledgment directly to output pipe */
+      Inst_packet *ack_packet = create_inst_packet(
+          AUDIO, sizeof(int), (unsigned char *)&beep_result, tag);
+      write(o_pipe, ack_packet, 8);
+      write(o_pipe, ack_packet->data, sizeof(int));
+      destroy_inst_packet(&ack_packet);
+
+      /* Release queue lock if we held it, then skip normal queue processing */
+      if (queue_empty) {
+        pthread_mutex_unlock(&audio_queue_available);
+      }
+      continue;
+    }
+
     Inst_packet *queued_packet = create_inst_packet(type, size, buffer, tag);
 
     AUDIO_IO_PRINTF("Locking queue\n");
