@@ -383,11 +383,11 @@ const char *hal_tts_get_impl_name(void) {
 }
 
 int hal_tts_set_speed(float speed) {
-  /* Validate speed range (0.5 to 2.0 is reasonable) */
-  if (speed < 0.5f)
-    speed = 0.5f;
-  if (speed > 2.0f)
-    speed = 2.0f;
+  /* Validate speed range (0.1 to 3.0 for experimentation) */
+  if (speed < 0.1f)
+    speed = 0.1f;
+  if (speed > 3.0f)
+    speed = 3.0f;
 
   /* Format speed as string */
   snprintf(piper_speed, sizeof(piper_speed), "%.2f", speed);
