@@ -21,7 +21,6 @@
 #include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/wait.h>
-#include <time.h>
 #include <unistd.h>
 
 #ifndef PIPER_MODEL_PATH
@@ -290,9 +289,6 @@ int hal_tts_speak(const char *text, const char *output_file) {
   tts_interrupted = 0;
 
   /* Send text to Piper via stdin (with newline to trigger processing) */
-  struct timespec start_ts, end_ts;
-  clock_gettime(CLOCK_MONOTONIC, &start_ts);
-
   if (fprintf(piper_stdin, "%s\n", text) < 0 || fflush(piper_stdin) != 0) {
     fprintf(stderr, "HAL TTS: Failed to write to Piper stdin\n");
     return -1;
@@ -346,12 +342,6 @@ int hal_tts_speak(const char *text, const char *output_file) {
       break;
     }
 
-    if (!received_any_audio) {
-      clock_gettime(CLOCK_MONOTONIC, &end_ts);
-      long ttfb = (end_ts.tv_sec - start_ts.tv_sec) * 1000 +
-                  (end_ts.tv_nsec - start_ts.tv_nsec) / 1000000;
-      printf("HAL TTS: Time to first audio (TTFB): %ld ms\n", ttfb);
-    }
     received_any_audio = 1;
 
     /* Write chunk to audio HAL */
