@@ -28,7 +28,7 @@
 
 /* Default speed - can be overridden by hal_tts_set_speed() */
 #ifndef PIPER_SPEED
-#define PIPER_SPEED "0.5"
+#define PIPER_SPEED "0.3"
 #endif
 
 /* Chunk size for streaming: 50ms at 16kHz mono = 800 samples = 1600 bytes */
@@ -113,9 +113,15 @@ static int start_persistent_piper(void) {
       close(devnull);
     }
 
-    /* Execute Piper with persistent read from stdin */
+    /* Execute Piper with detailed performance optimizations:
+     * - length_scale: Controlled by piper_speed (lower = faster)
+     * - --noise_scale 0.0: Deterministic (no random sampling), faster
+     * - --noise_scale_w 0.0: Deterministic pronunciation, faster
+     * - --output_raw: Direct PCM output
+     */
     execlp("piper", "piper", "--model", PIPER_MODEL_PATH, "--length_scale",
-           piper_speed, "--output_raw", NULL);
+           piper_speed, "--noise_scale", "0.0", "--noise_scale_w", "0.0",
+           "--output_raw", NULL);
 
     /* execlp only returns on error */
     perror("HAL TTS: execlp(piper) failed");
