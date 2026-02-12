@@ -16,14 +16,17 @@ temp_limit=75          # Thermal throttle at 75°C (vs 70°C default)
 
 ## Performance Impact
 
-### Expected Latency Improvements
-- **TTS Latency**: 7-12% reduction (587ms → ~515-545ms for cached speech)
-- **First Load**: ~200-350ms faster (2968ms → ~2600-2750ms)
+### Measured Performance (2026-02-11)
+**Conditions**: CPU pinned to 1.5 GHz (`performance` governor)
+- **Time-to-First-Audio (TTFB)**: **~190-210ms** (Down from **700ms** - >3x faster!)
+- **Total Processing Time**: **~315ms** (For short word "two" including playback)
+- **Responsiveness**: "Instant" feel for short phrases
+- **Note**: Occasional ALSA underruns observed (buffer tuning pending)
 
-### Thermal Considerations
-- **Stock thermal throttle**: 70°C → 1.2 GHz
-- **New thermal throttle**: 75°C → 1.5 GHz
-- **Current idle temp**: 45.1°C (good headroom)
+### Thermal Stability
+- **Idle Temp**: ~45°C
+- **Load Temp (TTS Loop)**: **52.6°C** (Passive cooling, well below 75°C throttle)
+- **Stability**: Stable with `over_voltage=2`
 
 ## Safety & Stability
 
