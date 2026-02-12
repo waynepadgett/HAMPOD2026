@@ -244,8 +244,8 @@ static int open_pcm_device(void) {
             AUDIO_SAMPLE_RATE);
   }
 
-  /* Set buffer size: 100ms = 1600 samples at 16kHz */
-  buffer_frames = AUDIO_SAMPLE_RATE / 10; /* 100ms */
+  /* Set buffer size: 200ms = 3200 samples at 16kHz */
+  buffer_frames = AUDIO_SAMPLE_RATE / 5; /* 200ms */
   err = snd_pcm_hw_params_set_buffer_size_near(pcm_handle, hw_params,
                                                &buffer_frames);
   if (err < 0) {
@@ -254,7 +254,7 @@ static int open_pcm_device(void) {
     goto error;
   }
 
-  /* Set period size: 25ms = 400 samples (4 periods per buffer) */
+  /* Set period size: 50ms = 800 samples (4 periods per buffer) */
   period_frames = buffer_frames / 4;
   err = snd_pcm_hw_params_set_period_size_near(pcm_handle, hw_params,
                                                &period_frames, NULL);
