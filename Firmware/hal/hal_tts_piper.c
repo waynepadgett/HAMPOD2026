@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -112,6 +113,8 @@ static int start_persistent_piper(void) {
       dup2(devnull, STDERR_FILENO);
       close(devnull);
     }
+    /* Set maximum priority for low latency */
+    setpriority(PRIO_PROCESS, 0, -20);
 
     /* Execute Piper with detailed performance optimizations:
      * - length_scale: Controlled by piper_speed (lower = faster)
