@@ -14,6 +14,18 @@ over_voltage=2         # Voltage: +0.05V for stability
 temp_limit=75          # Thermal throttle at 75°C (vs 70°C default)
 ```
 
+### Piper TTS Speed Settings
+
+In addition to the hardware overclock, the following Piper TTS parameters are tuned in `hal_tts_piper.c`:
+
+```
+length_scale = 0.45    # ~2.2x faster speech (default 1.0 = normal speed)
+noise_scale  = 0.0     # Deterministic inference (no random sampling)
+noise_scale_w = 0.0    # Deterministic pronunciation
+```
+
+> **History**: Initially set to `0.3` (~3.3x speed) but was too fast/unintelligible. Adjusted to `0.45` on 2026-02-12.
+
 ## Performance Impact
 
 ### Measured Performance (2026-02-11)

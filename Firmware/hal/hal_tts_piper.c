@@ -29,7 +29,7 @@
 
 /* Default speed - can be overridden by hal_tts_set_speed() */
 #ifndef PIPER_SPEED
-#define PIPER_SPEED "0.3"
+#define PIPER_SPEED "0.45"
 #endif
 
 /* Chunk size for streaming: 50ms at 16kHz mono = 800 samples = 1600 bytes */
