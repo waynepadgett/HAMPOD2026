@@ -68,7 +68,7 @@
 | **Power loss during write** | Medium | High | SD-card protection (`power_down_protection.sh`); atomic writes; watchdog for clean shutdown. |
 | **Pipe leaks / stale FIFOs** | Low | Medium | `pipe_remover.sh` on startup/cleanup; regression tests check for leaks. |
 | **Router thread packet mismatch** | Low | High | Phase 0 integration test must pass; type-based dispatch and queues in `comm.c`. |
-| **High latency on Pi 3** | Medium | Medium | Target ≤ 300 ms keypad-to-speech on Pi 3; lightweight modes; optional overclock doc (OVERCLOCK.md). |
+| **High latency on Pi 3** | Medium | Medium | Target ≤ 300 ms keypad-to-speech on Pi 3; lightweight modes; optional overclock doc (OVERCLOCK_AND_TODOS.md). |
 | **Third-party repo (Piper, Hamlib) churn** | Low | Medium | Pin versions; document source and commit/tag; local mirror or cache if needed. |
 
 ### 2.3 Dependency Diagram (Conceptual)
