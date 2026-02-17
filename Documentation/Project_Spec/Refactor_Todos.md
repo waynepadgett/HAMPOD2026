@@ -1,3 +1,22 @@
+
+
+### Merge plan for overclock branch
+
+
+1. edit the install script to pin the clock frequency. 
+
+2. clean install
+
+3. complete DO THIS BEFORE MERGE TO MAIN
+- update regression tests
+- write manual test SOP
+
+3. run everything in @DO THIS BEFORE MERGE TO MAIN
+
+4. merge. 
+
+
+
 # Refactor Todos: Path to Maximum Clarity
 
 Goal: Bring the project to maximum clarity for contributors, maintainers, and users—documentation, code, structure, and tooling.
