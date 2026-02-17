@@ -40,9 +40,16 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Compile tests
+
+# Special rule for test_frequency_mode: it defines its own mock stubs for
+# speech, radio, config, comm, and normal_mode, so we only link frequency_mode.o
+# to avoid "multiple definition" linker errors.
+FREQ_TEST_OBJS = $(OBJ_DIR)/frequency_mode.o
+$(BIN_DIR)/test_frequency_mode: $(TEST_DIR)/test_frequency_mode.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $< $(FREQ_TEST_OBJS) $(LDFLAGS)
+
+# Generic rule for all other tests: link with all objects except main files
 $(BIN_DIR)/test_%: $(TEST_DIR)/test_%.c $(OBJS)
-	# Compile test with all objects EXCEPT main.o (if main exists)
-	# For now, we link everything since we are in Phase 0 modularity
 	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/main.o $(OBJ_DIR)/main_phase0.o, $(OBJS)) $(LDFLAGS)
 
 clean:

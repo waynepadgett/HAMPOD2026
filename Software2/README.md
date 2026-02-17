@@ -10,16 +10,46 @@ See [Phase Zero Plan](../Documentation/Project_Overview_and_Onboarding/fresh-sta
 
 ```
 Software2/
-├── include/           # Public headers
-│   └── hampod_core.h  # Core types and constants
-├── src/               # Source files
-│   └── main.c         # Main entry point
-├── tests/             # Test programs
-│   └── test_compile.c # Build verification
-├── bin/               # Output binaries (auto-created)
-├── obj/               # Object files (auto-created)
-├── Makefile           # Build system
-└── README.md          # This file
+├── include/                    # Public headers
+│   ├── hampod_core.h           # Core types and constants
+│   ├── comm.h                  # Pipe communication API
+│   ├── config.h                # Configuration management
+│   ├── frequency_mode.h        # Frequency entry mode
+│   ├── keypad.h                # Keypad event handling
+│   ├── normal_mode.h           # Normal operating mode
+│   ├── radio.h                 # Radio control (Hamlib)
+│   ├── radio_queries.h         # Radio query functions
+│   ├── radio_setters.h         # Radio setter functions
+│   ├── set_mode.h              # Set mode (parameter adjustment)
+│   └── speech.h                # Speech queue
+├── src/                        # Source files
+│   ├── main.c                  # Main entry point
+│   ├── comm.c                  # Pipe communication + router thread
+│   ├── config.c                # Load/save INI config, undo support
+│   ├── frequency_mode.c        # Frequency entry state machine
+│   ├── keypad.c                # Keypad polling + hold detection
+│   ├── normal_mode.c           # Normal mode key dispatch
+│   ├── radio.c                 # Hamlib radio connection
+│   ├── radio_queries.c         # Read radio state (VFO, AGC, etc.)
+│   ├── radio_setters.c         # Set radio parameters
+│   ├── set_mode.c              # Set mode parameter adjustment
+│   └── speech.c                # Non-blocking speech queue
+├── tests/                      # Test programs
+│   ├── test_compile.c          # Build smoke test
+│   ├── test_comm_queue.c       # Unit: response queue logic
+│   ├── test_config.c           # Unit: config load/save/undo
+│   ├── test_frequency_mode.c   # Unit: frequency mode (mock-based)
+│   ├── test_comm_read.c        # Integration: pipe reading
+│   ├── test_comm_write.c       # Integration: pipe writing
+│   ├── test_keypad_events.c    # Integration: keypad events
+│   ├── test_radio.c            # Integration: radio via Hamlib
+│   └── test_speech_queue.c     # Integration: speech queue
+├── config/                     # Configuration files
+│   └── hampod.conf             # Runtime configuration
+├── bin/                        # Output binaries (auto-created)
+├── obj/                        # Object files (auto-created)
+├── Makefile                    # Build system
+└── README.md                   # This file
 ```
 
 ## Building
@@ -35,15 +65,21 @@ make tests
 make clean
 ```
 
-## Module Roadmap
+## Modules
 
 | Module | File | Status | Description |
 |--------|------|--------|-------------|
 | Core | `hampod_core.h` | ✅ Done | Types, constants, debug macros |
-| Comm | `comm.c` | ⏳ TODO | Pipe communication with Firmware |
-| Speech | `speech.c` | ⏳ TODO | Non-blocking speech queue |
-| Keypad | `keypad.c` | ⏳ TODO | Key event handling with hold detection |
-| Config | `config.c` | ⏳ TODO | Save/load settings |
+| Comm | `comm.c` | ✅ Done | Pipe communication with Firmware, router thread |
+| Speech | `speech.c` | ✅ Done | Non-blocking speech queue |
+| Keypad | `keypad.c` | ✅ Done | Key event handling with hold detection |
+| Config | `config.c` | ✅ Done | INI config load/save, 10-deep undo |
+| Radio | `radio.c` | ✅ Done | Hamlib radio connection and polling |
+| Radio Queries | `radio_queries.c` | ✅ Done | VFO, AGC, preamp, attenuation queries |
+| Radio Setters | `radio_setters.c` | ✅ Done | Power, mic gain, NB, NR, etc. |
+| Normal Mode | `normal_mode.c` | ✅ Done | Normal mode key dispatch |
+| Frequency Mode | `frequency_mode.c` | ✅ Done | Frequency entry state machine |
+| Set Mode | `set_mode.c` | ✅ Done | Parameter adjustment mode |
 
 ## Communication with Firmware
 
@@ -69,13 +105,37 @@ Software2 communicates with the Firmware via named pipes:
 - ALSA libraries (on Pi)
 - Firmware must be running first
 
-## Testing on Raspberry Pi
+## Testing
+
+Tests are split into **unit tests** (self-contained, no hardware needed) and **integration tests** (require firmware and/or radio).
+
+### Unit Tests (run anywhere)
+
+```bash
+make tests
+./bin/test_compile          # Build smoke test
+./bin/test_comm_queue       # Response queue FIFO, timeout, overflow
+./bin/test_config           # Config load/save, undo, clamping
+./bin/test_frequency_mode   # Frequency mode state machine (mock-based)
+```
+
+### Integration Tests (require Pi + Firmware)
+
+```bash
+# Start Firmware first: cd ../Firmware && ./firmware.elf
+./bin/test_comm_read        # Pipe reading (press keys)
+./bin/test_comm_write       # Pipe writing (hear TTS)
+./bin/test_keypad_events    # Keypad press/hold detection
+./bin/test_speech_queue     # Speech queue playback
+./bin/test_radio            # Hamlib radio connection (requires radio)
+```
+
+### Makefile Notes
+
+`test_frequency_mode` uses a **mock-based** approach — it defines its own stub implementations of `speech_say_text()`, `radio_init()`, `config_init()`, etc. The Makefile has a dedicated rule that links it with only `frequency_mode.o` to avoid "multiple definition" linker errors with the real implementations.
+
+## Running on Raspberry Pi
 
 1. Ensure Firmware is running: `cd ../Firmware && ./firmware.elf`
 2. Build: `make`
 3. Run: `./bin/hampod`
-
-Or use the integrated test script:
-```bash
-../Documentation/scripts/deploy_and_run_imitation.ps1
-```
