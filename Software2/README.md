@@ -39,11 +39,12 @@ Software2/
 │   ├── test_comm_queue.c       # Unit: response queue logic
 │   ├── test_config.c           # Unit: config load/save/undo
 │   ├── test_frequency_mode.c   # Unit: frequency mode (mock-based)
-│   ├── test_comm_read.c        # Integration: pipe reading
-│   ├── test_comm_write.c       # Integration: pipe writing
-│   ├── test_keypad_events.c    # Integration: keypad events
-│   ├── test_radio.c            # Integration: radio via Hamlib
-│   └── test_speech_queue.c     # Integration: speech queue
+│   ├── test_radio.c            # Radio: Hamlib connection (needs radio)
+│   └── deprecated/             # Old integration tests (pipe deadlock)
+│       ├── test_comm_read.c
+│       ├── test_comm_write.c
+│       ├── test_keypad_events.c
+│       └── test_speech_queue.c
 ├── config/                     # Configuration files
 │   └── hampod.conf             # Runtime configuration
 ├── bin/                        # Output binaries (auto-created)
@@ -107,32 +108,39 @@ Software2 communicates with the Firmware via named pipes:
 
 ## Testing
 
-Tests are split into **unit tests** (self-contained, no hardware needed) and **integration tests** (require firmware and/or radio).
-
-### Unit Tests (run anywhere)
+Use the test runner script or run tests individually:
 
 ```bash
-make tests
-./bin/test_compile          # Build smoke test
-./bin/test_comm_queue       # Response queue FIFO, timeout, overflow
-./bin/test_config           # Config load/save, undo, clamping
-./bin/test_frequency_mode   # Frequency mode state machine (mock-based)
+make tests                             # Build all tests
+./run_all_unit_tests.sh                # Run all 5 tests (prompts for radio)
+./run_all_unit_tests.sh --unit-only    # Just 4 unit tests (no hardware)
+./run_all_unit_tests.sh --all          # Run everything automatically
 ```
 
-### Integration Tests (require Pi + Firmware)
+### Active Tests
 
-```bash
-# Start Firmware first: cd ../Firmware && ./firmware.elf
-./bin/test_comm_read        # Pipe reading (press keys)
-./bin/test_comm_write       # Pipe writing (hear TTS)
-./bin/test_keypad_events    # Keypad press/hold detection
-./bin/test_speech_queue     # Speech queue playback
-./bin/test_radio            # Hamlib radio connection (requires radio)
-```
+| Test | Type | Dependencies |
+|------|------|--------------|
+| `test_compile` | Smoke test | None |
+| `test_comm_queue` | Unit test | None |
+| `test_config` | Unit test | None |
+| `test_frequency_mode` | Unit test (mock-based) | None |
+| `test_radio` | Hardware test | Radio connected via USB |
+
+### Deprecated Tests (tests/deprecated/)
+
+The following integration tests were written during Phase 0 and no longer
+connect to the current Firmware due to pipe deadlock issues. Their
+functionality is covered by the regression scripts and manual SOP.
+
+- `test_comm_read`, `test_comm_write`, `test_keypad_events`, `test_speech_queue`
 
 ### Makefile Notes
 
-`test_frequency_mode` uses a **mock-based** approach — it defines its own stub implementations of `speech_say_text()`, `radio_init()`, `config_init()`, etc. The Makefile has a dedicated rule that links it with only `frequency_mode.o` to avoid "multiple definition" linker errors with the real implementations.
+`test_frequency_mode` uses a **mock-based** approach — it defines its own stub
+implementations of `speech_say_text()`, `radio_init()`, `config_init()`, etc.
+The Makefile has a dedicated rule that links it with only `frequency_mode.o`
+to avoid "multiple definition" linker errors with the real implementations.
 
 ## Running on Raspberry Pi
 

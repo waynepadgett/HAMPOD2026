@@ -6,7 +6,7 @@ Checklist of required steps before merging a feature branch into `main`. All tes
 
 ## 1. Required (Every Merge)
 
-### 1.1 Phase 0 Integration Test
+### 1.1 Phase 0 Integration Test [[Phase 0 Integration test is working]]
 Validates Software2 ↔ Firmware communication, router thread, keypad + speech.
 
 ```bash
@@ -18,7 +18,7 @@ NOTE: regression tests may be out of date. see todo in @refactor_todos.md
 
 **Pass criteria:** "Phase zero integration test ready" announced; key press and hold work; no "packet type mismatch" or "bruh" errors.
 
-### 1.2 HAL Integration Test *(if Firmware or HAL changed)*
+### 1.2 HAL Integration Test *(if Firmware or HAL changed)* [[HAL Integration test is not working any more]]
 Validates keypad, audio, and TTS HAL without full stack.
 
 ```bash
@@ -32,6 +32,9 @@ cd ~/HAMPOD2026
 ```bash
 cd ~/HAMPOD2026/Software2
 make tests
+./run_all_unit_tests.sh            # Runs all 9 tests (prompts for integration/radio)
+./run_all_unit_tests.sh --unit-only # Just the 4 self-contained unit tests
+./run_all_unit_tests.sh --all       # Run everything possible automatically
 ```
 
 **Pass criteria:** All `test_*` targets pass; no memory leaks.
@@ -116,7 +119,7 @@ Manual regression test of the ham radio “handpod” software on Raspberry Pi +
 
 1.1 **Hardware required**
 
--   Raspberry Pi (Pi 3 or Pi 5 as appropriate)
+-   Raspberry Pi (Pi 3, 4 or Pi 5 as appropriate)
 -   Connected radio (same model as target deployment)
 -   Power supply for Pi and radio
 -   Keypad connected and working
@@ -145,7 +148,7 @@ Manual regression test of the ham radio “handpod” software on Raspberry Pi +
         
     
 
-2.3 **Run the `run_handpod` script**
+2.3 **Run the `run_hampod` script**
 
 1.  `cd` to the correct directory (adjust path if needed):
     
@@ -218,7 +221,7 @@ Manual regression test of the ham radio “handpod” software on Raspberry Pi +
 1.  Press **`Enter` key** once:
     -   Expected: it should say **“frequency mode”**.
 2.  Press **`Enter` key** again:
-    -   Expected: it should **toggle VFO** (between VFO 1 / VFO 2) and behave as in current implementation.
+    -   Expected: it should **toggle VFO** (between VFO A / VFO B / current VFO) and behave as in current implementation.
 
 Confirm:
 
@@ -229,7 +232,7 @@ Confirm:
 
 #### 5.3 Key “4” – AGC and Preamp
 
-Key `4` is the only key with **three** related functions; all must be verified.
+Key `4` is the only key with **three** related functions implemented right now (other functions will be added to other keys later); all must be verified.
 
 1.  **AGC readout**
     
@@ -238,7 +241,7 @@ Key `4` is the only key with **three** related functions; all must be verified.
     -   If radio AGC is set differently, it should read that actual level instead.
 2.  **Preamp status**
     
-    -   Use the intended interaction pattern for preamp (press / hold per current design).
+    -   Press '4' and hold.
     -   Expected spoken output:
         -   “preamp on” / “preamp off” consistent with the radio state.
     -   Confirm that without pressing **set** (see next section), it is **reporting only**, not changing the setting.
@@ -249,7 +252,7 @@ Key `4` is the only key with **three** related functions; all must be verified.
 
 ---
 
-### 6\. “Set” (Shift / Star) Behavior and Power Setting
+### 6\. “Set” ( Star) Behavior and Power Setting
 
 **Key mapping reminder (for this test):**
 
@@ -285,7 +288,7 @@ If the setting does not take effect or spoken feedback is wrong/incomplete: **te
 
 7.1 **Turn announcements OFF**
 
-1.  Press the **minus `-` key** (insult key).
+1.  Press the **minus `-` key** (key).
 2.  Expected:
     -   Announcements are turned **off**.
 3.  Spin the tuning knob:
