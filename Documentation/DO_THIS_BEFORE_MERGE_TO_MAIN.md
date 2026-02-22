@@ -360,33 +360,7 @@ Branch is **eligible to merge** only if:
 
 If any step fails, treat the branch as **not ready**; fix and repeat the SOP from **Section 2**.
 
-Notes on manual testing:
-always check the key functions
-
-start by turning on the pi and ssh into the pi the radio and running and turn on the power supply
-
-cd HAMPOD2026/Documentation/scripts
-./run_hampod.sh
-this restarts the hampod 
-
-spin the knob and check that it reads the frequency correctly
-
-the zero button: (keypress beep then usb)
-1 should say vfo(variable frequency ocilator)(can be a or b) and frequency 
-
-enter key: says frequesncy mode
-hitting it again changes the requency mode
-hit the (deciml/delete) key twice to exit frequency mode (on this keypad)
-
-press 4: preamp off
-hold 4: agc medium (could be a diff level) error would be not speaking 
-shift 4 is attenuation off 
-
-
-legend:
-shift is the slash 
-star key is set
-
+---
 
 ## Sources
 
@@ -397,5 +371,3 @@ star key is set
 | [System_Architecture_Detail.md](Project_Spec/System_Architecture_Detail.md) | Integration/test table, performance targets (§9, §10) |
 | [Hardware_Constraints.md](Project_Spec/Hardware_Constraints.md) | Target platforms, dependencies, deployment constraints |
 | [Refactor_Todos.md](Project_Spec/Refactor_Todos.md) | Test index and pre-commit documentation improvements |
-
-
