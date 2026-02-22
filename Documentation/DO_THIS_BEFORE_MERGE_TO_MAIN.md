@@ -6,7 +6,7 @@ Checklist of required steps before merging a feature branch into `main`. All tes
 
 ## 1. Required (Every Merge)
 
-### 1.1 Phase 0 Integration Test [[Phase 0 Integration test is working]]
+### 1.1 Phase 0 Integration Test
 Validates Software2 ↔ Firmware communication, router thread, keypad + speech.
 
 ```bash
@@ -14,25 +14,13 @@ cd ~/HAMPOD2026
 ./Documentation/scripts/Regression_Phase0_Integration.sh
 ```
 
-NOTE: regression tests may be out of date. see todo in @refactor_todos.md
-
 **Pass criteria:** "Phase zero integration test ready" announced; key press and hold work; no "packet type mismatch" or "bruh" errors.
 
-### 1.2 HAL Integration Test *(if Firmware or HAL changed)* [[HAL Integration test is not working any more]]
-Validates keypad, audio, and TTS HAL without full stack.
-
-```bash
-cd ~/HAMPOD2026
-./Documentation/scripts/Regression_HAL_Integration.sh
-```
-
-**Pass criteria:** Keypad keys detected and announced; TTS/audio output confirmed by tester.
-
-### 1.3 Unit Tests *(if Software2 changed)*
+### 1.2 Unit Tests *(if Software2 changed)*
 ```bash
 cd ~/HAMPOD2026/Software2
 make tests
-./run_all_unit_tests.sh            # Runs all 9 tests (prompts for integration/radio)
+./run_all_unit_tests.sh            # Runs all 5 tests (prompts for radio)
 ./run_all_unit_tests.sh --unit-only # Just the 4 self-contained unit tests
 ./run_all_unit_tests.sh --all       # Run everything possible automatically
 ```
@@ -45,19 +33,11 @@ make tests
 
 Run these if you changed Normal Mode, Frequency Mode, Set Mode, or radio logic:
 
-### 2.1 Normal Mode Regression
-```bash
-cd ~/HAMPOD2026
-./Documentation/scripts/Regression_Normal_Mode.sh
-```
+### 2.1 Unit Tests
+Normal mode and frequency mode logic are covered by the unit tests (Section 1.2).
 
-### 2.2 Frequency Mode Regression
-```bash
-cd ~/HAMPOD2026
-./Documentation/scripts/Regression_Frequency_Mode.sh
-```
-
-### 2.3 Manual Radio Test *(if radio control changed; requires radio connected)*
+### 2.2 Manual Radio Test *(requires radio connected)*
+Full-stack manual test: builds firmware + software, launches HAMPOD, walks through frequency mode.
 ```bash
 cd ~/HAMPOD2026
 ./Documentation/scripts/Regression_Phase_One_Manual_Radio_Test.sh
@@ -70,9 +50,7 @@ cd ~/HAMPOD2026
 For major releases or before tagging:
 
 - **Full regression suite:** Run all `Documentation/scripts/Regression_*.sh` scripts (exclude `deprecated_tests/`).
-- **Firmware packet protocol:** `./Documentation/scripts/run_remote_test.sh` (Imitation Software test). 
-TODO: check if the imitation sofware test script works, take out if it doesnt. (put in depreciated tests folder)
-- **Set Mode / Phase 2 manual test:** `./Documentation/scripts/Regression_Phase_Two_Manual_Test.sh`.
+- **Normal Mode manual test:** `./Documentation/scripts/Regression_Phase_Two_Manual_Test.sh` — tests normal mode keys ([2] frequency, [1] VFO, [0] mode, etc.).
 
 ---
 
@@ -87,31 +65,28 @@ TODO: check if the imitation sofware test script works, take out if it doesnt. (
 
 ## 5. Quick Reference: What to Run by Change Type
 
-| Change type                  | Phase 0 | HAL   | Unit  | Normal | Freq  | Radio |
-|-----------------------------|---------|-------|-------|--------|-------|-------|
-| Docs only                   | —       | —     | —     | —      | —     | —     |
-| Config/comment only         | —       | —     | —     | —      | —     | —     |
-| Software2 (comm, config, etc)| ✓       | —     | ✓     | —      | —     | —     |
-| Firmware / HAL              | ✓       | ✓     | —     | —      | —     | —     |
-| Mode logic (Normal, Freq)   | ✓       | —     | ✓     | ✓      | ✓     | ✓*    |
-| Radio / Hamlib              | ✓       | —     | ✓     | ✓      | ✓     | ✓     |
+| Change type                   | Phase 0 | Unit  | Manual Radio |
+|-------------------------------|---------|-------|--------------|
+| Docs only                     | —       | —     | —            |
+| Config/comment only           | —       | —     | —            |
+| Software2 (comm, config, etc) | ✓       | ✓     | —            |
+| Firmware / HAL                | ✓       | —     | —            |
+| Mode logic (Normal, Freq)     | ✓       | ✓     | ✓            |
+| Radio / Hamlib                | ✓       | ✓     | ✓            |
 
-\* Manual radio test if radio control changed.
+## 6. Manual Testing SOP
 
-## 6. MANUAL TESTING (CRITICAL)
+Full manual regression test of HAMPOD on Raspberry Pi + radio.
+Run this before merging any branch that touches mode logic, radio control, or keypad behavior.
 
-TODO
+The quickest way to run the manual test is:
+```bash
+cd ~/HAMPOD2026
+./Documentation/scripts/Regression_Phase_One_Manual_Radio_Test.sh
+```
+That script builds everything, starts firmware + software, and prints step-by-step instructions.
 
-make a SOP to walk through all the modes to make sure nothing is broken
-
-
----
-
-
-## SOP: Ham Radio Software Test Before Merging to `main`
-
-**Scope:**  
-Manual regression test of the ham radio “handpod” software on Raspberry Pi + radio, before merging any branch into `main`.
+The detailed SOP below covers the full manual walkthrough, including steps the script doesn't automate.
 
 ---
 

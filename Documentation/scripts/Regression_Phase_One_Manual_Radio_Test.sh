@@ -9,10 +9,13 @@
 #   - Starts Software2 hampod binary for manual testing
 #
 # Manual verification steps:
-#   - Press [#] to enter frequency mode, hear "Current VFO"
-#   - Enter digits (1,4,*,2,5,0) with audio echo
+#   - On startup, hear "Ready" (or "Radio not found" if radio is off)
+#   - Turn VFO dial, wait ~1 second, hear frequency announced
+#   - Press [#] to enter frequency mode, hear "Frequency Mode"
+#   - Press [#] again to cycle VFOs: "VFO A", "VFO B", "Current VFO"
+#   - Enter digits (1,4,*,2,5,0) with audio echo, "*" says "point"
 #   - Press [#] to submit, verify radio shows 14.250 MHz
-#   - Turn VFO dial, wait 1 second, hear frequency announced
+#   - Press [D] or double [*] to cancel, hear "Cancelled"
 #
 # Usage: ./Regression_Phase_One_Manual_Radio_Test.sh
 #
@@ -171,22 +174,39 @@ echo -e "${CYAN}              MANUAL TESTING MODE                     ${NC}"
 echo -e "${CYAN}======================================================${NC}"
 echo ""
 echo -e "${GREEN}Instructions:${NC}"
-echo "  1. Press [#] to enter frequency mode"
-echo "     - You should hear 'Current VFO'"
-echo "     - Press [#] again to cycle: VFO A, VFO B, Current VFO"
 echo ""
-echo "  2. Enter a frequency (e.g., 14.250 MHz):"
-echo "     - Press: 1, 4, *, 2, 5, 0"
-echo "     - You should hear each digit/point spoken"
+echo "  STARTUP:"
+echo "    - You should hear \"Ready\" followed by the current frequency"
+echo "      (e.g. \"14 point 2 6 3 3 9 megahertz\")"
+echo "    - If the radio is off/disconnected, you'll hear \"Radio not found\""
 echo ""
-echo "  3. Press [#] to submit"
-echo "     - You should hear 'Frequency set' and the frequency"
+echo "  1. Turn the VFO dial on the radio"
+echo "     - After ~1 second of no change, you should hear the frequency"
+echo "       announced, e.g. \"14 point 3 6 9 8 7 megahertz\""
+echo ""
+echo "  2. Press [Enter] (# on the old HamPod keymap) to enter frequency mode"
+echo "     - You should hear \"Frequency Mode\""
+echo "     - Press [Enter] again to cycle VFOs: \"VFO A\", \"VFO B\", \"Current VFO\""
+echo ""
+echo "  3. Enter a frequency (e.g., 14.250 MHz):"
+echo "     - Press: 1, 4, [.], 2, 5, 0 ([.] was [*] on the old HamPod keymap)"
+echo "     - You should hear each digit spoken, and \"point\" for the [.] key"
+echo ""
+echo "  4. Press [Enter] to submit"
+echo "     - You should hear \"14 point 2 5 0 0 0 megahertz\""
 echo "     - Check radio display shows 14.250 MHz"
 echo ""
-echo "  4. Turn VFO dial on radio, wait 1 second"
-echo "     - Frequency should be announced automatically"
+echo "  5. Press [Enter] again to re-enter frequency mode"
+echo "     - You should hear \"Frequency Mode\""
 echo ""
-echo "  5. Press Ctrl+C to exit when done"
+echo "  6. Cancel:"
+echo "     - From VFO select (right after entering freq mode):"
+echo "       Press [.] once or [+] — hear \"Cancelled\" ([+] was [D] on the old HamPod keymap)"
+echo "     - While entering digits:"
+echo "       Press [.] twice (first [.] is decimal point) — hear \"Cancelled\""
+echo "       Or press [+] at any time — hear \"Cancelled\""
+echo ""
+echo "  7. Press Ctrl+C to exit when done"
 echo ""
 echo -e "${CYAN}======================================================${NC}"
 echo ""
@@ -203,22 +223,23 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Run hampod interactively
-sudo ./bin/hampod 2>&1 | tee /tmp/hampod_output.txt
+# Run hampod interactively — stderr (Hamlib debug) goes to log, not the screen
+sudo ./bin/hampod 2>/tmp/hampod_debug.log | tee /tmp/hampod_output.txt
 
 echo ""
 echo -e "${CYAN}======================================================${NC}"
 echo -e "${CYAN}                  TEST COMPLETE                       ${NC}"
 echo -e "${CYAN}======================================================${NC}"
 echo ""
-echo "Please answer the following questions:"
+echo "Please verify the following:"
 echo ""
-echo "  1. Did you hear 'Frequency mode ready' on startup? (Y/N)"
-echo "  2. Did you hear digit echoes when entering frequency? (Y/N)"
-echo "  3. Did the radio display show the correct frequency? (Y/N)"
-echo "  4. Did VFO dial changes get announced after 1 second? (Y/N)"
+echo "  1. Did you hear \"Ready\" followed by the current frequency? (Y/N)"
+echo "  2. Did VFO dial changes get announced after ~1 second? (Y/N)"
+echo "  3. Did you hear digit echoes and \"point\" when entering frequency? (Y/N)"
+echo "  4. Did the radio display show the correct frequency after submit? (Y/N)"
+echo "  5. Did cancel work correctly from both VFO select and digit entry? (Y/N)"
 echo ""
 echo "If all answers are YES, the test PASSED."
 echo "If any answer is NO, investigate the issue."
 echo ""
-echo "Logs preserved in /tmp/firmware.log and /tmp/hampod_output.txt"
+echo "Logs preserved in /tmp/firmware.log, /tmp/hampod_debug.log, and /tmp/hampod_output.txt"
