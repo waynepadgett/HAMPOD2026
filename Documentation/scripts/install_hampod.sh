@@ -291,7 +291,7 @@ main() {
     run_with_spinner "Updating package lists..." sudo apt update -y
     print_success "Package lists updated"
     
-    run_with_spinner "Upgrading packages (this may take a few minutes)..." sudo apt upgrade -y
+    run_with_spinner "Upgrading packages (this may take a few minutes)..." sudo env DEBIAN_FRONTEND=noninteractive apt upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
     print_success "System upgraded"
     
     # -------------------------------------------------------------------------
@@ -299,7 +299,7 @@ main() {
     # -------------------------------------------------------------------------
     print_step "Installing dependencies (git, gcc, ALSA, Hamlib)..."
     
-    run_with_spinner "Installing build tools and libraries..." sudo apt install -y git make gcc libasound2-dev libhamlib-dev wget bc
+    run_with_spinner "Installing build tools and libraries..." sudo env DEBIAN_FRONTEND=noninteractive apt install -y git make gcc libasound2-dev libhamlib-dev wget bc
     print_success "All dependencies installed"
     
     # -------------------------------------------------------------------------
