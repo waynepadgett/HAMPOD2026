@@ -394,7 +394,7 @@ main() {
     chmod +x "$HAMPOD_DIR/Documentation/scripts/run_hampod_service.sh" 2>/dev/null || true
     chmod +x "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" 2>/dev/null || true
     
-    "$HAMPOD_DIR/Documentation/scripts/hampod_on_powerup.sh" --enable
+    sudo "$HAMPOD_DIR/Documentation/scripts/hampod_on_powerup.sh" --enable
     print_success "HAMPOD will start automatically on boot"
     
     # -------------------------------------------------------------------------
@@ -422,13 +422,13 @@ main() {
     
     read -p "Enable SD card protection now? [y/N] " response
     if [[ "$response" =~ ^[Yy]$ ]]; then
-        "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --enable
+        sudo "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --enable
     else
         print_info "SD card protection not enabled"
-        print_info "You can enable it later with: ./power_down_protection.sh --enable"
+        print_info "You can enable it later with: sudo ./power_down_protection.sh --enable"
         
         # Still install the prompt indicator for when they do enable it
-        "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --status > /dev/null 2>&1 || true
+        sudo "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --status > /dev/null 2>&1 || true
     fi
     
     # -------------------------------------------------------------------------
