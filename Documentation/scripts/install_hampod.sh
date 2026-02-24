@@ -40,7 +40,7 @@ NC='\033[0m' # No Color
 # Configuration
 REPO_URL="https://github.com/waynepadgett/HAMPOD2026.git"
 HAMPOD_DIR="$HOME/HAMPOD2026"
-TOTAL_STEPS=9
+TOTAL_STEPS=10
 
 # Track current step
 CURRENT_STEP=0
@@ -430,6 +430,30 @@ main() {
         # Still install the prompt indicator for when they do enable it
         "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --status > /dev/null 2>&1 || true
     fi
+    
+    # -------------------------------------------------------------------------
+    # Step 10: Performance Settings
+    # -------------------------------------------------------------------------
+    print_step "Configuring CPU Performance Mode..."
+    
+    echo ""
+    print_info "Creating systemd service to pin CPU governor to 'performance'..."
+    sudo bash -c 'cat > /etc/systemd/system/hampod-performance.service << EOF
+[Unit]
+Description=Set CPU Governor to Performance
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now hampod-performance
+    print_success "CPU pinned to maximum performance"
     
     # -------------------------------------------------------------------------
     # Success!

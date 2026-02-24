@@ -48,6 +48,17 @@ If you need to set up the operating system on your Raspberry Pi and flash an SD 
 - USB audio device (such as USB2.0 Device)
 - Amateur radio with USB or serial interface
 
+
+### RPI zero 2 w setup
+
+```bash
+sudo apt update && sudo apt install -y git
+```
+
+(this is needed if you are setting up a new RPI zero 2 w with the lite version of the OS as it doesn't come with git installed)
+
+proceed as normal for the rest of the install script. 
+
 ### Installation
 
 SSH into your Raspberry Pi and run these commands:
@@ -58,10 +69,12 @@ cd HAMPOD2026/Documentation/scripts
 ./install_hampod.sh
 ```
 
+
 The install script will update system packages, install dependencies including Hamlib and Piper text-to-speech, build the firmware and software, and configure audio permissions.
 
-### Running HAMPOD
 
+### Running HAMPOD
+`
 To start the system:
 
 ```
