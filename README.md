@@ -52,6 +52,18 @@ If you need to set up the operating system on your Raspberry Pi and flash an SD 
 ### RPI zero 2 w setup
 
 ```bash
+sudo fallocate -l 2G /var/temp_swap && sudo chmod 600 /var/temp_swap && sudo mkswap /var/temp_swap && sudo swapon /var/temp_swap
+```
+
+run this to add swap space for the RPI zero 2 w - prevents an OOM error during installation of the apt upgrade
+
+```bash
+free -h 
+```
+
+to confirm swap space was added
+
+```bash
 sudo apt update && sudo apt install -y git
 ```
 
