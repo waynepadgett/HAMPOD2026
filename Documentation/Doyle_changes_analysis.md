@@ -1,8 +1,9 @@
 # Doyle's Changes — Analysis & Integration Plan
 
 **Date:** 2026-02-22  
+**Implemented:** 2026-02-24 on branch `Doyle_changes`  
 **Source repo:** `https://github.com/rhit-liangj/HAMPOD2026-liang2`  
-**Target branch:** `feature/pi3-overclock` in the main HAMPOD2026 repo  
+**Target branch:** `feature/pi3-overclock` in the main HAMPOD2026 repo (now merged to `main`)  
 **Analyzed by:** Antigravity (AI assistant)
 
 ---
