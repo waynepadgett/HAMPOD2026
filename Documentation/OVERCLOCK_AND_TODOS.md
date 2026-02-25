@@ -146,6 +146,7 @@ vcgencmd get_throttled
 
 - [ ] **Check if one setup for performance will work on 3B+ and Pi 5** – Validate whether a single overclock/performance configuration can safely and effectively run on both Pi 3 B+ and Pi 5, given their different thermal and frequency profiles.
 - [ ] **Write a script for adjusting speech performance parameters** – Create a script to tune Piper TTS parameters (e.g. `length_scale`, `noise_scale`, `noise_scale_w`) for different Pi models or performance targets.
+- [ ] **Fix sudo issues in hampod_on_powerup.sh auto-start script** – The auto-start functionality is currently disabled in `install_hampod.sh` because it causes problems with permissions/sudo. Needs to be debugged and re-enabled before releasing main.
 
 ## Branch Information
 
