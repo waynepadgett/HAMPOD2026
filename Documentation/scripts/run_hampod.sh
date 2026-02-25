@@ -95,7 +95,21 @@ fi
 # -----------------------------------------------------------------------------
 echo -e "${YELLOW}[Step 4/5] Starting Firmware...${NC}"
 cd "$FIRMWARE_DIR"
-sudo ./firmware.elf > /tmp/firmware.log 2>&1 &
+
+# Read keypad layout from config file
+FIRMWARE_ARGS=""
+CONF_FILE="$SOFTWARE2_DIR/config/hampod.conf"
+if [ -f "$CONF_FILE" ]; then
+    LAYOUT=$(grep -A10 '^\[keypad\]' "$CONF_FILE" | grep '^layout' | head -1 | cut -d'=' -f2 | tr -d ' ')
+    if [ "$LAYOUT" = "phone" ]; then
+        FIRMWARE_ARGS="--phone-layout"
+        echo -e "  Keypad layout: ${GREEN}phone${NC} (positional)"
+    else
+        echo "  Keypad layout: calculator (default)"
+    fi
+fi
+
+sudo ./firmware.elf $FIRMWARE_ARGS > /tmp/firmware.log 2>&1 &
 FIRMWARE_PID=$!
 echo "  Firmware PID: $FIRMWARE_PID"
 
