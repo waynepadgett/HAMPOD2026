@@ -62,4 +62,14 @@ void hal_keypad_cleanup(void);
  */
 const char *hal_keypad_get_impl_name(void);
 
+/**
+ * @brief Set keypad layout mode
+ *
+ * Selects between calculator-style (7-8-9 top, label-based) and
+ * phone-style (1-2-3 top, position-based) keypad mapping.
+ *
+ * @param phone_layout 1 for phone-style, 0 for calculator-style (default)
+ */
+void hal_keypad_set_phone_layout(int phone_layout);
+
 #endif /* HAL_KEYPAD_H */

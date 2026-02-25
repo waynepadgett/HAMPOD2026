@@ -256,6 +256,12 @@ const char *config_get_keypad_device_name(void) {
   return g_config.keypad.device_name;
 }
 
+const char *config_get_keypad_layout(void) {
+  if (g_config.keypad.layout[0] == '\0')
+    return "calculator";
+  return g_config.keypad.layout;
+}
+
 // ============================================================================
 // Radio Setters (Act on the currently active radio, auto-save after each)
 // ============================================================================
@@ -443,6 +449,9 @@ static void config_set_defaults(void) {
   g_config.audio.speech_speed = CONFIG_DEFAULT_SPEECH_SPEED;
   g_config.audio.key_beep_enabled = CONFIG_DEFAULT_KEY_BEEP;
   g_config.audio.card_number = -1;
+
+  // Keypad defaults
+  strcpy(g_config.keypad.layout, "calculator");
 }
 
 static void history_push(const HampodConfig *config) {
@@ -558,6 +567,8 @@ static int config_parse_file(const char *path) {
         strncpy(g_config.keypad.port, value, 127);
       else if (strcmp(key, "device_name") == 0)
         strncpy(g_config.keypad.device_name, value, 127);
+      else if (strcmp(key, "layout") == 0)
+        strncpy(g_config.keypad.layout, value, 15);
     }
   }
 
@@ -597,6 +608,7 @@ static int config_write_file(const char *path) {
   fprintf(fp, "key_beep = %d\n\n", g_config.audio.key_beep_enabled ? 1 : 0);
 
   fprintf(fp, "[keypad]\n");
+  fprintf(fp, "layout = %s\n", g_config.keypad.layout);
   fprintf(fp, "port = %s\n", g_config.keypad.port);
   fprintf(fp, "device_name = %s\n", g_config.keypad.device_name);
 

@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "audio_firmware.h"
+#include "hal/hal_keypad.h"
 #include "hampod_queue.h"
 #include "keypad_firmware.h"
 
@@ -72,8 +73,15 @@ void sigint_handler(int signum);
 
 void sigint_handler(int signum);
 
-int main() {
+int main(int argc, char *argv[]) {
   setbuf(stdout, NULL);
+
+  /* Parse command-line arguments */
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--phone-layout") == 0) {
+      hal_keypad_set_phone_layout(1);
+    }
+  }
 
 #ifdef DEBUG
   printf("\033[0;32mHampod Firmware Version 0.8\n");

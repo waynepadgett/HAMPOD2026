@@ -24,6 +24,26 @@ Add support for many other devices (antenna rotors, etc.)
 
 Convert the OS to use a ramdisk for all operations other than configuration file so that power downs can't corrupt the OS
 
+### Live Configuration Changes
+Currently, configuration changes in `hampod.conf` require a restart to take effect. The long-term goal is to let users change settings (volume, speech speed, keypad layout, etc.) during operation via a Config Mode and have changes apply instantly.
+
+**Recommended approach: CONFIG packets through existing pipes.**
+
+The Software↔Firmware pipe protocol already has a `CONFIG` packet type. The flow would be:
+
+1. User enters Config Mode and changes a setting (e.g., keypad layout)
+2. Software layer updates `hampod.conf` and sends a CONFIG packet to Firmware
+3. Firmware receives the packet and applies the change (e.g., calls `hal_keypad_set_phone_layout()`)
+4. Change takes effect immediately on the next keypress
+
+This approach leverages the existing pipe infrastructure and is extensible — any new setting that needs live propagation just defines a CONFIG sub-command. The runtime variables for keypad layout switching are already in place (`g_phone_layout` in `hal_keypad_usb.c`); the only remaining work is the CONFIG packet plumbing.
+
+Settings that would benefit from live propagation:
+- Keypad layout (calculator ↔ phone)
+- Audio volume
+- Speech speed
+- Key beep on/off
+- Terse/Verbose announcement mode
 
 ### User Interface Refinements
 - **Conditional Status Announcements**: For queries like NB (Noise Blanker) and NR (Noise Reduction), only announce the level if the feature is enabled. This reduces verbosity.

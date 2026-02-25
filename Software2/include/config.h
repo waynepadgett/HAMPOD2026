@@ -61,6 +61,7 @@ typedef struct {
 typedef struct {
   char port[128];        // Physical USB port path
   char device_name[128]; // Actual name detected
+  char layout[16];       // "calculator" (default) or "phone"
 } KeypadSettings;
 
 /**
@@ -163,6 +164,7 @@ int config_get_audio_card_number(void);
 
 const char *config_get_keypad_port(void);
 const char *config_get_keypad_device_name(void);
+const char *config_get_keypad_layout(void);
 
 // ============================================================================
 // Radio Setters (Act on the currently active radio, auto-save after each)
