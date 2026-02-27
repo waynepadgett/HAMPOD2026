@@ -14,6 +14,16 @@
 #
 # =============================================================================
 
+# Refuse to run as root — causes permission issues with log files and builds
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: Do not run this script with sudo or as root."
+    echo ""
+    echo "Usage: ./run_hampod.sh [--no-build]"
+    echo ""
+    echo "The script will call sudo internally for steps that need it."
+    exit 1
+fi
+
 set -e  # Exit on error during setup
 
 # Configuration
