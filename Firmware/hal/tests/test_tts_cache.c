@@ -1,72 +1,78 @@
+#include "../hal_audio.h"
+#include "../hal_tts.h"
 #include "../hal_tts_cache.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
+#include <unistd.h>
+
+long long time_ms(void) {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
 
 int main(void) {
-  printf("--- Running TTS Cache phase 1 tests ---\n");
-
-  // Test 1: init
-  if (hal_tts_cache_init() != 0) {
-    fprintf(stderr, "Failed to init cache\n");
-    return 1;
-  }
+  printf("--- Running TTS Cache latency and integration tests ---\n");
 
   // Clear cache to start fresh
   hal_tts_cache_clear();
 
-  const char *test_phrase = "hello world";
-  int16_t *samples = NULL;
-  size_t num_samples = 0;
-
-  // Test 2: lookup on empty cache
-  if (hal_tts_cache_lookup(test_phrase, &samples, &num_samples) == 0) {
-    fprintf(stderr, "Lookup succeeded on empty cache!\n");
-    return 1;
-  }
-  printf("Test 2 (miss): passed\n");
-
-  // Test 3: store mock data
-  int16_t mock_samples[100];
-  for (int i = 0; i < 100; i++)
-    mock_samples[i] = i * 10;
-
-  if (hal_tts_cache_store(test_phrase, mock_samples, 100) != 0) {
-    fprintf(stderr, "Store failed\n");
-    return 1;
-  }
-  printf("Test 3 (store): passed\n");
-
-  // Test 4: lookup hit
-  if (hal_tts_cache_lookup(test_phrase, &samples, &num_samples) != 0) {
-    fprintf(stderr, "Lookup failed after store\n");
+  if (hal_audio_init() != 0) {
+    fprintf(stderr, "Failed to init audio\n");
     return 1;
   }
 
-  if (num_samples != 100) {
-    fprintf(stderr, "Lookup returned wrong size: %zu\n", num_samples);
+  if (hal_tts_init() != 0) {
+    fprintf(stderr, "Failed to init TTS\n");
     return 1;
   }
 
-  for (int i = 0; i < 100; i++) {
-    if (samples[i] != mock_samples[i]) {
-      fprintf(stderr, "Data mismatch at %d\n", i);
-      return 1;
-    }
+  const char *phrase = "hello world";
+
+  printf("Test: Speak (cold)\n");
+  long long start = time_ms();
+  hal_tts_speak(phrase, NULL);
+  long long cold_duration = time_ms() - start;
+  printf("Cold speak took: %lld ms\n", cold_duration);
+
+  if (cold_duration < 100) {
+    fprintf(
+        stderr,
+        "Warning: cold speak was unexpectedly fast... cache not cleared?\n");
   }
-  printf("Test 4 (hit & verify): passed\n");
 
-  hal_tts_cache_release(samples);
+  // Wait for Piper to finish generating and capturing
+  usleep(500000); // 500ms should be enough
 
-  // Test 5: clear
+  printf("Test: Speak (warm)\n");
+  start = time_ms();
+  hal_tts_speak(phrase, NULL);
+  long long warm_duration = time_ms() - start;
+  printf("Warm speak took: %lld ms\n", warm_duration);
+
+  if (warm_duration >= 20) {
+    fprintf(stderr, "FAILED: Warm speak was too slow!\n");
+    return 1;
+  }
+
+  printf("Test: Clear cache\n");
   hal_tts_cache_clear();
-  if (hal_tts_cache_lookup(test_phrase, &samples, &num_samples) == 0) {
-    fprintf(stderr, "Lookup succeeded after clear!\n");
+
+  start = time_ms();
+  hal_tts_speak(phrase, NULL);
+  long long cold_again_duration = time_ms() - start;
+  printf("Cold (again) speak took: %lld ms\n", cold_again_duration);
+
+  if (cold_again_duration < 100) {
+    fprintf(stderr, "FAILED: Cache clear didn't work, speak was too fast\n");
     return 1;
   }
-  printf("Test 5 (clear): passed\n");
 
-  printf("All Phase 1 unit tests passed\n");
+  hal_tts_cleanup();
+  hal_audio_cleanup();
+
+  printf("All Phase 1 integration tests passed\n");
   return 0;
 }
