@@ -10,10 +10,13 @@
 #include <unistd.h>
 
 #define CACHE_DIR_ENV "HAMPOD_TTS_CACHE_DIR"
+#define CACHE_SIZE_ENV "HAMPOD_TTS_CACHE_MAX_SIZE"
 #define DEFAULT_CACHE_DIR ".cache/hampod/tts"
-#define MAX_DISK_CACHE_SIZE (10ULL * 1024ULL * 1024ULL * 1024ULL) /* 10GB */
+#define DEFAULT_MAX_DISK_CACHE_SIZE                                            \
+  (10ULL * 1024ULL * 1024ULL * 1024ULL) /* 10GB */
 
 static char cache_dir_path[512] = {0};
+static uint64_t max_disk_cache_size = DEFAULT_MAX_DISK_CACHE_SIZE;
 static uint64_t current_cache_size = 0;
 static int cache_initialized = 0;
 
@@ -93,6 +96,11 @@ int hal_tts_cache_init(void) {
     }
   }
 
+  const char *env_size = getenv(CACHE_SIZE_ENV);
+  if (env_size) {
+    max_disk_cache_size = strtoull(env_size, NULL, 10);
+  }
+
   if (mkdir_p(cache_dir_path) != 0) {
     fprintf(stderr, "HAL TTS CACHE: Failed to create cache directory %s\n",
             cache_dir_path);
@@ -101,8 +109,10 @@ int hal_tts_cache_init(void) {
 
   compute_cache_size();
   cache_initialized = 1;
-  printf("HAL TTS CACHE: Initialized at %s, current size = %llu bytes\n",
-         cache_dir_path, (unsigned long long)current_cache_size);
+  printf("HAL TTS CACHE: Initialized at %s, current size = %llu bytes, max "
+         "size = %llu bytes\n",
+         cache_dir_path, (unsigned long long)current_cache_size,
+         (unsigned long long)max_disk_cache_size);
   return 0;
 }
 
@@ -165,7 +175,7 @@ int hal_tts_cache_store(const char *text, const int16_t *samples,
   size_t size_bytes = num_samples * sizeof(int16_t);
 
   // MVP phase: enforce hard limit (simplistic)
-  if (current_cache_size + size_bytes > MAX_DISK_CACHE_SIZE) {
+  if (current_cache_size + size_bytes > max_disk_cache_size) {
     fprintf(stderr, "HAL TTS CACHE: Disk cache full\n");
     return -1;
   }
