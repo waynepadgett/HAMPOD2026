@@ -6,7 +6,11 @@
 
 NOTE: pi to run the testing on is:
 
-ssh hamdevpi0@hamdevpi0.local
+ssh hamdevpi0-2@hamdevpi0-2.local
+
+ssh hamdevpi5-3@hamdevpi5-3.local 
+
+
 
 testing phase 1:
 
@@ -14,7 +18,7 @@ cd ~/HAMPOD2026/Firmware && ./hal/tests/test_tts_cache
 
 to clear cache:
 
-ssh hamdevpi0@hamdevpi0.local
+ssh hamdevpi0-2@hamdevpi0-2.local
 
 sudo rm -rf /root/.cache/hampod/tts/*
 

@@ -76,9 +76,7 @@ proceed as normal for the rest of the install script.
 SSH into your Raspberry Pi and run these commands:
 
 ```
-git clone https://github.com/waynepadgett/HAMPOD2026.git
-cd HAMPOD2026/Documentation/scripts
-./install_hampod.sh
+git clone https://github.com/waynepadgett/HAMPOD2026.git && cd HAMPOD2026/Documentation/scripts && ./install_hampod.sh
 ```
 
 
@@ -90,8 +88,7 @@ The install script will update system packages, install dependencies including H
 To start the system:
 
 ```
-cd HAMPOD2026
-./Documentation/scripts/run_hampod.sh
+cd ~/HAMPOD2026 && ./Documentation/scripts/run_hampod.sh
 ```
 
 To stop, press Control-C.
