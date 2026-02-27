@@ -17,9 +17,7 @@ For the full SOP with detailed explanations, see [DO_THIS_BEFORE_MERGE_TO_MAIN.m
 ## 1. Unit Tests
 
 ```bash
-cd ~/HAMPOD2026/Software2
-make tests
-./run_all_unit_tests.sh --all
+cd ~/HAMPOD2026/Software2 && make tests && ./run_all_unit_tests.sh --all
 ```
 
 All 4 unit tests + radio test must pass (5 total).
@@ -29,8 +27,7 @@ All 4 unit tests + radio test must pass (5 total).
 ## 2. Phase 1 — Frequency Mode Regression (follow on-screen instructions)
 
 ```bash
-cd ~/HAMPOD2026
-sudo bash ./Documentation/scripts/Regression_Phase_One_Manual_Radio_Test.sh
+cd ~/HAMPOD2026 && sudo bash ./Documentation/scripts/Regression_Phase_One_Manual_Radio_Test.sh
 ```
 
 ---
@@ -38,8 +35,7 @@ sudo bash ./Documentation/scripts/Regression_Phase_One_Manual_Radio_Test.sh
 ## 3. Phase 2 — Normal Mode Regression (follow on-screen instructions)
 
 ```bash
-cd ~/HAMPOD2026
-sudo bash ./Documentation/scripts/Regression_Phase_Two_Manual_Test.sh
+cd ~/HAMPOD2026 && sudo bash ./Documentation/scripts/Regression_Phase_Two_Manual_Test.sh
 ```
 
 ---
