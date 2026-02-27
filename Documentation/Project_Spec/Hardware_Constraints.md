@@ -8,7 +8,7 @@
 - **Performance Target**: Keypad‑to‑speech latency ≤ 200 ms on Pi 5, ≤ 300 ms on Pi 3 under typical load.
 
 ## 2. Memory
-- **RAM**: 1 GB (Pi 3), 1–8 GB (Pi 4), 4–8 GB (Pi 5). Documented targets assume at least 1 GB.
+- **RAM**: 512 MB (pi zero 2 w), 1 GB (Pi 3), 1–8 GB (Pi 4), 4–8 GB (Pi 5). Documented targets assume at least 512 MB.
 - **Allocation Strategy**: Static allocation for core data structures; dynamic allocation only for mode‑specific buffers; all allocations freed on process shutdown.
 - **Memory Protection**: Enable ARM memory protection unit (MPU) features if available; use `mmap` with `PROT_READ/WRITE` as needed.
 
