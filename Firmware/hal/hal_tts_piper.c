@@ -295,11 +295,17 @@ int hal_tts_speak(const char *text, const char *output_file) {
     printf("HAL TTS: Cache hit for \"%s\"\n", text);
     printf("HAL TTS: Time to first speech chunk: %lld ms\n",
            now_time - start_time);
-    while (remaining > 0 && !tts_interrupted) {
+    int cache_interrupted = 0;
+    while (remaining > 0) {
+      if (tts_interrupted) {
+        cache_interrupted = 1;
+        break;
+      }
       size_t to_write =
           (remaining > TTS_CHUNK_SAMPLES) ? TTS_CHUNK_SAMPLES : remaining;
       if (hal_audio_write_raw(ptr, to_write) != 0) {
         fprintf(stderr, "HAL TTS: Audio write failed during cache playback\n");
+        cache_interrupted = 1;
         break;
       }
       remaining -= to_write;
@@ -308,7 +314,7 @@ int hal_tts_speak(const char *text, const char *output_file) {
 
     hal_tts_cache_release(cached_samples);
 
-    if (tts_interrupted) {
+    if (cache_interrupted) {
       printf("HAL TTS: Speech interrupted (cached)\n");
     }
     return 0;
@@ -351,7 +357,13 @@ int hal_tts_speak(const char *text, const char *output_file) {
   size_t capture_len = 0;
   int16_t *capture_buf = (int16_t *)malloc(capture_capacity * sizeof(int16_t));
 
-  while (!tts_interrupted) {
+  int was_interrupted = 0;
+
+  for (;;) {
+    if (tts_interrupted) {
+      was_interrupted = 1;
+      break;
+    }
     fd_set read_fds;
     struct timeval timeout;
 
@@ -430,11 +442,12 @@ int hal_tts_speak(const char *text, const char *output_file) {
     /* Write chunk to audio HAL */
     if (hal_audio_write_raw(chunk_buffer, bytes_read / 2) != 0) {
       fprintf(stderr, "HAL TTS: Audio write failed\n");
+      was_interrupted = 1;
       break;
     }
   }
 
-  if (tts_interrupted) {
+  if (was_interrupted) {
     printf("HAL TTS: Speech interrupted\n");
   } else if (capture_buf && capture_len > 0) {
     /* Successful playback, store to cache */

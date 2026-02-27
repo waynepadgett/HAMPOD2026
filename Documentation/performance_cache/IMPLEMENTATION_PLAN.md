@@ -101,6 +101,7 @@ cc -Wall -DUSE_PIPER hal/hal_tts_cache.c hal/hal_tts_piper.c \
 - [x] `test_persistent_piper` still passes
 - [x] Disk limit enforced (tested with small limit)
 
+> **Note**: Fixed a race condition where interrupting TTS could cause partial utterances to be saved to the cache.
 
 ---
 
