@@ -21,6 +21,7 @@
 #include <string.h>
 #include <sys/resource.h>
 #include <sys/select.h>
+#include <sys/time.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
@@ -273,6 +274,11 @@ int hal_tts_speak(const char *text, const char *output_file) {
    */
   tts_interrupted = 0;
 
+  struct timeval tv_start;
+  gettimeofday(&tv_start, NULL);
+  long long start_time =
+      (long long)tv_start.tv_sec * 1000 + tv_start.tv_usec / 1000;
+
   /* CHECK CACHE BEFORE PIPER SYNTHESIS */
   int16_t *cached_samples = NULL;
   size_t cached_num_samples = 0;
@@ -281,7 +287,14 @@ int hal_tts_speak(const char *text, const char *output_file) {
     size_t remaining = cached_num_samples;
     int16_t *ptr = cached_samples;
 
+    struct timeval tv_now;
+    gettimeofday(&tv_now, NULL);
+    long long now_time =
+        (long long)tv_now.tv_sec * 1000 + tv_now.tv_usec / 1000;
+
     printf("HAL TTS: Cache hit for \"%s\"\n", text);
+    printf("HAL TTS: Time to first speech chunk: %lld ms\n",
+           now_time - start_time);
     while (remaining > 0 && !tts_interrupted) {
       size_t to_write =
           (remaining > TTS_CHUNK_SAMPLES) ? TTS_CHUNK_SAMPLES : remaining;
@@ -384,6 +397,14 @@ int hal_tts_speak(const char *text, const char *output_file) {
       break;
     }
 
+    if (!received_any_audio) {
+      /* First audio chunk received */
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      long long now = (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+      printf("HAL TTS: Time to first speech chunk: %lld ms\n",
+             now - start_time);
+    }
     received_any_audio = 1;
 
     /* Capture PCM output for caching */

@@ -59,13 +59,17 @@ int main(void) {
     return 1;
   }
 
+  // Wait for Piper to finish generating and capturing
+  usleep(500000); // 500ms should be enough
+
   printf("Test: Clear cache\n");
   hal_tts_cache_clear();
 
+  hal_audio_play_beep(BEEP_KEYPRESS);
   start = time_ms();
   hal_tts_speak(phrase, NULL);
   long long cold_again_duration = time_ms() - start;
-  printf("Cold (again) speak took: %lld ms\n", cold_again_duration);
+  printf("Cold (again) speak completed in: %lld ms\n", cold_again_duration);
 
   if (cold_again_duration < 100) {
     fprintf(stderr, "FAILED: Cache clear didn't work, speak was too fast\n");
