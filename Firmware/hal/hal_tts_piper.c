@@ -11,6 +11,7 @@
 
 #include "hal_audio.h"
 #include "hal_tts.h"
+#include "hal_tts_cache.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -265,6 +266,42 @@ int hal_tts_speak(const char *text, const char *output_file) {
     }
   }
 
+  /* Clear TTS interrupt flag for this new utterance.
+   * NOTE: We don't clear audio_interrupted here - if we were just interrupted,
+   * the new TTS should still respect that. audio_interrupted will be cleared
+   * by the firmware when a new non-interrupt audio packet arrives.
+   */
+  tts_interrupted = 0;
+
+  /* CHECK CACHE BEFORE PIPER SYNTHESIS */
+  int16_t *cached_samples = NULL;
+  size_t cached_num_samples = 0;
+  if (hal_tts_cache_lookup(text, &cached_samples, &cached_num_samples) == 0) {
+    /* Cache hit - play directly from RAM in chunks */
+    size_t remaining = cached_num_samples;
+    int16_t *ptr = cached_samples;
+
+    printf("HAL TTS: Cache hit for \"%s\"\n", text);
+    while (remaining > 0 && !tts_interrupted) {
+      size_t to_write =
+          (remaining > TTS_CHUNK_SAMPLES) ? TTS_CHUNK_SAMPLES : remaining;
+      if (hal_audio_write_raw(ptr, to_write) != 0) {
+        fprintf(stderr, "HAL TTS: Audio write failed during cache playback\n");
+        break;
+      }
+      remaining -= to_write;
+      ptr += to_write;
+    }
+
+    hal_tts_cache_release(cached_samples);
+
+    if (tts_interrupted) {
+      printf("HAL TTS: Speech interrupted (cached)\n");
+    }
+    return 0;
+  }
+  /* CACHE MISS - CONTINUE WITH PIPER */
+
   /* Ensure Piper is still running, restart if needed */
   if (!is_piper_running()) {
     printf("HAL TTS: Piper process died, restarting...\n");
@@ -296,6 +333,11 @@ int hal_tts_speak(const char *text, const char *output_file) {
 
   /* Stream Piper output through audio HAL in chunks.
    * Use select() with timeout to detect end of utterance. */
+
+  size_t capture_capacity = 16000 * 2; /* Start with 2 seconds */
+  size_t capture_len = 0;
+  int16_t *capture_buf = (int16_t *)malloc(capture_capacity * sizeof(int16_t));
+
   while (!tts_interrupted) {
     fd_set read_fds;
     struct timeval timeout;
@@ -344,6 +386,26 @@ int hal_tts_speak(const char *text, const char *output_file) {
 
     received_any_audio = 1;
 
+    /* Capture PCM output for caching */
+    if (capture_buf) {
+      size_t samples_read = bytes_read / 2;
+      if (capture_len + samples_read > capture_capacity) {
+        capture_capacity *= 2;
+        int16_t *new_buf =
+            (int16_t *)realloc(capture_buf, capture_capacity * sizeof(int16_t));
+        if (new_buf) {
+          capture_buf = new_buf;
+        } else {
+          free(capture_buf);
+          capture_buf = NULL; /* Stop capturing on out-of-memory */
+        }
+      }
+      if (capture_buf) {
+        memcpy(capture_buf + capture_len, chunk_buffer, bytes_read);
+        capture_len += samples_read;
+      }
+    }
+
     /* Write chunk to audio HAL */
     if (hal_audio_write_raw(chunk_buffer, bytes_read / 2) != 0) {
       fprintf(stderr, "HAL TTS: Audio write failed\n");
@@ -353,6 +415,15 @@ int hal_tts_speak(const char *text, const char *output_file) {
 
   if (tts_interrupted) {
     printf("HAL TTS: Speech interrupted\n");
+  } else if (capture_buf && capture_len > 0) {
+    /* Successful playback, store to cache */
+    if (hal_tts_cache_store(text, capture_buf, capture_len) == 0) {
+      printf("HAL TTS: Cached \"%s\" (%zu samples)\n", text, capture_len);
+    }
+  }
+
+  if (capture_buf) {
+    free(capture_buf);
   }
 
   return 0;
@@ -383,6 +454,7 @@ void hal_tts_interrupt(void) {
 
 void hal_tts_cleanup(void) {
   stop_persistent_piper();
+  hal_tts_cache_cleanup();
   initialized = 0;
   printf("HAL TTS: Piper cleaned up\n");
 }

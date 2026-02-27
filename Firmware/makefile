@@ -22,7 +22,7 @@ ifeq ($(TTS_ENGINE),festival)
 TTS_SRC = hal/hal_tts_festival.c
 TTS_FLAGS = -DUSE_FESTIVAL
 else
-TTS_SRC = hal/hal_tts_piper.c
+TTS_SRC = hal/hal_tts_piper.c hal/hal_tts_cache.c
 TTS_FLAGS = -DUSE_PIPER -DPIPER_SPEED=\"$(TTS_SPEED)\"
 endif
 
