@@ -179,10 +179,10 @@ cd Documentation/scripts
 ## Documentation
 
 Key documents for developers:
-- RPi_Setup_Guide.md in Documentation/Project_Overview_and_Onboarding: Manual setup instructions
-- startup_device_handling_plan.md in Documentation/Project_Overview_and_Onboarding: Audio and radio device handling
-- Currently_Implemented_Keys.md in Documentation/Project_Overview_and_Onboarding: Keypad mapping reference
-- ICOMReaderManual2.md in Documentation/Original_Hampod_Docs: Original feature specification
+- [RPi Setup Guide](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md) - Manual setup instructions
+- [Startup Device Handling Plan](Documentation/Project_Overview_and_Onboarding/startup_device_handling_plan.md) - Audio and radio device handling
+- [Currently Implemented Keys](Documentation/Project_Overview_and_Onboarding/Currently_Implemented_Keys.md) - Keypad mapping reference
+- [ICOMReaderManual2](Documentation/Original_Hampod_Docs/ICOMReaderManual2.md) - Original feature specification
 
 ### Project Specification and Plan
 - [Project Plan](Documentation/Project_Spec/Project_Plan.md) – Integration/testing strategy, risks & mitigations, milestones, code readability
