@@ -4,8 +4,19 @@
 #
 # Usage: ./install_piper.sh [--force]
 #   --force  Overwrite existing installation without prompting
+#   Do NOT run with sudo — the script will call sudo for the symlink step.
 #
 set -e
+
+# Refuse to run as root — prevents piper installing to /root/
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: Do not run this script with sudo or as root."
+    echo ""
+    echo "Usage: ./install_piper.sh [--force]"
+    echo ""
+    echo "The script will call sudo internally for steps that need it."
+    exit 1
+fi
 
 # Parse arguments
 FORCE=false

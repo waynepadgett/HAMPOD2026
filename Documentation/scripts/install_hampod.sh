@@ -6,6 +6,7 @@
 # Run this after SSH'ing into your Pi for the first time.
 #
 # Usage: ./install_hampod.sh
+#   Do NOT run with sudo — the script will call sudo for steps that need it.
 #
 # Prerequisites:
 #   - Raspberry Pi with Debian Trixie installed
@@ -25,6 +26,17 @@
 # ============================================================================
 
 set -e  # Exit on any error
+
+# Refuse to run as root — prevents piper installing to /root/ and
+# build artifacts being owned by root
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: Do not run this script with sudo or as root."
+    echo ""
+    echo "Usage: ./install_hampod.sh"
+    echo ""
+    echo "The script will call sudo internally for steps that need it."
+    exit 1
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -424,13 +436,13 @@ main() {
     
     read -p "Enable SD card protection now? [y/N] " response
     if [[ "$response" =~ ^[Yy]$ ]]; then
-        "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --enable
+        sudo "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --enable
     else
         print_info "SD card protection not enabled"
         print_info "You can enable it later with: ./power_down_protection.sh --enable"
         
         # Still install the prompt indicator for when they do enable it
-        "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --status > /dev/null 2>&1 || true
+        sudo "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" --status > /dev/null 2>&1 || true
     fi
     
     # -------------------------------------------------------------------------
