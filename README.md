@@ -184,6 +184,16 @@ Key documents for developers:
 - Currently_Implemented_Keys.md in Documentation/Project_Overview_and_Onboarding: Keypad mapping reference
 - ICOMReaderManual2.md in Documentation/Original_Hampod_Docs: Original feature specification
 
+### Project Specification and Plan
+- [Project Plan](Documentation/Project_Spec/Project_Plan.md) – Integration/testing strategy, risks & mitigations, milestones, code readability
+- [Refactor Todos](Documentation/Project_Spec/Refactor_Todos.md) – Checklist to reach maximum clarity (docs, code, structure, tests)
+- [Hardware Constraints](Documentation/Project_Spec/Hardware_Constraints.md)
+- [Project Objectives and Target Users](Documentation/Project_Spec/Project_Objectives_and_Target_Users.md)
+- [Project Functional Requirements](Documentation/Project_Spec/Project_Functional_Requirements.md)
+- [System Architecture](Documentation/Project_Spec/System_Architecture.md)
+- [System Architecture (detailed)](Documentation/Project_Spec/System_Architecture_Detail.md)
+- [Raspberry Pi Migration Plan](Documentation/Hampod%20RPi%20change%20plan.md)
+
 ## License
 
 This project is maintained for accessibility purposes. See repository for license details.
