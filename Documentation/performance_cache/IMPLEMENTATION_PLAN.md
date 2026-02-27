@@ -12,6 +12,12 @@ testing phase 1:
 
 cd ~/HAMPOD2026/Firmware && ./hal/tests/test_tts_cache
 
+to clear cache:
+
+ssh hamdevpi0@hamdevpi0.local
+
+sudo rm -rf /root/.cache/hampod/tts/*
+
 ---
 
 ## Architecture Overview
@@ -139,47 +145,7 @@ The hash must match the DJB2 hash used in C code. The script will include a smal
 - [ ] Cache dir contains entries for all common phrases
 - [ ] Firmware starts up and speaks cached phrases instantly
 
----
-
-## Phase 3: Compression Optimization
-
-Compress cached PCM files to reduce disk usage. Since the audio is speech (not music) and clarity matters more than fidelity, lossy compression is ideal.
-
-### Approach: μ-law / A-law Compression (Recommended)
-
-| Method | Compression | Quality | CPU Cost | Complexity |
-|--------|-------------|---------|----------|------------|
-| **μ-law (G.711)** | **2:1** (16-bit → 8-bit) | Excellent for speech | Near-zero | Trivial |
-| ADPCM (IMA) | ~4:1 | Good | Very low | Moderate |
-| Opus | ~10:1+ | Excellent | Moderate | External lib |
-| MP3/Vorbis | ~10:1 | Good | Moderate | External lib |
-
-**Recommended: μ-law encoding**
-- **2:1 compression** with essentially no quality loss for speech
-- Encoding/decoding is a single lookup table (256 bytes) — negligible CPU
-- No external dependencies
-- Well-established standard for telephone-quality speech (which is exactly our use case)
-- Keeps sub-1ms disk playback target achievable (decode is ~1 CPU cycle per sample)
-
-### Implementation
-
-- **Store**: After Piper generates raw PCM, encode 16-bit samples → 8-bit μ-law, save to disk
-- **Load**: Read compressed from disk, decode on-the-fly during `write_raw()` chunks
-- **Playback**: Decode μ-law → 16-bit PCM per chunk (negligible CPU cost)
-- File extension: `.ulaw` instead of `.pcm`
-
-### Alternative: IMA ADPCM (if more compression is needed)
-
-If 2:1 isn't enough:
-- ~4:1 compression ratio
-- Slightly more complex but still no external dependencies
-- ~10 CPU cycles per sample decode
-- Could be added as a future option
-
-### ✅ Phase 3 Done When
-- [ ] Cached files are μ-law encoded (half the size)
-- [ ] Playback quality is clear and intelligible
-- [ ] No measurable latency increase from decode
+~~Phase 3 (Compression) — SKIPPED: Cache is only ~736KB for 28 phrases. Not worth the complexity.~~
 
 ---
 
@@ -207,7 +173,7 @@ With caching in place, aggressive overclocking provides **diminishing returns**:
 | 1 | `Firmware/makefile` | MODIFY ✅ |
 | 1 | `Firmware/hal/tests/test_tts_cache.c` | NEW ✅ |
 | 2 | `Documentation/scripts/warmup_tts_cache.sh` | NEW |
-| 3 | `Firmware/hal/hal_tts_cache.c` | MODIFY (add μ-law) |
+
 
 ---
 
@@ -219,4 +185,4 @@ With caching in place, aggressive overclocking provides **diminishing returns**:
 | 1 | `./hal/tests/test_tts_cache` | Warm < 1ms to first chunk ✅ |
 | 1 | `./hal/tests/test_persistent_piper` | Existing tests pass |
 | 2 | `./Documentation/scripts/warmup_tts_cache.sh` | Cache populated |
-| 3 | `du -sh ~/.cache/hampod/tts/` | ~50% smaller |
+
