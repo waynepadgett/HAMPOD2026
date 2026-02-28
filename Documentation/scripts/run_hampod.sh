@@ -27,7 +27,14 @@ fi
 set -e  # Exit on error during setup
 
 # Configuration
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Resolve symlink so we can run from anywhere via /usr/local/bin/run_hampod
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 FIRMWARE_DIR="$REPO_ROOT/Firmware"
 SOFTWARE2_DIR="$REPO_ROOT/Software2"
