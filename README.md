@@ -25,6 +25,7 @@ Tested radios:
 - Raspberry Pi 5 with Debian Trixie: Primary development platform
 - Raspberry Pi 4 with Debian Trixie: Supported
 - Raspberry Pi 3 with Debian Trixie: Supported
+- Raspberry Pi Zero 2 W with Debian Trixie: Supported (requires swap space, see below)
 
 ## Repository Structure
 
@@ -41,7 +42,7 @@ Tested radios:
 
 ### Prerequisites
 
-- Raspberry Pi 3, 4, or 5 with Debian Trixie installed (see [RPi Setup Guide](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md) for flashing instructions)
+- Raspberry Pi 3, 4, 5, or Zero 2 W with Debian Trixie installed (see [RPi Setup Guide](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md) for flashing instructions)
 - USB numeric keypad
 - USB audio device (such as USB2.0 Device)
 - Amateur radio with USB or serial interface
