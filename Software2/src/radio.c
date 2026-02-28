@@ -286,7 +286,35 @@ static void *reconnect_thread_func(void *arg) {
   DEBUG_PRINT("reconnect_thread: Started\n");
 
   while (g_reconnect_active) {
-    if (!radio_is_connected()) {
+    if (radio_is_connected()) {
+      // Monitor for USB device disappearance (handles the case where
+      // Hamlib's serial calls hang on a dead file descriptor, preventing
+      // the polling thread's failure detection from triggering)
+      const char *device = config_get_radio_device();
+      if (access(device, F_OK) != 0) {
+        printf(
+            "reconnect_thread: USB device %s disappeared, forcing disconnect\n",
+            device);
+
+        // Stop polling first (it may be stuck in a blocking serial read)
+        g_polling_active = false;
+
+        // Close rig and mark disconnected
+        pthread_mutex_lock(&g_rig_mutex);
+        if (g_rig) {
+          rig_close(g_rig);
+          rig_cleanup(g_rig);
+          g_rig = NULL;
+        }
+        g_connected = false;
+        pthread_mutex_unlock(&g_rig_mutex);
+
+        // Notify
+        if (g_disconnect_callback) {
+          g_disconnect_callback();
+        }
+      }
+    } else {
       // Check if USB device exists before attempting (avoids Hamlib spam)
       const char *device = config_get_radio_device();
       if (access(device, F_OK) == 0) {
