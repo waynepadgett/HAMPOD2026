@@ -429,7 +429,7 @@ main() {
     print_step "Building HAL Integration Tests..."
     cd "$HAMPOD_DIR/Firmware/hal/tests"
     
-    make clean 2>/dev/null || true
+    make clean >/dev/null 2>&1 || true
     if [ "$VERBOSE" = true ]; then
         print_info "Compiling tests (verbose output)..."
         make 2>&1 || {
