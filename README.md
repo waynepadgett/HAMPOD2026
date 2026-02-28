@@ -81,8 +81,21 @@ SSH into your Raspberry Pi and run these commands:
 git clone https://github.com/waynepadgett/HAMPOD2026.git && cd ~/HAMPOD2026/Documentation/scripts && ./install_hampod.sh
 ```
 
-
 The install script will update system packages, install dependencies including Hamlib and Piper text-to-speech, build the firmware and software, and configure audio permissions.
+
+**Your config file is preserved by default.** If you've already customized `hampod.conf` (radio settings, audio, etc.), running the install script again will keep your existing config. To reset the config to defaults, use `--hard-reset`.
+
+#### Install Script Flags
+
+| Flag | Description |
+|------|-------------|
+| `--verbose` or `-v` | Show detailed build output |
+| `--hard-reset` | Overwrite `hampod.conf` with repo defaults |
+
+Example:
+```
+./install_hampod.sh --verbose --hard-reset
+```
 
 
 ### Running HAMPOD
