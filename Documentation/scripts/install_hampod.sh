@@ -53,6 +53,14 @@ NC='\033[0m' # No Color
 REPO_URL="https://github.com/waynepadgett/HAMPOD2026.git"
 HAMPOD_DIR="$HOME/HAMPOD2026"
 TOTAL_STEPS=10
+VERBOSE=false
+
+# Parse flags
+for arg in "$@"; do
+    case "$arg" in
+        --verbose|-v) VERBOSE=true ;;
+    esac
+done
 
 # Track current step
 CURRENT_STEP=0
@@ -422,10 +430,16 @@ main() {
     cd "$HAMPOD_DIR/Firmware/hal/tests"
     
     make clean 2>/dev/null || true
-    print_info "Compiling tests (showing output)..."
-    make 2>&1 || {
-        print_warning "HAL test build had issues (non-fatal, continuing)"
-    }
+    if [ "$VERBOSE" = true ]; then
+        print_info "Compiling tests (verbose output)..."
+        make 2>&1 || {
+            print_warning "HAL test build had issues (non-fatal, continuing)"
+        }
+    else
+        run_with_spinner "Compiling tests..." make || {
+            print_warning "HAL test build had issues (non-fatal, continuing)"
+        }
+    fi
     print_success "HAL Integration Tests built"
     
     # -------------------------------------------------------------------------
