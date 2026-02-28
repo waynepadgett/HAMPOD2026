@@ -52,13 +52,16 @@ NC='\033[0m' # No Color
 # Configuration
 REPO_URL="https://github.com/waynepadgett/HAMPOD2026.git"
 HAMPOD_DIR="$HOME/HAMPOD2026"
+CONFIG_FILE="$HOME/HAMPOD2026/Software2/config/hampod.conf"
 TOTAL_STEPS=10
 VERBOSE=false
+HARD_RESET=false
 
 # Parse flags
 for arg in "$@"; do
     case "$arg" in
         --verbose|-v) VERBOSE=true ;;
+        --hard-reset) HARD_RESET=true ;;
     esac
 done
 
@@ -372,9 +375,30 @@ main() {
     
     if [ -d "$HAMPOD_DIR" ]; then
         print_warning "Repository already exists at $HAMPOD_DIR"
+        
+        # Back up config file before pulling (unless --hard-reset)
+        CONFIG_BACKED_UP=false
+        if [ "$HARD_RESET" = false ] && [ -f "$CONFIG_FILE" ]; then
+            cp "$CONFIG_FILE" /tmp/hampod_conf_backup
+            CONFIG_BACKED_UP=true
+            print_info "Backed up existing config (use --hard-reset to overwrite)"
+        fi
+        
         print_info "Pulling latest changes..."
         cd "$HAMPOD_DIR"
         run_with_spinner "Pulling updates..." git pull origin main || git pull origin master || true
+        
+        # Restore config file
+        if [ "$CONFIG_BACKED_UP" = true ]; then
+            cp /tmp/hampod_conf_backup "$CONFIG_FILE"
+            rm -f /tmp/hampod_conf_backup
+            print_success "Config file preserved"
+        elif [ "$HARD_RESET" = true ]; then
+            # Force-reset config to repo default (git pull won't overwrite local edits)
+            git checkout origin/main -- Software2/config/hampod.conf 2>/dev/null || true
+            print_warning "Config file reset to defaults (--hard-reset)"
+        fi
+        
         print_success "Repository updated"
     else
         print_info "Cloning from $REPO_URL..."

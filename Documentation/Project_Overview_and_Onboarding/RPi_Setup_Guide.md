@@ -114,7 +114,13 @@ The install_hampod.sh script automates the complete setup process. It installs a
 
 2. Wait for completion. The script shows progress and takes approximately 5-15 minutes depending on your internet speed.
 
-3. If the script fails, see the Manual Installation section below.
+3. **Your config file is safe.** If re-running the installer, your `hampod.conf` settings (radios, audio, etc.) are preserved automatically. To reset to defaults, add `--hard-reset`:
+   ```
+   ./install_hampod.sh --hard-reset
+   ```
+   Other flags: `--verbose` (or `-v`) shows detailed build output.
+
+4. If the script fails, see the Manual Installation section below.
 
 
 ## Step 3: Verify Your Setup

@@ -41,37 +41,29 @@ Tested radios:
 
 ### Prerequisites
 
-- Raspberry Pi 3, 4, or 5 with Debian Trixie installed
-
-If you need to set up the operating system on your Raspberry Pi and flash an SD card, see RPi_Setup_Guide.md in the Documentation/Project_Overview_and_Onboarding folder.
+- Raspberry Pi 3, 4, or 5 with Debian Trixie installed (see [RPi Setup Guide](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md) for flashing instructions)
 - USB numeric keypad
 - USB audio device (such as USB2.0 Device)
 - Amateur radio with USB or serial interface
 
 
-### RPI zero 2 w setup
+### RPi Zero 2 W Setup
+
+The Zero 2 W needs extra swap space to avoid OOM errors during `apt upgrade`:
 
 ```bash
 sudo fallocate -l 2G /var/temp_swap && sudo chmod 600 /var/temp_swap && sudo mkswap /var/temp_swap && sudo swapon /var/temp_swap
 ```
 
-run this to add swap space for the RPI zero 2 w - prevents an OOM error during installation of the apt upgrade
+Confirm with `free -h`, then proceed with the install below.
 
-```bash
-free -h 
-```
+### RPi OS Lite
 
-to confirm swap space was added
-
-### RPi OS Lite install (RPi OS Lite doesn't come with git installed)
+RPi OS Lite doesn't ship with git. Install it first:
 
 ```bash
 sudo apt update && sudo apt install -y git
 ```
-
-(this is needed if you are setting up a new RPI zero 2 w with the lite version of the OS as it doesn't come with git installed)
-
-proceed as normal for the rest of the install script. 
 
 ### Installation
 
@@ -81,12 +73,24 @@ SSH into your Raspberry Pi and run these commands:
 git clone https://github.com/waynepadgett/HAMPOD2026.git && cd ~/HAMPOD2026/Documentation/scripts && ./install_hampod.sh
 ```
 
-
 The install script will update system packages, install dependencies including Hamlib and Piper text-to-speech, build the firmware and software, and configure audio permissions.
 
+**Your config file is preserved by default.** If you've already customized `hampod.conf` (radio settings, audio, etc.), running the install script again will keep your existing config. To reset the config to defaults, use `--hard-reset`.
+
+#### Install Script Flags
+
+| Flag | Description |
+|------|-------------|
+| `--verbose` or `-v` | Show detailed build output |
+| `--hard-reset` | Overwrite `hampod.conf` with repo defaults |
+
+Example:
+```
+cd ~/HAMPOD2026 && ./Documentation/scripts/install_hampod.sh --verbose --hard-reset
+```
 
 ### Running HAMPOD
-`
+
 To start the system:
 
 ```
@@ -97,31 +101,31 @@ To stop, press Control-C.
 
 ## Configuration
 
-The configuration file is located at Software2/config/hampod.conf. Edit this file to configure your radios.
+The configuration file is located at `Software2/config/hampod.conf`. Edit this file to configure your radios.
 
 ### Audio Settings
 
-- volume: Speaker volume level, default is 25
-- speech_speed: Text-to-speech speed, default is 1.0
-- key_beep: Enable key beep sounds, 1 for on, 0 for off
-- preferred_device: Name of preferred USB audio device
+- `volume` — Speaker volume level (default: 25)
+- `speech_speed` — Text-to-speech speed (default: 1.0)
+- `key_beep` — Enable key beep sounds (1 = on, 0 = off)
+- `preferred_device` — Name of preferred USB audio device
 
 ### Radio Settings
 
 You can configure multiple radios. Only one radio can be enabled at a time. Each radio section includes:
 
-- name: Descriptive name for the radio
-- enabled: Set to true for the active radio, false for others
-- model: Hamlib model number
-- device: Serial port path, usually /dev/ttyUSB0
-- baud: Baud rate for serial communication
+- `name` — Descriptive name for the radio
+- `enabled` — Set to `true` for the active radio, `false` for others
+- `model` — Hamlib model number
+- `device` — Serial port path (usually `/dev/ttyUSB0`)
+- `baud` — Baud rate for serial communication
 
 ### Switching Radios
 
 To switch to a different radio:
-1. Open Software2/config/hampod.conf in a text editor
-2. Find the currently enabled radio and change enabled = true to enabled = false
-3. Find the radio you want to use and change enabled = false to enabled = true
+1. Open `Software2/config/hampod.conf` in a text editor
+2. Set `enabled = false` on the current radio
+3. Set `enabled = true` on the radio you want
 4. Save the file and restart HAMPOD
 
 ## Architecture
