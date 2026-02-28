@@ -394,6 +394,8 @@ main() {
             rm -f /tmp/hampod_conf_backup
             print_success "Config file preserved"
         elif [ "$HARD_RESET" = true ]; then
+            # Force-reset config to repo default (git pull won't overwrite local edits)
+            git checkout HEAD -- Software2/config/hampod.conf 2>/dev/null || true
             print_warning "Config file reset to defaults (--hard-reset)"
         fi
         
