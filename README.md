@@ -63,6 +63,8 @@ free -h
 
 to confirm swap space was added
 
+### RPi OS Lite install (RPi OS Lite doesn't come with git installed)
+
 ```bash
 sudo apt update && sudo apt install -y git
 ```
