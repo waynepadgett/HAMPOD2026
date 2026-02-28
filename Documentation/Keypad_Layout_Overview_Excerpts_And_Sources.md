@@ -4,31 +4,284 @@ This file collects raw excerpts, comments, and documentation snippets regarding 
 
 ---
 
-## Next Up: Config Mode Implementation Plan
+## Key Mapping Quick Reference (from Key_Mapping_Process.md)
 
-**Goal:** Implement Configuration Mode (hold [C]) with Speech Speed and Volume as the initial parameters.
+| Physical Key | Linux Keycode       | HAMPOD Symbol | Original HamPod Function       |
+|--------------|---------------------|---------------|--------------------------------|
+| 0-9          | `KEY_KP0`-`KEY_KP9` | `'0'`-`'9'`   | Numeric input, frequency entry |
+| /            | `KEY_KPSLASH`       | `'A'`         | SHIFT function                 |
+| *            | `KEY_KPASTERISK`    | `'B'`         | Band/Set                       |
+| -            | `KEY_KPMINUS`       | `'C'`         | Announcements toggle           |
+| +            | `KEY_KPPLUS`        | `'D'`         | Verbosity toggle               |
+| Enter        | `KEY_KPENTER`       | `'#'`         | Enter/Confirm                  |
+| . (DEL)      | `KEY_KPDOT`         | `'*'`         | S-Meter, Cancel                |
+| Num Lock     | `KEY_NUMLOCK`       | `'X'`         | Special function               |
+| Backspace    | `KEY_BACKSPACE`     | `'Y'`         | Special function               |
 
-### Step 1: Create `config_mode.c` / `config_mode.h`
-- New module, modeled after `set_mode.c`'s state machine pattern
-- States: `CONFIG_OFF` → `CONFIG_BROWSING` (A/B navigate params) → hold C save / hold D discard
-- Parameter list starts with just 3 entries: **Speech Speed**, **Volume**, **Key Beep**
-- A/B step through the param list (circular), C/D increment/decrement the current value
-- On each step or value change, announce the parameter name and current value via `speech_say_text()`
+---
 
-### Step 2: Wire into key routing (`main.c` + `normal_mode.c`)
-- In `normal_mode.c`: intercept `[C]` Hold → call `config_mode_enter()`
-- In `main.c` `on_keypress()`: add `config_mode_is_active()` check before set mode / normal mode routing (same pattern as set mode)
-- While config mode is active, route all keys to `config_mode_handle_key()`
 
-### Step 3: Make speed and volume apply at runtime
-- **Speech Speed**: after calling `config_set_speech_speed(new_val)`, also call `comm_set_speech_speed(new_val)` so Piper picks it up immediately (currently only done once at startup in `main.c:183`)
-- **Volume**: after calling `config_set_volume(new_val)`, re-run the `amixer` command (currently only done once at startup in `main.c:188-194`). Extract the amixer logic into a helper function like `audio_apply_volume(int percent)`.
-- **Key Beep**: already works at runtime, no changes needed
+bug tracking: 
+i cant understand what it says when i press the numlock key. apparently it says X 
 
-### Step 4: Save / Discard
-- Hold [C]: call `config_save()` (writes to `hampod.conf`) → announce "Configuration saved" → exit
-- Hold [D]: call `config_undo()` to revert + re-apply speed/volume → announce "Configuration cancelled" → exit
-- All config setters already auto-save, so the undo path needs to revert and re-apply
+
+## Config Mode — Phased Implementation Plan
+
+**Branch**: `feature/config-mode`  
+**Goal**: Implement Configuration Mode ([C] Hold) per HLR-029 through HLR-035  
+**Pattern**: Modeled after `set_mode.c` state machine
+
+---
+
+### Architecture Overview
+
+```
+                          ┌──────────────────────────────────────────┐
+                          │            on_keypress (main.c)          │
+                          │                                          │
+                          │  ┌─ config_mode_is_active()? ──────────┐│
+                          │  │  YES: config_mode_handle_key()      ││
+                          │  │       return                         ││
+                          │  └──────────────────────────────────────┘│
+                          │  ┌─ set_mode_is_active()? ─────────────┐│
+                          │  │  ...existing routing...             ││
+                          │  └──────────────────────────────────────┘│
+                          └──────────────────────────────────────────┘
+
+    Config Mode State Machine:
+    ┌─────────────┐  [C] Hold   ┌──────────────────┐
+    │ CONFIG_OFF  │ ──────────> │ CONFIG_BROWSING  │
+    └─────────────┘             │                  │
+          ▲                     │  [A] = next param│
+          │                     │  [B] = prev param│
+          │ [C] Hold = save     │  [C] = increment │
+          │ [D] Hold = discard  │  [D] = decrement │
+          │ timeout  = discard  │  others = beep   │
+          └─────────────────────┘──────────────────┘
+```
+
+---
+
+### Phase 1: Core Config Mode Module
+
+Create a new state machine module following the `set_mode.c` pattern exactly.
+
+#### New Files
+
+| File | Purpose |
+|------|---------|
+| `Software2/src/config_mode.c` | Config Mode state machine, key handling, parameter navigation |
+| `Software2/include/config_mode.h` | Public API: enter, exit, is_active, handle_key |
+
+#### API
+
+```c
+void config_mode_init(void);
+void config_mode_enter(void);                          // → CONFIG_BROWSING
+void config_mode_exit_save(void);                       // save to hampod.conf + exit
+void config_mode_exit_discard(void);                    // undo all changes + exit
+bool config_mode_is_active(void);
+bool config_mode_handle_key(char key, bool is_hold);   // returns true if consumed
+```
+
+#### State Machine
+
+| State | Key | Action | Speech |
+|-------|-----|--------|--------|
+| CONFIG_BROWSING | `[A]` press | Next parameter (circular) | param name + value |
+| CONFIG_BROWSING | `[B]` press | Previous parameter (circular) | param name + value |
+| CONFIG_BROWSING | `[C]` press | Increment current value | new value |
+| CONFIG_BROWSING | `[D]` press | Decrement current value | new value |
+| CONFIG_BROWSING | `[C]` hold | **Save** to `hampod.conf` + exit | "Configuration saved" |
+| CONFIG_BROWSING | `[D]` hold | **Discard** changes + exit | "Configuration cancelled" |
+| CONFIG_BROWSING | any other | Error beep, ignored | — |
+| CONFIG_BROWSING | timeout | Exit without saving | "Timeout" |
+
+#### Initial Parameter List (3 params for Phase 1)
+
+| Index | Parameter | Config Getter/Setter | Range | Increment | Announce Format |
+|-------|-----------|---------------------|-------|-----------|-----------------|
+| 0 | Volume | `config_get/set_volume()` | 0–100 | +/- 10 | "Volume, 50 percent" |
+| 1 | Speech Speed | `config_get/set_speech_speed()` | 0.5–2.0 | +/- 0.1 | "Speed, 1 point 2" |
+| 2 | Key Beep | `config_get/set_key_beep_enabled()` | on/off | toggle | "Key Beep, on" |
+
+> **Design Decision**: The original HAMPOD had 22 parameters. For Phase 1, we implement only the 3 that already have working backend support in `config.c`. Additional params (verbosity, key timeout, freq announce delay) can be added later as Phase 2.
+
+#### Changes to Existing Files
+
+**`Software2/src/normal_mode.c`** (line 263):
+```diff
+- // [C] - Toggle verbosity (press) / Config mode entry (hold, not implemented)
++ // [C] - Toggle verbosity (press) / Config mode entry (hold)
++ if (key == 'C' && is_hold) {
++   config_mode_enter();
++   return true;
++ }
+```
+
+**`Software2/src/main.c`** `on_keypress()`:
+```diff
+  // Route to config mode first (highest priority when active)
++ if (config_mode_is_active()) {
++   config_mode_handle_key(kp->key, kp->isHold);
++   return;
++ }
+  // Route to set mode (if active)
+  if (set_mode_is_active()) { ...
+```
+
+**`Software2/src/makefile`** (or `CMakeLists.txt`):
+- Add `src/config_mode.c` to `SW_SRCS`
+
+#### ✅ Phase 1 Done When
+- [ ] `make` compiles cleanly in Software2
+- [ ] Hold [C] in Normal Mode enters Config Mode ("Configuration Mode" announced)
+- [ ] [A]/[B] step through 3 parameters with circular wrapping
+- [ ] [C]/[D] increment/decrement values with audible feedback
+- [ ] Hold [C] saves and exits ("Configuration saved")
+- [ ] Hold [D] discards and exits ("Configuration cancelled")
+- [ ] All other keys produce error beep
+- [ ] Shift key (A) does NOT toggle shift in Config Mode
+- [ ] Existing unit tests still pass
+
+---
+
+### Phase 2: Runtime Parameter Application
+
+Currently, speech speed and volume are only applied **once at startup** in `main.c`. Config Mode needs them to take effect immediately.
+
+#### Changes to Existing Files
+
+**`Software2/src/main.c`** — Extract `amixer` logic into a reusable helper:
+```diff
++ // New helper function
++ void audio_apply_volume(int volume_percent) {
++   int card = config_get_audio_card_number();
++   char vol_cmd[128];
++   if (card >= 0) {
++     snprintf(vol_cmd, sizeof(vol_cmd),
++              "amixer -c %d -q sset PCM %d%% 2>/dev/null", card, volume_percent);
++   } else {
++     snprintf(vol_cmd, sizeof(vol_cmd),
++              "amixer -q sset PCM %d%% 2>/dev/null", volume_percent);
++   }
++   system(vol_cmd);
++ }
+```
+
+**`Software2/src/config_mode.c`** — After each value change:
+- **Volume**: call `audio_apply_volume(new_val)` so user hears the change immediately
+- **Speech Speed**: call `comm_set_speech_speed(new_val)` so Piper adjusts immediately
+- **Key Beep**: already works in real-time (checked per-keypress in `keypad.c`) ✅
+
+#### ✅ Phase 2 Done When
+- [ ] Changing volume in Config Mode immediately changes audio output level
+- [ ] Changing speech speed in Config Mode immediately changes TTS rate
+- [ ] After discard, volume + speed revert to previous values audibly
+
+---
+
+### Phase 3: Save/Discard with Undo (Leverage Existing Infrastructure)
+
+The `config.c` module already has:
+- **10-deep undo history** via `history_push()`/`history_pop()`
+- **Auto-save on every setter call** via `config_write_file()`
+
+This creates a design challenge: each [C]/[D] press auto-saves immediately. To support "discard all changes", we need to snapshot the config on entry and restore on discard.
+
+#### Implementation Strategy
+
+```c
+// On config_mode_enter():
+//   1. Record how many undo steps are currently available
+//   2. Note: each C/D press will auto-save (existing behavior)
+
+// On config_mode_exit_save():
+//   1. Call config_save() (already saved by setters, but explicit)
+//   2. Announce "Configuration saved"
+//   3. Transition to CONFIG_OFF
+
+// On config_mode_exit_discard():
+//   1. Call config_undo() N times to revert all changes made during session
+//   2. Re-apply volume via audio_apply_volume()
+//   3. Re-apply speed via comm_set_speech_speed()
+//   4. Announce "Configuration cancelled"
+//   5. Transition to CONFIG_OFF
+```
+
+#### ✅ Phase 3 Done When
+- [ ] Save path persists all changes to `hampod.conf`
+- [ ] Discard path reverts all changes made during the session
+- [ ] After discard, `hampod.conf` reflects pre-session values
+- [ ] Undo count correctly tracked across session
+
+---
+
+### Phase 4: Additional Parameters (Future)
+
+These can be added incrementally by extending the parameter array in `config_mode.c`:
+
+| Parameter | Config Support | Priority |
+|-----------|---------------|----------|
+| Verbosity | `normal_mode_set_verbosity()` ✅ | High |
+| Key Timeout Duration | ❌ needs new config field | Medium |
+| Freq Announce Delay | ❌ needs new config field + timing changes | Medium |
+| Freq Announce on/off | ❌ needs new config field | Medium |
+| Freq Plus Mode | ❌ needs new config field | Low |
+| Keypad Layout | `config_get/set_keypad_layout()` ✅ | Low (requires HAL call) |
+
+---
+
+### HLR Traceability
+
+| HLR | Requirement | Phase |
+|-----|-------------|-------|
+| HLR-029 | Config Mode SHALL allow modification of system params | Phase 1 |
+| HLR-030 | Entry via hold C key | Phase 1 |
+| HLR-031 | A/B step forward/backward through options | Phase 1 |
+| HLR-032 | C/D increment/decrement values | Phase 1 |
+| HLR-033 | Save to persistent storage (hold C) | Phase 3 |
+| HLR-034 | Exit without saving (hold D) | Phase 3 |
+| HLR-035 | Config file updated on save | Phase 3 |
+| HLR-063 | Adjustable speech volume | Phase 1 |
+| HLR-064 | Adjustable speech speed | Phase 1 |
+| HLR-065 | Verbosity control | Phase 4 |
+| HLR-066 | Key beep on/off | Phase 1 |
+| HLR-067 | Key timeout configuration | Phase 4 |
+| HLR-003 | Mode change announcements | Phase 1 |
+
+---
+
+### File Summary
+
+| Phase | File | Action |
+|-------|------|--------|
+| 1 | `Software2/src/config_mode.c` | NEW |
+| 1 | `Software2/include/config_mode.h` | NEW |
+| 1 | `Software2/src/normal_mode.c` | MODIFY (add hold-C handler) |
+| 1 | `Software2/src/main.c` | MODIFY (add config_mode routing) |
+| 1 | `Software2/makefile` | MODIFY (add config_mode.c) |
+| 2 | `Software2/src/main.c` | MODIFY (extract audio_apply_volume) |
+| 2 | `Software2/src/config_mode.c` | MODIFY (call runtime appliers) |
+| 3 | `Software2/src/config_mode.c` | MODIFY (undo tracking) |
+
+---
+
+### Verification Plan
+
+| Phase | Test | How to Run | Success Criteria |
+|-------|------|-----------|------------------|
+| 1 | Build | `cd ~/HAMPOD2026/Software2 && make clean && make` | Compiles clean |
+| 1 | Unit tests | `cd ~/HAMPOD2026/Software2 && make tests && ./run_all_unit_tests.sh --all` | All existing tests pass |
+| 1 | Manual: entry | Hold [C] key in Normal Mode | Hear "Configuration Mode" |
+| 1 | Manual: nav | Press [A] and [B] keys | Hear parameter names cycle |
+| 1 | Manual: adjust | Press [C] and [D] keys | Hear values change |
+| 1 | Manual: exit save | Hold [C] | Hear "Configuration saved" |
+| 1 | Manual: exit discard | Hold [D] | Hear "Configuration cancelled" |
+| 2 | Manual: live volume | Adjust volume in Config Mode | Hear volume change in real-time |
+| 2 | Manual: live speed | Adjust speed in Config Mode | Hear TTS rate change in real-time |
+| 3 | Manual: discard revert | Change volume, then discard | Volume returns to previous level |
+| 3 | Inspect | `cat ~/HAMPOD2026/Software2/config/hampod.conf` | Values match expected state |
 
 ---
 
