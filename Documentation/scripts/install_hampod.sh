@@ -450,6 +450,13 @@ main() {
     # Make scripts executable
     chmod +x "$HAMPOD_DIR/Documentation/scripts/"*.sh 2>/dev/null || true
     
+    # Add run_hampod to PATH so it can be run from anywhere
+    if [ -L "/usr/local/bin/run_hampod" ] || [ -f "/usr/local/bin/run_hampod" ]; then
+        sudo rm -f "/usr/local/bin/run_hampod"
+    fi
+    sudo ln -s "$HAMPOD_DIR/Documentation/scripts/run_hampod.sh" "/usr/local/bin/run_hampod"
+    print_info "Added run_hampod to system PATH"
+    
     # Check if Piper is already installed
     if command -v piper &> /dev/null && [ -f "$HAMPOD_DIR/Firmware/models/en_US-lessac-low.onnx" ]; then
         print_warning "Piper TTS already installed"
