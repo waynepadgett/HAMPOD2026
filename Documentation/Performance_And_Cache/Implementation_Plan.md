@@ -10,7 +10,7 @@ ssh hamdevpi0-2@hamdevpi0-2.local
 
 ssh hamdevpi5-3@hamdevpi5-3.local 
 
-
+ssh hamdevpi4@hamdevpi4.local
 
 testing phase 1:
 
