@@ -83,7 +83,7 @@ else
     
     cd "$FIRMWARE_DIR"
     echo "  Building Firmware..."
-    make clean > /dev/null 2>&1 || true
+    sudo make clean > /dev/null 2>&1 || true
     make > /dev/null 2>&1
     if [ ! -f "firmware.elf" ]; then
         echo -e "${RED}  ERROR: Firmware build failed${NC}"
@@ -93,7 +93,7 @@ else
     
     cd "$SOFTWARE2_DIR"
     echo "  Building Software2..."
-    make clean > /dev/null 2>&1 || true
+    sudo make clean > /dev/null 2>&1 || true
     make > /dev/null 2>&1
     if [ ! -f "bin/hampod" ]; then
         echo -e "${RED}  ERROR: Software2 build failed${NC}"
