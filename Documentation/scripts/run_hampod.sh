@@ -112,7 +112,7 @@ cd "$FIRMWARE_DIR"
 FIRMWARE_ARGS=""
 CONF_FILE="$SOFTWARE2_DIR/config/hampod.conf"
 if [ -f "$CONF_FILE" ]; then
-    LAYOUT=$(grep -A10 '^\[keypad\]' "$CONF_FILE" | grep '^layout' | head -1 | cut -d'=' -f2 | tr -d ' ')
+    LAYOUT=$(grep -A10 '^\[keypad\]' "$CONF_FILE" | grep '^layout' | head -1 | cut -d'=' -f2 | sed 's/#.*//' | tr -d ' ')
     if [ "$LAYOUT" = "phone" ]; then
         FIRMWARE_ARGS="--phone-layout"
         echo -e "  Keypad layout: ${GREEN}phone${NC} (positional)"
