@@ -9,11 +9,14 @@
 #include "config.h"
 #include "hampod_core.h"
 
+#include <fcntl.h>
 #include <hamlib/rig.h>
+#include <linux/usbdevice_fs.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 // ============================================================================
@@ -286,7 +289,35 @@ static void *reconnect_thread_func(void *arg) {
   DEBUG_PRINT("reconnect_thread: Started\n");
 
   while (g_reconnect_active) {
-    if (!radio_is_connected()) {
+    if (radio_is_connected()) {
+      // Monitor for USB device disappearance (handles the case where
+      // Hamlib's serial calls hang on a dead file descriptor, preventing
+      // the polling thread's failure detection from triggering)
+      const char *device = config_get_radio_device();
+      if (access(device, F_OK) != 0) {
+        printf(
+            "reconnect_thread: USB device %s disappeared, forcing disconnect\n",
+            device);
+
+        // Stop polling first (it may be stuck in a blocking serial read)
+        g_polling_active = false;
+
+        // Close rig and mark disconnected
+        pthread_mutex_lock(&g_rig_mutex);
+        if (g_rig) {
+          rig_close(g_rig);
+          rig_cleanup(g_rig);
+          g_rig = NULL;
+        }
+        g_connected = false;
+        pthread_mutex_unlock(&g_rig_mutex);
+
+        // Notify
+        if (g_disconnect_callback) {
+          g_disconnect_callback();
+        }
+      }
+    } else {
       // Check if USB device exists before attempting (avoids Hamlib spam)
       const char *device = config_get_radio_device();
       if (access(device, F_OK) == 0) {
@@ -299,6 +330,55 @@ static void *reconnect_thread_func(void *arg) {
           // Notify via callback
           if (g_connect_callback) {
             g_connect_callback();
+          }
+        } else {
+          // Device exists but Hamlib can't open it — try USB reset
+          // This handles stale USB enumeration (radio powered on with
+          // cable already plugged in)
+          printf("reconnect_thread: Device exists but init failed, resetting "
+                 "USB...\n");
+
+          // Find the USB bus/device from sysfs
+          const char *basename = strrchr(device, '/');
+          if (basename)
+            basename++;
+          else
+            basename = device;
+
+          char sysfs_path[256];
+          char buf[16];
+          int busnum = -1, devnum = -1;
+
+          snprintf(sysfs_path, sizeof(sysfs_path),
+                   "/sys/class/tty/%s/device/../../busnum", basename);
+          FILE *f = fopen(sysfs_path, "r");
+          if (f) {
+            if (fgets(buf, sizeof(buf), f))
+              busnum = atoi(buf);
+            fclose(f);
+          }
+
+          snprintf(sysfs_path, sizeof(sysfs_path),
+                   "/sys/class/tty/%s/device/../../devnum", basename);
+          f = fopen(sysfs_path, "r");
+          if (f) {
+            if (fgets(buf, sizeof(buf), f))
+              devnum = atoi(buf);
+            fclose(f);
+          }
+
+          if (busnum > 0 && devnum > 0) {
+            char usb_path[64];
+            snprintf(usb_path, sizeof(usb_path), "/dev/bus/usb/%03d/%03d",
+                     busnum, devnum);
+            int fd = open(usb_path, O_WRONLY);
+            if (fd >= 0) {
+              printf("reconnect_thread: Resetting USB device %s\n", usb_path);
+              ioctl(fd, USBDEVFS_RESET, 0);
+              close(fd);
+              // Wait for device to re-enumerate
+              sleep(2);
+            }
           }
         }
       }

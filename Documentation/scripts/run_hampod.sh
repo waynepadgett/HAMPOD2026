@@ -69,6 +69,8 @@ echo -e "${YELLOW}[Step 2/5] Cleaning up stale pipes...${NC}"
 sudo rm -f "$FIRMWARE_DIR/Firmware_i" "$FIRMWARE_DIR/Firmware_o" 2>/dev/null || true
 sudo rm -f "$FIRMWARE_DIR/Speaker_i" "$FIRMWARE_DIR/Speaker_o" 2>/dev/null || true
 sudo rm -f "$FIRMWARE_DIR/Keypad_i" "$FIRMWARE_DIR/Keypad_o" 2>/dev/null || true
+# Clean up log files that may be owned by root from previous sudo runs
+sudo rm -f /tmp/firmware.log /tmp/hampod_output.txt /tmp/hampod_debug.log 2>/dev/null || true
 echo "  Done."
 
 # -----------------------------------------------------------------------------
@@ -81,7 +83,7 @@ else
     
     cd "$FIRMWARE_DIR"
     echo "  Building Firmware..."
-    make clean > /dev/null 2>&1 || true
+    sudo make clean > /dev/null 2>&1 || true
     make > /dev/null 2>&1
     if [ ! -f "firmware.elf" ]; then
         echo -e "${RED}  ERROR: Firmware build failed${NC}"
@@ -91,7 +93,7 @@ else
     
     cd "$SOFTWARE2_DIR"
     echo "  Building Software2..."
-    make clean > /dev/null 2>&1 || true
+    sudo make clean > /dev/null 2>&1 || true
     make > /dev/null 2>&1
     if [ ! -f "bin/hampod" ]; then
         echo -e "${RED}  ERROR: Software2 build failed${NC}"
