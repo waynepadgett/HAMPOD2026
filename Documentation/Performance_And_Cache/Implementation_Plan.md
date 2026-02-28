@@ -6,7 +6,7 @@
 
 NOTE: pi to run the testing on is:
 
-ssh hamdevpi0-2@hamdevpi0-2.local
+ssh hamdevpi0-3@hamdevpi0-3.local
 
 ssh hamdevpi5-3@hamdevpi5-3.local 
 

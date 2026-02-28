@@ -124,6 +124,27 @@ static void on_keypress(const KeyPressEvent *kp) {
 }
 
 // ============================================================================
+// Radio Connect/Disconnect Callbacks
+// ============================================================================
+
+static void on_radio_connected(void) {
+  printf("Radio connected!\n");
+  speech_say_text("Radio connected");
+
+  // Start polling for VFO dial changes
+  if (!radio_is_polling()) {
+    if (radio_start_polling(frequency_mode_on_radio_change) == 0) {
+      printf("Radio polling started (1-second debounce)\n");
+    }
+  }
+}
+
+static void on_radio_disconnected(void) {
+  printf("Radio disconnected.\n");
+  speech_say_text("Radio disconnected");
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
@@ -214,21 +235,25 @@ int main(int argc, char *argv[]) {
   }
   keypad_register_callback(on_keypress);
 
-  // Initialize radio (optional)
+  // Initialize radio with auto-reconnect
   if (!skip_radio) {
     printf("Connecting to radio...\n");
     if (radio_init() != 0) {
-      printf("WARNING: Could not connect to radio\n");
-      printf("Frequency mode will work but cannot set radio\n");
-      speech_say_text("Radio not found");
+      printf(
+          "WARNING: Could not connect to radio (will retry automatically)\n");
+      speech_say_text("Radio not found. Will retry.");
     } else {
       printf("Radio connected!\n");
+      speech_say_text("Radio connected");
 
       // Start polling for VFO dial changes
       if (radio_start_polling(frequency_mode_on_radio_change) == 0) {
         printf("Radio polling started (1-second debounce)\n");
       }
     }
+
+    // Start auto-reconnect thread (monitors connection, reconnects on loss)
+    radio_start_reconnect(on_radio_connected, on_radio_disconnected);
   }
 
   // Initialize frequency mode
@@ -256,6 +281,7 @@ int main(int argc, char *argv[]) {
   // Cleanup
   printf("\nCleaning up...\n");
 
+  radio_stop_reconnect();
   if (radio_is_connected()) {
     radio_stop_polling();
     radio_cleanup();
