@@ -376,27 +376,55 @@ main() {
     if [ -d "$HAMPOD_DIR" ]; then
         print_warning "Repository already exists at $HAMPOD_DIR"
         
-        # Back up config file before pulling (unless --hard-reset)
-        CONFIG_BACKED_UP=false
-        if [ "$HARD_RESET" = false ] && [ -f "$CONFIG_FILE" ]; then
-            cp "$CONFIG_FILE" /tmp/hampod_conf_backup
-            CONFIG_BACKED_UP=true
-            print_info "Backed up existing config (use --hard-reset to overwrite)"
+        CONFIG_FILE="$HAMPOD_DIR/Software2/config/hampod.conf"
+        FACTORY_FILE="$HAMPOD_DIR/Software2/config/hampod.conf.factory"
+        FLAG_KEEP_CONFIG=false
+        
+        # 1. Handle the config file choice
+        if [ -f "$CONFIG_FILE" ]; then
+            echo ""
+            print_info "You already have a hampod.conf file."
+            read -p "      Do you want to (K)eep your current settings or (R)eset to factory defaults? [K/r] " config_choice
+            
+            if [[ ! "$config_choice" =~ ^[Rr]$ ]]; then
+                cp "$CONFIG_FILE" /tmp/hampod_backup.conf
+                FLAG_KEEP_CONFIG=true
+            fi
         fi
         
-        print_info "Pulling latest changes..."
-        cd "$HAMPOD_DIR"
-        run_with_spinner "Pulling updates..." git pull origin main || git pull origin master || true
+        # 2. Handle the Git Pull strategy
+        echo ""
+        print_info "Do you want to perform a CLEAN PULL?"
+        print_warning "WARNING: This will DESTROY any code modifications you have made!"
+        read -p "      If you say NO, it will attempt a standard stash/pull/pop. [Y/n] " pull_choice
         
-        # Restore config file
-        if [ "$CONFIG_BACKED_UP" = true ]; then
-            cp /tmp/hampod_conf_backup "$CONFIG_FILE"
-            rm -f /tmp/hampod_conf_backup
-            print_success "Config file preserved"
-        elif [ "$HARD_RESET" = true ]; then
-            # Force-reset config to repo default (git pull won't overwrite local edits)
-            git checkout origin/main -- Software2/config/hampod.conf 2>/dev/null || true
-            print_warning "Config file reset to defaults (--hard-reset)"
+        cd "$HAMPOD_DIR"
+        
+        if [[ ! "$pull_choice" =~ ^[Nn]$ ]]; then
+            print_info "Performing clean pull..."
+            run_with_spinner "Fetching updates..." git fetch origin
+            run_with_spinner "Resetting to main..." git reset --hard origin/main
+            run_with_spinner "Cleaning untracked..." git clean -fd
+            print_success "Clean pull successful"
+        else
+            print_info "Attempting standard pull..."
+            # Suppress normal stdout, preserve errors
+            git stash > /dev/null 2>&1 || true
+            run_with_spinner "Pulling updates..." git pull origin main || git pull origin master || true
+            git stash pop > /dev/null 2>&1 || true
+            print_success "Standard pull successful"
+        fi
+        
+        # 3. Restore or create the config file
+        if [ "$FLAG_KEEP_CONFIG" = true ]; then
+            cp /tmp/hampod_backup.conf "$CONFIG_FILE"
+            rm -f /tmp/hampod_backup.conf
+            print_success "Preserved existing config settings"
+        else
+            if [ -f "$FACTORY_FILE" ]; then
+                cp "$FACTORY_FILE" "$CONFIG_FILE"
+                print_success "Set config to factory defaults"
+            fi
         fi
         
         print_success "Repository updated"
@@ -405,6 +433,13 @@ main() {
         cd "$HOME"
         run_with_spinner "Cloning repository..." git clone "$REPO_URL"
         print_success "Repository cloned to $HAMPOD_DIR"
+        
+        # Create initial config
+        CONFIG_FILE="$HAMPOD_DIR/Software2/config/hampod.conf"
+        FACTORY_FILE="$HAMPOD_DIR/Software2/config/hampod.conf.factory"
+        if [ -f "$FACTORY_FILE" ]; then
+            cp "$FACTORY_FILE" "$CONFIG_FILE"
+        fi
     fi
     
     # -------------------------------------------------------------------------

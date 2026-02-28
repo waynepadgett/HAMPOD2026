@@ -10,4 +10,4 @@ bin/
 obj/
 *.a
 *.so
-.DS_Store
+.DS_StoreSoftware2/config/hampod.conf

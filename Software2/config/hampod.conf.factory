@@ -3,7 +3,7 @@
 
 [audio]
 # volume: 0-100 (percentage)
-volume = 40
+volume = 35
 # speech_speed: 0.1 = very fast, 1.0 = normal, 3.0 = very slow (duration multiplier)
 speech_speed = 0.1
 # key_beep: 0 = off, 1 = on
@@ -36,3 +36,38 @@ enabled = false
 model = 2014
 device = /dev/ttyUSB0
 baud = 9600
+
+[radio.4]
+name = Elecraft K3
+enabled = false
+model = 2029
+device = /dev/ttyUSB0
+baud = 38400
+
+[radio.5]
+name = Elecraft K3s
+enabled = false
+model = 2043
+device = /dev/ttyUSB0
+baud = 38400
+
+[radio.6]
+name = Elecraft KX3
+enabled = false
+model = 2045
+device = /dev/ttyUSB0
+baud = 38400
+
+[radio.7]
+name = Elecraft KX2
+enabled = false
+model = 2044
+device = /dev/ttyUSB0
+baud = 38400
+
+[radio.8]
+name = ICOM IC-9100
+enabled = false
+model = 3068
+device = /dev/ttyUSB0
+baud = 19200
