@@ -111,3 +111,7 @@ The keypad layout switching logic requires real-time changes inside the hardware
 *Phase 3*:
 5. **Layout Test**:
    - Verify changing to phone layout correctly changes the `1` key to behave as `7`.
+
+### Phase 4: Bug Fixes and Polish (COMPLETED)
+- **Speech Speed Reset on Discard Bug**: Fixed an issue where the `config_mode_exit_discard` function failed to synchronously update the active TTS instance with the restored parameters.
+- **TTS Cache Stale Speed Bug**: Fixed an issue where changing the playback speed via `hal_tts_set_speed` required clearing the active TTS process cache (`hal_tts_cache_clear`) so that old recordings wouldn't accidentally preserve prior speed settings over incoming queries.

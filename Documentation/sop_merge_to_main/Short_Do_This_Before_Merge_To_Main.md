@@ -40,7 +40,16 @@ cd ~/HAMPOD2026 && sudo bash ./Documentation/scripts/Regression_Phase_Two_Manual
 
 ---
 
+## 4. Phase 3 — Configuration Mode Regression (follow on-screen instructions)
+
+```bash
+cd ~/HAMPOD2026 && sudo bash ./Documentation/scripts/Regression_Phase_Three_Manual_Test.sh
+```
+
+---
+
 ## Before Merge
+
 
 - [ ] All tests above pass
 - [ ] Code builds cleanly (`make` in both Firmware and Software2)

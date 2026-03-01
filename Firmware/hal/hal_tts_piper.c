@@ -518,5 +518,8 @@ int hal_tts_set_speed(float speed) {
     }
   }
 
+  /* Clear the cache so old, slower/faster speech isn't regurgitated */
+  hal_tts_cache_clear();
+
   return 0;
 }

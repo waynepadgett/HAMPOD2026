@@ -51,6 +51,7 @@ For major releases or before tagging:
 
 - **Full regression suite:** Run all `Documentation/scripts/Regression_*.sh` scripts (exclude `deprecated_tests/`).
 - **Normal Mode manual test:** `./Documentation/scripts/Regression_Phase_Two_Manual_Test.sh` — tests normal mode keys ([2] frequency, [1] VFO, [0] mode, etc.).
+- **Config Mode manual test:** `./Documentation/scripts/Regression_Phase_Three_Manual_Test.sh` — tests configuration mode navigation and settings.
 
 ---
 

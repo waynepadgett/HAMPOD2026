@@ -15,15 +15,16 @@ Before you begin, ensure you have the following:
 - Internet Connection: Wi-Fi credentials or an Ethernet cable
 
 
-## Step 1: Install Debian Trixie
+## Step 1: Install RPi OS Lite version of Debian Trixie
 
-The project is currently being developed on Debian Trixie. Install this version using the Raspberry Pi Imager.
+The project is currently being developed on the Lite version ofDebian Trixie. Install this version using the Raspberry Pi Imager.
 
 1. Download and install Raspberry Pi Imager from raspberrypi.com/software
 
 2. Open Raspberry Pi Imager and configure the image:
    - Choose Device: Select your RPi model (e.g., Raspberry Pi 5)
-   - Choose OS: Select Raspberry Pi OS (64-bit) - debian trixie
+   - Choose OS: Scroll down to select Raspberry Pi OS Other
+   - Choose OS: Select Raspberry Pi OS Lite (64-bit) - debian trixie with no desktop environment
    - Choose Storage: Select your microSD card
    - Click Next
 
@@ -87,6 +88,27 @@ To avoid typing your password every time, generate an SSH key on your computer a
 
 3. Verify by logging out and back in. You should not be asked for a password.
 
+
+## Optional: If you are using a Raspberry Pi Zero 2 W
+
+### RPi Zero 2 W Setup
+
+The Zero 2 W needs extra swap space to avoid OOM errors during `apt upgrade`:
+
+```bash
+sudo fallocate -l 2G /var/temp_swap && sudo chmod 600 /var/temp_swap && sudo mkswap /var/temp_swap && sudo swapon /var/temp_swap
+```
+
+Confirm with `free -h`, then proceed with the install below.
+
+## Step 1.5: Install Git
+
+Git is used to manage the code. Install it using the following command:
+
+```
+cd ~
+sudo apt update && sudo apt install -y git
+```
 
 ## Step 2: Run the Automated Installer
 
