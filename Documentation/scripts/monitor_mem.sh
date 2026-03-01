@@ -25,8 +25,8 @@ while true; do
     SYS_PCT=$(( 100 * SYS_USED / SYS_TOTAL ))
     printf "%-10s | %-15s | %-8s | %-8s | %-10s | %-10s\n" "$TIME" "[SYSTEM TOTAL]" "---" "---" "$SYS_PCT%" "${SYS_USED}MB / ${SYS_TOTAL}MB"
     
-    # Get stats for both processes, removing the header line
-    ps -C firmware.elf,hampod -o comm=,pid=,pcpu=,pmem=,rss= | while read -r P_NAME P_PID P_CPU P_MEM P_RSS; do
+    # Get stats for processes, removing the header line
+    ps -C firmware.elf,hampod,piper -o comm=,pid=,pcpu=,pmem=,rss= | while read -r P_NAME P_PID P_CPU P_MEM P_RSS; do
         if [ ! -z "$P_NAME" ]; then
             printf "%-10s | %-15s | %-8s | %-8s | %-10s | %-10s\n" "   ^" "$P_NAME" "$P_PID" "$P_CPU%" "$P_MEM%" "$P_RSS"
         fi
