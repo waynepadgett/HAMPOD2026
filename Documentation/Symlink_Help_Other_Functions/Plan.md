@@ -15,6 +15,7 @@ Create a master bash script `hampod_cli.sh` that will parse subcommands. This sc
 - `hampod reset`: Performs a hard reset of the system state. Unlike `clear-cache`, this will clear system logs (`/tmp/firmware.log`, `/tmp/hampod_output.txt`, etc.), remove stale IPC pipes, stop background processes, and optionally prompt to reset the `hampod.conf` to its factory default.
 - `hampod backup-config`: Copies `Software2/config/hampod.conf` to a timestamped backup location (e.g., `hampod.conf.bak_YYYYMMDD`).
 - `hampod restore-config`: Prompts the user with available backups and restores the configuration from a selected backup file.
+- `hampod monitor-mem`: Executes the `monitor_mem.sh` script to continuously log the memory usage of the system's core processes (`firmware.elf`, `hampod`, `piper`) every 5 minutes. Useful for diagnosing memory leaks over long periods.
 
 ## 2. System Symlink (`/usr/local/bin/hampod`)
 To ensure the `hampod` command is globally available, an installation step must be added (or a separate `setup_cli.sh` created) to symlink the CLI script into the system PATH.

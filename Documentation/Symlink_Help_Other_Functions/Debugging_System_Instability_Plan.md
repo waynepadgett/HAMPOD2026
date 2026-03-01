@@ -84,7 +84,15 @@ Watch the `RES` (Resident Memory) and `CPU%` columns for your program.
 * If `RES` slowly but constantly goes up every time a button is pushed... you have a memory leak.
 * If `CPU%` suddenly spikes to 100% and stays there... you have an infinite loop or thread deadlock.
 
-### 3. Check for Console Spam (Confirmed Bug)
+### 3. Run the Automated Memory Monitor (`monitor_mem.sh`)
+We have created a dedicated bash script to automatically log the memory usage of `firmware.elf`, `hampod`, and `piper` processes.
+Run the script over SSH while the system is operating:
+```bash
+./Documentation/scripts/monitor_mem.sh
+```
+This script will output the memory usage (CPU%, MEM%, RES(KB)) every 5 minutes (300 seconds) and provide system-wide totals. This is especially useful for catching slow memory leaks over the course of hours without having to stare at `htop`. If `RES(KB)` continually climbs over several hours, a memory leak is present.
+
+### 4. Check for Console Spam (Confirmed Bug)
 **We recently found a bug where Hamlib was aggressively logging `rig_get_freq` calls to the terminal (>100 lines per second).** 
 If the `-hampod` running script was ever redirected to save output to a file (e.g. `./run_hampod.sh > output.log`), it would fill up the Raspberry Pi's SD card entirely in a matter of minutes, rendering the OS unresponsive and requiring a reflash.
 * **The Fix**: We added `rig_set_debug(RIG_DEBUG_NONE);` to `radio.c` to silence this spam. Let's monitor if the crashes stop after this fix.
@@ -103,4 +111,4 @@ To avoid sitting there for 30 minutes pushing buttons:
 - [ ] Run `vcgencmd get_throttled` after 10 mins.
 - [ ] Check `dmesg` for OOM-killer logs from previous crashes.
 - [ ] Recompile with `-fsanitize=address -g` (AddressSanitizer) and run it normally.
-- [ ] Watch the program in `htop` over SSH. Does memory strictly increase over time?
+- [ ] Watch the program in `htop` over SSH, or run `./Documentation/scripts/monitor_mem.sh` to track memory automatically. Does memory (`RES(KB)`) strictly increase over time?
