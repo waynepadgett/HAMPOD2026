@@ -320,10 +320,13 @@ int main(int argc, char *argv[]) {
       FIRMWARE_PRINTF("Got a CONFIG packet\n");
       if (received_packet->data_len >= 2) {
         unsigned char sub_cmd = received_packet->data[0];
-        unsigned char val = received_packet->data[1];
+        // unsigned char val = received_packet->data[1];
         if (sub_cmd == 0x01) {
-          FIRMWARE_PRINTF("CONFIG: Setting phone layout to %d\n", val);
-          hal_keypad_set_phone_layout(val);
+          FIRMWARE_PRINTF(
+              "CONFIG: Pushing phone layout config to keypad process\n");
+          write(keypad_in_pipe_fd, received_packet, 8);
+          write(keypad_in_pipe_fd, received_packet->data,
+                received_packet->data_len);
         }
       }
     }

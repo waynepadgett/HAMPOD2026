@@ -105,25 +105,33 @@ void keypad_process() {
     pthread_mutex_unlock(&keypad_queue_lock);
     pthread_mutex_unlock(&keypad_queue_available);
 
-    char read_value = -1;
-    if (received_packet->data[0] == 'r') {
-      // Use HAL to read keypad
-      KeypadEvent event = hal_keypad_read();
-      if (event.valid) {
-        read_value = event.key;
-      } else {
-        read_value = '-'; // No key pressed
+    if (received_packet->type == KEYPAD) {
+      char read_value = -1;
+      if (received_packet->data[0] == 'r') {
+        // Use HAL to read keypad
+        KeypadEvent event = hal_keypad_read();
+        if (event.valid) {
+          read_value = event.key;
+        } else {
+          read_value = '-'; // No key pressed
+        }
+      }
+
+      Inst_packet *packet_to_send = create_inst_packet(
+          KEYPAD, 1, (unsigned char *)&read_value, received_packet->tag);
+      KEYPAD_PRINTF("Sending back value of %x ('%c')\n", read_value,
+                    (char)read_value);
+      write(output_pipe_fd, packet_to_send, 8);
+      write(output_pipe_fd, packet_to_send->data, 1);
+
+      destroy_inst_packet(&packet_to_send);
+    } else if (received_packet->type == CONFIG) {
+      if (received_packet->data_len >= 2 && received_packet->data[0] == 0x01) {
+        KEYPAD_PRINTF("CONFIG: Setting phone layout to %d\n",
+                      received_packet->data[1]);
+        hal_keypad_set_phone_layout(received_packet->data[1]);
       }
     }
-
-    Inst_packet *packet_to_send = create_inst_packet(
-        KEYPAD, 1, (unsigned char *)&read_value, received_packet->tag);
-    KEYPAD_PRINTF("Sending back value of %x ('%c')\n", read_value,
-                  (char)read_value);
-    write(output_pipe_fd, packet_to_send, 8);
-    write(output_pipe_fd, packet_to_send->data, 1);
-
-    destroy_inst_packet(&packet_to_send);
   }
   pthread_join(keypad_io_buffer, NULL);
   destroy_queue(input_queue);
@@ -188,7 +196,7 @@ void *keypad_io_thread(void *arg) {
     KEYPAD_IO_PRINTF("Found packet with type %d, size %d\n", type, size);
     KEYPAD_IO_PRINTF("Buffer holds: %s: with size %d\n", buffer, size);
 
-    if (type != KEYPAD) {
+    if (type != KEYPAD && type != CONFIG) {
       KEYPAD_IO_PRINTF("Packet not supported for Keypad firmware\n");
       continue;
     }
