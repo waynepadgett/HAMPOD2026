@@ -23,9 +23,9 @@
 // State Variables
 // ============================================================================
 
-static RIG *g_rig = NULL;
-static bool g_connected = false;
-static pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
+RIG *g_rig = NULL;
+bool g_connected = false;
+pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool g_radio_debug_mode = false;
 
 // Polling state
