@@ -132,6 +132,7 @@ void keypad_process() {
         hal_keypad_set_phone_layout(received_packet->data[1]);
       }
     }
+    destroy_inst_packet(&received_packet);
   }
   pthread_join(keypad_io_buffer, NULL);
   destroy_queue(input_queue);
