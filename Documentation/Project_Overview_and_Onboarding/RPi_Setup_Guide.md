@@ -142,6 +142,8 @@ After installation, run the Phase 0 integration test to verify everything works.
 3. If the test works, you can run the full software:
    ```
    ./run_hampod.sh
+   # Or to run with verbose logging:
+   ./run_hampod.sh --debug
    ```
 
 4. If you only hear clicks but no speech, see the Troubleshooting section below.

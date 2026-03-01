@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "comm.h"
@@ -155,12 +156,16 @@ int main(int argc, char *argv[]) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_handler);
 
-  // Check for skip-radio mode (for testing without hardware)
+  // Check args
   bool skip_radio = false;
+  bool debug_mode = false;
   for (int i = 1; i < argc; i++) {
-    if (argv[i][0] == 'n') {
+    if (strcmp(argv[i], "--no-radio") == 0 || argv[i][0] == 'n') {
       skip_radio = true;
       printf("Running without radio (--no-radio mode)\n\n");
+    } else if (strcmp(argv[i], "--debug") == 0) {
+      debug_mode = true;
+      printf("Running in debug mode (Hamlib verbose logging enabled)\n\n");
     }
   }
 
@@ -238,7 +243,7 @@ int main(int argc, char *argv[]) {
   // Initialize radio with auto-reconnect
   if (!skip_radio) {
     printf("Connecting to radio...\n");
-    if (radio_init() != 0) {
+    if (radio_init(debug_mode) != 0) {
       printf(
           "WARNING: Could not connect to radio (will retry automatically)\n");
       speech_say_text("Radio not found. Will retry.");

@@ -96,6 +96,8 @@ To start the system:
 
 ```
 cd ~/HAMPOD2026 && ./Documentation/scripts/run_hampod.sh
+# To start with verbose Hamlib debug logging:
+cd ~/HAMPOD2026 && ./Documentation/scripts/run_hampod.sh --debug
 ```
 
 To stop, press Control-C.
