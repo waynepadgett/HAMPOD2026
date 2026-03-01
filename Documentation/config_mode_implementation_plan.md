@@ -5,12 +5,13 @@ This implementation plan describes the step-by-step approach to introducing Conf
 ## User Review Required
 > [!IMPORTANT]  
 > Are these the correct initial four settings to include in the Config Mode?
-> 1. Volume (0-100%)
-> 2. Speech Speed (0.5 to 2.0x, mapped to Piper length scale)
+> 1. Volume (10-100%, steps of 10)
+> 2. Speech Speed (0.1 to 2.0x, steps of 0.1)
 > 3. Keypad Layout (Phone vs. Calculator)
-> 4. System Shutdown (Initiate safe shutdown of Raspberry Pi)
+> 4. System Shutdown (Initiate safe shutdown of Raspberry Pi, requires pressing `[#]` to confirm)
 
-## Proposed Changes
+> [!NOTE]
+> *Undo UI Concept*: The user will hear "Configuration cancelled" and the prior saved settings will be pushed back into the audio/piper systems. In code, this unwinds the `config.c` history depth back to the snapshot saved upon entering the Config Mode. The user has to do nothing other than `[B]` Hold to trigger this.
 
 ### Phase 1: Core Configuration Mode Logic & UI Navigation
 This phase creates the state machine for Configuration Mode without actually applying the audio or system changes in real-time. It just handles the UI logic, navigating the menu, and making use of the undo history that already exists in `config.c`.
@@ -25,11 +26,11 @@ Create the public API for the Config Mode module:
 #### [NEW] `Software2/src/config_mode.c`
 Implement the state machine matching the behavior described in the ICOM Reader manual:
 - **`[C]` Hold** to enter Config Mode and to save/exit.
-- **`[D]` Hold** to exit without saving (discard).
+- **`[B]` Hold** to exit without saving (discard). This is a change from the initial proposal of `[D]` Hold to match the original HAMPOD experience, and to dedicate `[D]` to values/decrement.
 - **`[A]`** to step forward through parameters: Volume -> Speech Speed -> Keypad Layout -> System Shutdown.
 - **`[B]`** to step backward through parameters.
 - **`[C]`** / **`[D]`** to increment / decrement parameter values.
-- On entry, the module will note `config_get_undo_count()`. If the user discards changes using `[D]` hold, it will call `config_undo()` multiple times to return the configuration to its original state.
+- On entry, the module will note `config_get_undo_count()`. If the user discards changes using `[B]` hold, it will call `config_undo()` multiple times to return the configuration to its original state. This means the user is hearing live changes while navigating the menu, but `[B]` hold reverts everything _and_ exits. `[C]` hold exits and keeps the changes in `hampod.conf` for the next boot.
 
 #### [MODIFY] `Software2/src/normal_mode.c`
 - Update the `normal_mode_handle_key` function to detect the `[C]` Hold.
@@ -82,23 +83,31 @@ The keypad layout switching logic requires real-time changes inside the hardware
 ## Verification Plan
 
 ### Automated Tests
+*Phase 1*:
 1. **Unit tests**: Once Phase 1 is complete, run the existing C unit tests using `cd ~/HAMPOD2026/Software2 && make tests && ./run_all_unit_tests.sh --all` to make sure we haven't broken the existing configuration saving or history push logic.
 2. **Build Test**: Run `make clean && make` on `Software2/` and `Firmware/` at the end of each phase.
 
 ### Manual Verification
+*Phase 1*:
 1. **Navigation Test**: 
    - Start the software without radio: `./hampod --no-radio`
    - Hold `[C]` inside Normal Mode. Verify the TTS announces "Configuration Mode".
    - Press `[A]` and `[B]` to verify it cycles through the 4 options. 
    - Verify speech announces the parameters correctly.
+
+*Phase 2*:
 2. **Persistence Test**: 
    - Change volume using `[C]` to increment.
    - Hold `[C]` to save and exit.
    - Look at `Software2/config/hampod.conf` to verify the new volume was saved.
 3. **Discard Test**: 
-   - Enter Config Mode, change volume, hold `[D]` to exit without saving.
+   - Enter Config Mode, change volume, hold `[B]` to exit without saving.
    - Verify previous value is restored and `hampod.conf` reflects the original state.
 4. **Live Settings Test**: 
    - While changing volume, verify it immediately affects system audio out.
    - While changing speech speed, verify Piper TTS immediately speaks faster/slower.
    - While changing layout, verify `7` changes to `1` instantly.
+
+*Phase 3*:
+5. **Layout Test**:
+   - Verify changing to phone layout correctly changes the `1` key to behave as `7`.
