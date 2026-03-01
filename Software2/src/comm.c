@@ -648,3 +648,19 @@ int comm_query_audio_card_number(int *card_number_out) {
   *card_number_out = 2;
   return HAMPOD_OK;
 }
+
+// ============================================================================
+// Configuration Pass-through to Firmware
+// ============================================================================
+
+int comm_send_config_packet(uint8_t sub_cmd, uint8_t value) {
+  CommPacket packet = {
+      .type = PACKET_CONFIG, .data_len = 2, .tag = packet_tag++};
+
+  packet.data[0] = sub_cmd;
+  packet.data[1] = value;
+
+  LOG_DEBUG("comm_send_config_packet: sub_cmd=0x%02X, value=%d", sub_cmd,
+            value);
+  return comm_send_packet(&packet);
+}

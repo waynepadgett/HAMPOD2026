@@ -6,6 +6,7 @@
  */
 
 #include "normal_mode.h"
+#include "config_mode.h"
 #include "frequency_mode.h"
 #include "hampod_core.h"
 #include "radio.h"
@@ -260,15 +261,20 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
     return true;
   }
 
-  // [C] - Toggle verbosity (press) / Config mode entry (hold, not implemented)
-  if (key == 'C' && !is_hold) {
-    g_verbosity_enabled = !g_verbosity_enabled;
-    if (g_verbosity_enabled) {
-      speech_say_text("Announcements on");
+  // [C] - Toggle verbosity (press) / Config mode entry (hold)
+  if (key == 'C') {
+    if (is_hold) {
+      config_mode_enter();
+      return true;
     } else {
-      speech_say_text("Announcements off");
+      g_verbosity_enabled = !g_verbosity_enabled;
+      if (g_verbosity_enabled) {
+        speech_say_text("Announcements on");
+      } else {
+        speech_say_text("Announcements off");
+      }
+      return true;
     }
-    return true;
   }
 
   // Key not handled by normal mode

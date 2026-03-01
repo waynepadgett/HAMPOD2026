@@ -23,6 +23,7 @@
 
 #include "comm.h"
 #include "config.h"
+#include "config_mode.h"
 #include "frequency_mode.h"
 #include "hampod_core.h"
 #include "keypad.h"
@@ -61,8 +62,17 @@ static void on_keypress(const KeyPressEvent *kp) {
   // use)
   bool was_shifted = g_shift_active;
 
-  // Route to set mode first (if active, it takes priority for ALL keys
-  // including [A])
+  // Route to config mode first (top priority for settings/shutdown)
+  if (config_mode_is_active()) {
+    if (config_mode_handle_key(kp->key, kp->isHold)) {
+      if (was_shifted) {
+        g_shift_active = false;
+      }
+      return;
+    }
+  }
+
+  // Route to set mode next
   if (set_mode_is_active()) {
     if (set_mode_handle_key(kp->key, kp->isHold, was_shifted)) {
       // Auto-clear shift after a shifted key is consumed
@@ -264,6 +274,9 @@ int main(int argc, char *argv[]) {
 
   // Initialize set mode
   set_mode_init();
+
+  // Initialize config mode
+  config_mode_init();
 
   // Announce startup
   printf("\nStartup complete. Normal mode active.\n");

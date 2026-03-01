@@ -429,6 +429,17 @@ void config_set_keypad_device_name(const char *name) {
   pthread_mutex_unlock(&g_config_mutex);
 }
 
+void config_set_keypad_layout(const char *layout) {
+  if (!g_initialized || !layout)
+    return;
+  pthread_mutex_lock(&g_config_mutex);
+  history_push(&g_config);
+  strncpy(g_config.keypad.layout, layout, 15);
+  g_config.keypad.layout[15] = '\0';
+  config_write_file(g_config_path);
+  pthread_mutex_unlock(&g_config_mutex);
+}
+
 // ============================================================================
 // Internal Functions
 // ============================================================================

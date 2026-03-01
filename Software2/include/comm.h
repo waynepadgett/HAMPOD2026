@@ -144,6 +144,15 @@ int comm_send_audio(char audio_type, const char *payload);
  */
 int comm_send_audio_sync(char audio_type, const char *payload);
 
+/**
+ * Send a configuration packet to Firmware.
+ *
+ * @param sub_cmd Configuration sub-command (e.g., 0x01 for Keypad Layout)
+ * @param value Configuration value
+ * @return HAMPOD_OK on success, HAMPOD_ERROR on write failure
+ */
+int comm_send_config_packet(uint8_t sub_cmd, uint8_t value);
+
 // ============================================================================
 // Beep Audio Feedback
 // ============================================================================

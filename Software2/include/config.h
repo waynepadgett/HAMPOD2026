@@ -194,5 +194,6 @@ void config_set_audio_card_number(int card);
 
 void config_set_keypad_port(const char *port);
 void config_set_keypad_device_name(const char *name);
+void config_set_keypad_layout(const char *layout);
 
 #endif // HAMPOD_CONFIG_H
