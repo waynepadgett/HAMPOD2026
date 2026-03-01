@@ -350,8 +350,8 @@ void config_set_volume(int volume) {
 void config_set_speech_speed(float speed) {
   if (!g_initialized)
     return;
-  if (speed < 0.5f)
-    speed = 0.5f;
+  if (speed < 0.1f)
+    speed = 0.1f;
   if (speed > 2.0f)
     speed = 2.0f;
   pthread_mutex_lock(&g_config_mutex);

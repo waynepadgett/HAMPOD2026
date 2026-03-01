@@ -101,4 +101,12 @@ void config_mode_exit_save(void);
  */
 void config_mode_exit_discard(void);
 
+/**
+ * @brief Exit Config Mode, keeping changes for this session but NOT saving them
+ *
+ * Uses the changes during this run but they revert next boot.
+ * Announces "Configuration applied for this session".
+ */
+void config_mode_exit_no_save(void);
+
 #endif // CONFIG_MODE_H

@@ -72,6 +72,8 @@ void config_mode_enter(void) {
 void config_mode_exit_save(void) {
   if (g_state != CONFIG_MODE_OFF) {
     g_state = CONFIG_MODE_OFF;
+    const char *layout = config_get_keypad_layout();
+    comm_send_config_packet(0x01, (strcmp(layout, "phone") == 0) ? 1 : 0);
     speech_say_text("Configuration saved");
     config_save(); // Ensure any pending config changes are flused
     DEBUG_PRINT("config_mode_exit_save: Exited Configuration Mode (Saved)\n");
@@ -93,9 +95,23 @@ void config_mode_exit_discard(void) {
     apply_volume_live(config_get_volume());
     comm_set_speech_speed(config_get_speech_speed());
 
+    const char *layout = config_get_keypad_layout();
+    comm_send_config_packet(0x01, (strcmp(layout, "phone") == 0) ? 1 : 0);
+
     speech_say_text("Configuration cancelled");
     DEBUG_PRINT(
         "config_mode_exit_discard: Exited Configuration Mode (Discarded)\n");
+  }
+}
+
+void config_mode_exit_no_save(void) {
+  if (g_state != CONFIG_MODE_OFF) {
+    g_state = CONFIG_MODE_OFF;
+    const char *layout = config_get_keypad_layout();
+    comm_send_config_packet(0x01, (strcmp(layout, "phone") == 0) ? 1 : 0);
+    speech_say_text("Configuration applied for this session");
+    DEBUG_PRINT(
+        "config_mode_exit_no_save: Exited Configuration Mode (No Save)\n");
   }
 }
 
@@ -231,7 +247,13 @@ bool config_mode_handle_key(char key, bool is_hold) {
     return true;
   }
 
-  // Prevent hold actions other than B and C from doing anything
+  // [D] Hold - Keep changes for this session but do not save to next powerup
+  if (key == 'D' && is_hold) {
+    config_mode_exit_no_save();
+    return true;
+  }
+
+  // Prevent hold actions other than B, C, D from doing anything
   if (is_hold) {
     if (config_get_key_beep_enabled())
       comm_play_beep(COMM_BEEP_ERROR);
