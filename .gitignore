@@ -13,3 +13,4 @@ obj/
 .DS_Store
 Software2/config/hampod.conf
 .agent/
+Documentation/.DS_Store

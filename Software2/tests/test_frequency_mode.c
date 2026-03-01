@@ -10,6 +10,7 @@
 
 #include "frequency_mode.h"
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,7 +71,10 @@ int radio_set_frequency(double freq_hz) {
   return 0;
 }
 
-int radio_init(void) { return 0; }
+int radio_init(bool debug_mode) {
+  (void)debug_mode;
+  return 0;
+}
 void radio_cleanup(void) {}
 double radio_get_frequency(void) { return 14250000.0; }
 
