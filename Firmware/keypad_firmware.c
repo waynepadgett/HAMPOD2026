@@ -124,6 +124,7 @@ void keypad_process() {
     write(output_pipe_fd, packet_to_send->data, 1);
 
     destroy_inst_packet(&packet_to_send);
+    destroy_inst_packet(&received_packet);
   }
   pthread_join(keypad_io_buffer, NULL);
   destroy_queue(input_queue);

@@ -171,6 +171,7 @@ void audio_process() {
                    // not be safer to just use the size value of packet_to_send
     free(requested_string);
     destroy_inst_packet(&packet_to_send);
+    destroy_inst_packet(&received_packet);
   }
 
   pthread_join(audio_io_buffer, NULL);
