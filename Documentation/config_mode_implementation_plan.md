@@ -13,7 +13,7 @@ This implementation plan describes the step-by-step approach to introducing Conf
 > [!NOTE]
 > *Undo UI Concept*: The user will hear "Configuration cancelled" and the prior saved settings will be pushed back into the audio/piper systems. In code, this unwinds the `config.c` history depth back to the snapshot saved upon entering the Config Mode. The user has to do nothing other than `[B]` Hold to trigger this.
 
-### Phase 1: Core Configuration Mode Logic & UI Navigation
+### Phase 1: Core Configuration Mode Logic & UI Navigation (COMPLETED)
 This phase creates the state machine for Configuration Mode without actually applying the audio or system changes in real-time. It just handles the UI logic, navigating the menu, and making use of the undo history that already exists in `config.c`.
 
 #### [NEW] `Software2/include/config_mode.h`
@@ -45,7 +45,7 @@ Implement the state machine matching the behavior described in the ICOM Reader m
 
 ---
 
-### Phase 2: Live Application of Settings
+### Phase 2: Live Application of Settings (COMPLETED)
 Make changes take effect immediately while remaining in Config Mode.
 
 #### [MODIFY] `Software2/src/main.c`
@@ -62,7 +62,7 @@ Make changes take effect immediately while remaining in Config Mode.
 
 ---
 
-### Phase 3: Hardware Firmware Packet Passthrough for Layout
+### Phase 3: Hardware Firmware Packet Passthrough for Layout (COMPLETED)
 The keypad layout switching logic requires real-time changes inside the hardware microcontroller `Firmware/`.
 
 #### [MODIFY] `Software2/src/comm.c` and `Software2/include/comm.h`
