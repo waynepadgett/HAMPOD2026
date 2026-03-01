@@ -48,6 +48,12 @@ FREQ_TEST_OBJS = $(OBJ_DIR)/frequency_mode.o
 $(BIN_DIR)/test_frequency_mode: $(TEST_DIR)/test_frequency_mode.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $< $(FREQ_TEST_OBJS) $(LDFLAGS)
 
+# Special rule for test_config_mode: it defines its own mock stubs for
+# config, settings, comm, etc., so we only link config_mode.o
+CONFIG_TEST_OBJS = $(OBJ_DIR)/config_mode.o
+$(BIN_DIR)/test_config_mode: $(TEST_DIR)/test_config_mode.c $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $< $(CONFIG_TEST_OBJS) $(LDFLAGS)
+
 # Generic rule for all other tests: link with all objects except main files
 $(BIN_DIR)/test_%: $(TEST_DIR)/test_%.c $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/main.o $(OBJ_DIR)/main_phase0.o, $(OBJS)) $(LDFLAGS)
