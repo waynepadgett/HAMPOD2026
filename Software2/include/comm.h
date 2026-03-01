@@ -21,6 +21,7 @@
 #define COMM_H
 
 #include "hampod_core.h"
+#include <stdint.h>
 
 // ============================================================================
 // Packet Types (mirrored from Firmware/hampod_firm_packet.h)
