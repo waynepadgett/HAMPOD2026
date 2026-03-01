@@ -72,6 +72,10 @@ int radio_init(void) {
     return -1;
   }
 
+  // Silence Hamlib verbose output to prevent console spam
+  // (It logs every polling event by default, printing 100+ lines/sec)
+  rig_set_debug(RIG_DEBUG_NONE);
+
   // Configure serial port
   strncpy(g_rig->state.rigport.pathname, device,
           sizeof(g_rig->state.rigport.pathname) - 1);
