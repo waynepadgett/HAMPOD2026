@@ -49,7 +49,7 @@ static radio_disconnect_callback g_disconnect_callback = NULL;
 // Initialization & Cleanup
 // ============================================================================
 
-int radio_init(void) {
+int radio_init(bool debug_mode) {
   pthread_mutex_lock(&g_rig_mutex);
 
   if (g_connected) {
@@ -70,6 +70,14 @@ int radio_init(void) {
     fprintf(stderr, "radio_init: rig_init failed for model %d\n", model);
     pthread_mutex_unlock(&g_rig_mutex);
     return -1;
+  }
+
+  // Silence Hamlib verbose output to prevent console spam
+  // (It logs every polling event by default, printing 100+ lines/sec)
+  if (!debug_mode) {
+    rig_set_debug(RIG_DEBUG_NONE);
+  } else {
+    rig_set_debug(RIG_DEBUG_TRACE);
   }
 
   // Configure serial port

@@ -29,7 +29,7 @@
  *
  * @return 0 on success, -1 on error
  */
-int radio_init(void);
+int radio_init(bool debug_mode);
 
 /**
  * @brief Close connection to radio

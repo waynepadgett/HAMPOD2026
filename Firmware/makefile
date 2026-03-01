@@ -4,7 +4,7 @@
 
 # Compiler and flags
 CC = cc
-CFLAGS = -Wall -DSHAREDLIB -DDEBUG
+CFLAGS = -Wall -DSHAREDLIB
 LDFLAGS = -lpthread -lasound
 
 # TTS Engine Selection (Default: Piper)

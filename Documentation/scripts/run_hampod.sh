@@ -7,8 +7,9 @@
 #   - Builds Firmware and Software2 (if needed)
 #   - Starts both components and leaves them running
 #
-# Usage: ./run_hampod.sh [--no-build]
+# Usage: ./run_hampod.sh [--no-build] [--debug]
 #   --no-build: Skip the build step (faster startup if already built)
+#   --debug:    Enable verbose hamlib debugging output
 #
 # To stop: Press Ctrl+C
 #
@@ -18,7 +19,7 @@
 if [ "$(id -u)" -eq 0 ]; then
     echo "ERROR: Do not run this script with sudo or as root."
     echo ""
-    echo "Usage: ./run_hampod.sh [--no-build]"
+    echo "Usage: ./run_hampod.sh [--no-build] [--debug]"
     echo ""
     echo "The script will call sudo internally for steps that need it."
     exit 1
@@ -41,9 +42,13 @@ SOFTWARE2_DIR="$REPO_ROOT/Software2"
 SKIP_BUILD=false
 
 # Parse arguments
-if [ "$1" = "--no-build" ]; then
-    SKIP_BUILD=true
-fi
+for arg in "$@"; do
+    if [ "$arg" = "--no-build" ]; then
+        SKIP_BUILD=true
+    elif [ "$arg" = "--debug" ]; then
+        DEBUG_MODE=true
+    fi
+done
 
 # Colors for output
 RED='\033[0;31m'
@@ -179,4 +184,9 @@ cleanup() {
 trap cleanup EXIT
 
 # Run hampod interactively
-sudo ./bin/hampod 2>&1 | tee /tmp/hampod_output.txt
+HAMPOD_ARGS=""
+if [ "$DEBUG_MODE" = true ]; then
+    HAMPOD_ARGS="--debug"
+fi
+
+sudo ./bin/hampod $HAMPOD_ARGS 2>&1 | tee /tmp/hampod_output.txt
