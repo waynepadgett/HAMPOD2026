@@ -11,3 +11,4 @@ obj/
 *.a
 *.so
 .DS_StoreSoftware2/config/hampod.conf
+Documentation/.DS_Store

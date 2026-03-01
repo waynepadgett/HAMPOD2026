@@ -20,12 +20,13 @@
 #include <unistd.h>
 
 // ============================================================================
-// Module State (non-static for access by radio_queries.c)
+// State Variables
 // ============================================================================
 
-RIG *g_rig = NULL;
-bool g_connected = false;
-pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
+static RIG *g_rig = NULL;
+static bool g_connected = false;
+static pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
+static bool g_radio_debug_mode = false;
 
 // Polling state
 static pthread_t g_poll_thread;
@@ -51,6 +52,9 @@ static radio_disconnect_callback g_disconnect_callback = NULL;
 
 int radio_init(bool debug_mode) {
   pthread_mutex_lock(&g_rig_mutex);
+
+  // Store debug mode for auto-reconnects
+  g_radio_debug_mode = debug_mode;
 
   if (g_connected) {
     pthread_mutex_unlock(&g_rig_mutex);
@@ -332,7 +336,7 @@ static void *reconnect_thread_func(void *arg) {
         DEBUG_PRINT("reconnect_thread: Device %s found, attempting connect\n",
                     device);
 
-        if (radio_init() == 0) {
+        if (radio_init(g_radio_debug_mode) == 0) {
           printf("reconnect_thread: Radio connected!\n");
 
           // Notify via callback
