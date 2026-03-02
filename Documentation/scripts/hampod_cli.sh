@@ -59,6 +59,9 @@ function cmd_help() {
     echo "  help"
     echo "      Displays this help menu."
     echo ""
+    echo "  update"
+    echo "      Updates the HAMPOD codebase from GitHub and rebuilds firmware."
+    echo ""
     echo "  clear-cache"
     echo "      Clears the TTS audio cache directory."
     echo ""
@@ -96,6 +99,17 @@ function cmd_start() {
     fi
     
     # Pass all arguments passed to `hampod start` directly to `run_hampod.sh`
+    "$run_script" "$@"
+}
+
+function cmd_update() {
+    local run_script="$SCRIPT_DIR/update_hampod.sh"
+    
+    if [ ! -x "$run_script" ]; then
+        print_error "Cannot find or execute $run_script."
+        exit 1
+    fi
+    
     "$run_script" "$@"
 }
 
@@ -298,6 +312,9 @@ shift # Remove the command from the arguments list, leaving only options
 case "$COMMAND" in
     start)
         cmd_start "$@"
+        ;;
+    update)
+        cmd_update "$@"
         ;;
     help)
         cmd_help
