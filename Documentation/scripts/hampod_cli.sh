@@ -149,12 +149,36 @@ function cmd_reset() {
     local config_file="$SOFTWARE2_DIR/config/hampod.conf"
     local factory_config="$SOFTWARE2_DIR/config/hampod.conf.factory"
     
-    if [ -f "$factory_config" ]; then
+    if [ -f "$factory_config" ] && [ -f "$config_file" ]; then
+        # Check if the current config is different from the factory default
+        if ! diff -q "$config_file" "$factory_config" > /dev/null 2>&1; then
+            echo "  Differences detected in config. Creating automatic backup..."
+            local backup_dir="$SOFTWARE2_DIR/config/backups"
+            mkdir -p "$backup_dir" 2>/dev/null || sudo mkdir -p "$backup_dir"
+            local timestamp=$(date +"%Y%m%d_%H%M%S")
+            local backup_path="$backup_dir/hampod_${timestamp}_pre_reset_autobackup.conf"
+            
+            if cp "$config_file" "$backup_path" 2>/dev/null || sudo cp "$config_file" "$backup_path"; then
+                sudo chown $USER:$USER "$backup_path" 2>/dev/null || true
+                echo "  Auto-backup saved to: $backup_path"
+            else
+                print_error "Failed to create auto-backup!"
+            fi
+        fi
+        
         if sudo cp "$factory_config" "$config_file" 2>/dev/null; then
             sudo chown $USER:$USER "$config_file" 2>/dev/null || true
             echo "  Restored $config_file from factory default."
         else
             print_error "Failed to restore $config_file from factory default."
+        fi
+    elif [ -f "$factory_config" ]; then
+        # If there's no live config but there is a factory config, just create it
+        if sudo cp "$factory_config" "$config_file" 2>/dev/null; then
+            sudo chown $USER:$USER "$config_file" 2>/dev/null || true
+            echo "  Created $config_file from factory default."
+        else
+            print_error "Failed to create $config_file from factory default."
         fi
     else
         echo "  Notice: $factory_config not found. Skipping config reset."
