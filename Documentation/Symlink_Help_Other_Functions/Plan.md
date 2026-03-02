@@ -25,6 +25,7 @@ Create a master bash script `hampod_cli.sh` that will parse subcommands. This sc
 - `hampod backup-config`: Copies `Software2/config/hampod.conf` to a timestamped backup location (e.g., `hampod.conf.bak_YYYYMMDD`).
 - `hampod restore-config`: Prompts the user with available backups and restores the configuration from a selected backup file.
 
+
 ### 2. System Symlink (`/usr/local/bin/hampod`)
 To ensure the `hampod` command is globally available, an installation step must be added (or a separate `setup_cli.sh` created) to symlink the CLI script into the system PATH.
 **Command:**
