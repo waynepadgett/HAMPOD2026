@@ -92,14 +92,16 @@ function cmd_start() {
 
 function cmd_clear_cache() {
     print_header "HAMPOD CLI - Clear Cache"
-    local cache_dir="$SOFTWARE2_DIR/audio_cache"
+    # The Firmware TTS cache is stored in the HOME of the user running firmware.elf.
+    # Since run_hampod.sh uses sudo, this is located at /root/.cache/hampod/tts
+    local cache_dir="/root/.cache/hampod/tts"
     
-    if [ -d "$cache_dir" ]; then
-        echo "Clearing TTS cache at: $cache_dir"
-        rm -rf "$cache_dir"/* 2>/dev/null || true
+    echo "Clearing TTS cache at: $cache_dir"
+    # We use sudo because the directory is owned by root
+    if sudo rm -rf "$cache_dir"/* 2>/dev/null; then
         print_success "TTS cache cleared."
     else
-        echo "Cache directory does not exist or is already empty."
+        print_error "Failed to clear TTS cache or it is already empty."
     fi
 }
 
