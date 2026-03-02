@@ -107,7 +107,7 @@ function cmd_clear_cache() {
 
 function cmd_reset() {
     print_header "HAMPOD CLI - Hard Reset"
-    echo -e "${YELLOW}Warning: This will forcefully stop HAMPOD and clear all temporary system state.${NC}"
+    echo -e "${YELLOW}Warning: This will forcefully stop HAMPOD and clear all temporary system state, including configuration.${NC}"
     echo ""
     
     echo "Stopping processes..."
@@ -124,6 +124,21 @@ function cmd_reset() {
     
     echo "Clearing temporary logs..."
     sudo rm -f /tmp/firmware.log /tmp/hampod_output.txt /tmp/hampod_debug.log 2>/dev/null || true
+    
+    echo "Resetting configuration..."
+    local config_file="$SOFTWARE2_DIR/config/hampod.conf"
+    local factory_config="$SOFTWARE2_DIR/config/hampod.conf.factory"
+    
+    if [ -f "$factory_config" ]; then
+        if sudo cp "$factory_config" "$config_file" 2>/dev/null; then
+            sudo chown $USER:$USER "$config_file" 2>/dev/null || true
+            echo "  Restored $config_file from factory default."
+        else
+            print_error "Failed to restore $config_file from factory default."
+        fi
+    else
+        echo "  Notice: $factory_config not found. Skipping config reset."
+    fi
     
     print_success "System state reset successfully."
 }
