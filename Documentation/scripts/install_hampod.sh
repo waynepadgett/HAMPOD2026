@@ -464,6 +464,13 @@ main() {
     sudo ln -s "$HAMPOD_DIR/Documentation/scripts/install_hampod.sh" "/usr/local/bin/install_hampod"
     print_info "Added install_hampod to system PATH"
     
+    # Add the main hampod CLI to PATH so it can be run globally
+    if [ -L "/usr/local/bin/hampod" ] || [ -f "/usr/local/bin/hampod" ]; then
+        sudo rm -f "/usr/local/bin/hampod"
+    fi
+    sudo ln -s "$HAMPOD_DIR/Documentation/scripts/hampod_cli.sh" "/usr/local/bin/hampod"
+    print_info "Added hampod CLI to system PATH"
+    
     # Check if Piper is already installed
     if command -v piper &> /dev/null && [ -f "$HAMPOD_DIR/Firmware/models/en_US-lessac-low.onnx" ]; then
         print_warning "Piper TTS already installed"
