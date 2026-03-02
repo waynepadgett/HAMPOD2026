@@ -25,12 +25,14 @@ Add the system maintenance commands to the CLI.
 - `hampod clear-cache`: Clears only the Text-to-Speech (TTS) cache directory.
 - `hampod reset`: Performs a hard reset of the system state (clearing logs, stale pipes, stopping processes).
 - **Testing Plan:**
-  1. Create dummy files in the TTS cache, run `./Documentation/scripts/hampod_cli.sh clear-cache`, and verify only the cache is emptied.
+  1. prompt the user to hit some keys on the hampod while its running, and then clear the TTS cache, run `./Documentation/scripts/hampod_cli.sh clear-cache`, and verify only the cache is emptied.
   2. Ensure background dummy processes/pipes exist, run `./Documentation/scripts/hampod_cli.sh reset`, and verify the system state is clean.
 
 ### Commit 3: CLI Configuration Management (`backup-config` & `restore-config`)
 Add configuration backup and restore functionality.
 - `hampod backup-config`: Copies `Software2/config/hampod.conf` to a timestamped backup location.
+the backup config should have an interactive script to name the backup file. so that it is user friendly to know what backup is what. it should also include the date and time of the backup.
+
 - `hampod restore-config`: Prompts the user with available backups and restores the selected file.
 - **Testing Plan:**
   1. Run `./Documentation/scripts/hampod_cli.sh backup-config` and verify a timestamped `.bak` file is created in the correct location containing the current config.
