@@ -58,6 +58,7 @@ commit 6
 
 documentation. see the root level readme and rpi_setup_guide.md for more information.
 
+(note that im not sure this is needed double check me on that)
 change the update_hampod.sh script to use the same method as the hampod_cli.sh script to find the script directory. and add to the CLI as `update`
 
 side feature: decrease the polling rate for disconnected radios from 5 seconds to 1 second.
