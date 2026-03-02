@@ -133,7 +133,14 @@ function cmd_reset() {
     echo "Stopping processes..."
     # We redirect both stdout and stderr to /dev/null to prevent messy "Killed" outputs
     sudo killall -9 firmware.elf > /dev/null 2>&1 || true
-    sudo killall -9 hampod > /dev/null 2>&1 || true
+    
+    # Carefully kill 'hampod' processes BUT exclude our own PID so the script doesn't commit suicide
+    for pid in $(pgrep -x hampod 2>/dev/null); do
+        if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
+            sudo kill -9 "$pid" > /dev/null 2>&1 || true
+        fi
+    done
+    
     sudo killall -9 phase0_test > /dev/null 2>&1 || true
     sudo killall -9 piper > /dev/null 2>&1 || true
     sudo killall -9 aplay > /dev/null 2>&1 || true
