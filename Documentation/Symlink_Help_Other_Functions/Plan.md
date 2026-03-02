@@ -10,39 +10,45 @@ To follow Git best practices and keep changes isolated, this work will be split 
 ---
 
 ## Branch 1: `feature/hampod-cli-and-symlink`
-This branch implements the new user-facing CLI and update management tools. It introduces new scripts but avoids major changes to existing system operations.
+This branch implements the new user-facing CLI and update management tools. **To facilitate easier review and testing, this work will be broken down into the following bite-sized commits.**
 
-### 1. The `hampod` CLI Script (`Documentation/scripts/hampod_cli.sh`)
-Create a master bash script `hampod_cli.sh` that will parse subcommands. This script will consolidate various disjointed commands into one easy-to-remember interface.
+### Commit 1: Core CLI Structure & basic commands
+Create the master bash script `Documentation/scripts/hampod_cli.sh` and implement the foundational commands (`help` and `start`).
+- `hampod help`: Displays usage guide and available commands.
+- `hampod start [--no-build] [--debug]`: Wraps the existing `run_hampod.sh` logic.
+- **Testing Plan:** 
+  1. Run `./Documentation/scripts/hampod_cli.sh help` and verify the output is correct.
+  2. Run `./Documentation/scripts/hampod_cli.sh start --no-build` and ensure it successfully delegates to `run_hampod.sh` without building.
 
-**Subcommands to Implement:**
-- `hampod start [--no-build] [--debug]`: Wraps the existing `run_hampod.sh` logic to launch both the Firmware and Software2 components cleanly.
-  - `--no-build`: Skips the build step.
-  - `--debug`: Runs hampod with verbose Hamlib debug logging enabled.
-- `hampod help`: Displays a comprehensive usage guide showing all available commands, a list of available regression tests (e.g., Phase 0 Integration), the start command, cache clearing commands, the reset command, and valid flags for the `install_hampod.sh` script.
-- `hampod clear-cache`: Clears only the Text-to-Speech (TTS) cache directory to free up space or regenerate audio files. It will not touch system logs or configurations.
-- `hampod reset`: Performs a hard reset of the system state. Unlike `clear-cache`, this will clear system logs (`/tmp/firmware.log`, `/tmp/hampod_output.txt`, etc.), remove stale IPC pipes, stop background processes, and optionally prompt to reset the `hampod.conf` to its factory default.
-- `hampod backup-config`: Copies `Software2/config/hampod.conf` to a timestamped backup location (e.g., `hampod.conf.bak_YYYYMMDD`).
-- `hampod restore-config`: Prompts the user with available backups and restores the configuration from a selected backup file.
+### Commit 2: CLI Maintenance Utilities (`clear-cache` & `reset`)
+Add the system maintenance commands to the CLI.
+- `hampod clear-cache`: Clears only the Text-to-Speech (TTS) cache directory.
+- `hampod reset`: Performs a hard reset of the system state (clearing logs, stale pipes, stopping processes).
+- **Testing Plan:**
+  1. Create dummy files in the TTS cache, run `./Documentation/scripts/hampod_cli.sh clear-cache`, and verify only the cache is emptied.
+  2. Ensure background dummy processes/pipes exist, run `./Documentation/scripts/hampod_cli.sh reset`, and verify the system state is clean.
 
+### Commit 3: CLI Configuration Management (`backup-config` & `restore-config`)
+Add configuration backup and restore functionality.
+- `hampod backup-config`: Copies `Software2/config/hampod.conf` to a timestamped backup location.
+- `hampod restore-config`: Prompts the user with available backups and restores the selected file.
+- **Testing Plan:**
+  1. Run `./Documentation/scripts/hampod_cli.sh backup-config` and verify a timestamped `.bak` file is created in the correct location containing the current config.
+  2. Modify `hampod.conf`, run `./Documentation/scripts/hampod_cli.sh restore-config`, select the backup, and verify the config is reverted.
 
-### 2. System Symlink (`/usr/local/bin/hampod`)
-To ensure the `hampod` command is globally available, an installation step must be added (or a separate `setup_cli.sh` created) to symlink the CLI script into the system PATH.
-**Command:**
-```bash
-sudo ln -sf /path/to/HAMPOD2026/Documentation/scripts/hampod_cli.sh /usr/local/bin/hampod
-```
-This guarantees that running `hampod <command>` will work regardless of the current working directory.
+### Commit 4: System Symlink
+Add a `setup_cli.sh` script (or simple documented step) to safely symlink the CLI to `/usr/local/bin/hampod`.
+- **Testing Plan:**
+  1. Run the symlink setup command.
+  2. Navigate to `/tmp` and simply run `hampod help` to verify the command works globally from the system PATH.
 
-### 3. Graceful Pull/Update Script (`Documentation/scripts/update_hampod.sh`)
-Currently, `git pull` complains due to compiled artifacts or local edits in `hampod.conf`. This script will provide a seamless update experience.
-
-**Workflow Workflow:**
-1. **Stash Config:** Temporarily copy `Software2/config/hampod.conf` to `/tmp/hampod.conf.bak`.
-2. **Clean Environment:** Run `make clean` in both `Firmware/` and `Software2/` to remove compiled binaries that might cause conflicts.
-3. **Pull Changes:** Execute `git pull origin main` (or the respective branch).
-4. **Restore Config:** Move the stashed configuration file back into place, preserving user preferences.
-5. **Rebuild:** Run `make` in the respective directories to recompile with the latest codebase.
+### Commit 5: Graceful Pull/Update Script (`update_hampod.sh`)
+Create the `Documentation/scripts/update_hampod.sh` script to handle clean code updates.
+- **Workflow:** Stash config -> `make clean` -> `git pull` -> Restore config -> `make`.
+- **Testing Plan:**
+  1. Modify `hampod.conf` locally.
+  2. Run `./Documentation/scripts/update_hampod.sh`.
+  3. Verify that the system pulls cleanly without conflict, recompiles, and the local `hampod.conf` edits are preserved.
 
 ---
 
