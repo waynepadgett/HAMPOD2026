@@ -139,7 +139,7 @@ function cmd_backup_config() {
         exit 1
     fi
     
-    mkdir -p "$backup_dir"
+    mkdir -p "$backup_dir" 2>/dev/null || sudo mkdir -p "$backup_dir"
     
     echo -n "Enter a short name/description for this backup (optional): "
     read -r backup_name
@@ -158,8 +158,14 @@ function cmd_backup_config() {
     final_name="${final_name}.conf"
     local backup_path="$backup_dir/$final_name"
     
-    cp "$config_file" "$backup_path"
-    print_success "Config backed up to: $backup_path"
+    # We use cp with permissions preservation
+    if cp "$config_file" "$backup_path" 2>/dev/null || sudo cp "$config_file" "$backup_path"; then
+        sudo chown $USER:$USER "$backup_path" 2>/dev/null || true
+        print_success "Config backed up to: $backup_path"
+    else
+        print_error "Failed to copy config file to backup path!"
+        exit 1
+    fi
 }
 
 function cmd_restore_config() {
@@ -201,9 +207,15 @@ function cmd_restore_config() {
     
     local selected_backup="${backups[$((selection-1))]}"
     
-    cp "$selected_backup" "$config_file"
-    print_success "Config restored from: $selected_backup"
-    echo "Note: You may need to restart HAMPOD for all changes to take effect."
+    # We use cp with permissions preservation
+    if cp "$selected_backup" "$config_file" 2>/dev/null || sudo cp "$selected_backup" "$config_file"; then
+        sudo chown $USER:$USER "$config_file" 2>/dev/null || true
+        print_success "Config restored from: $selected_backup"
+        echo "Note: You may need to restart HAMPOD for all changes to take effect."
+    else
+        print_error "Failed to restore config file!"
+        exit 1
+    fi
 }
 
 # --- Main Entry Point ---
