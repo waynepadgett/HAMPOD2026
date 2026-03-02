@@ -51,10 +51,10 @@ function cmd_help() {
     echo "  help"
     echo "      Displays this help menu."
     echo ""
-    echo "  clear-cache (Coming Soon)"
+    echo "  clear-cache"
     echo "      Clears the TTS audio cache directory."
     echo ""
-    echo "  reset (Coming Soon)"
+    echo "  reset"
     echo "      Performs a hard reset of system state, clearing logs and stale processes."
     echo ""
     echo "  backup-config (Coming Soon)"
@@ -90,6 +90,42 @@ function cmd_start() {
     "$run_script" "$@"
 }
 
+function cmd_clear_cache() {
+    print_header "HAMPOD CLI - Clear Cache"
+    local cache_dir="$SOFTWARE2_DIR/audio_cache"
+    
+    if [ -d "$cache_dir" ]; then
+        echo "Clearing TTS cache at: $cache_dir"
+        rm -rf "$cache_dir"/* 2>/dev/null || true
+        print_success "TTS cache cleared."
+    else
+        echo "Cache directory does not exist or is already empty."
+    fi
+}
+
+function cmd_reset() {
+    print_header "HAMPOD CLI - Hard Reset"
+    echo -e "${YELLOW}Warning: This will forcefully stop HAMPOD and clear all temporary system state.${NC}"
+    echo ""
+    
+    echo "Stopping processes..."
+    sudo killall -9 firmware.elf 2>/dev/null || true
+    sudo killall -9 hampod 2>/dev/null || true
+    sudo killall -9 phase0_test 2>/dev/null || true
+    sudo killall -9 piper 2>/dev/null || true
+    sudo killall -9 aplay 2>/dev/null || true
+    
+    echo "Clearing IPC pipes..."
+    sudo rm -f "$FIRMWARE_DIR/Firmware_i" "$FIRMWARE_DIR/Firmware_o" 2>/dev/null || true
+    sudo rm -f "$FIRMWARE_DIR/Speaker_i" "$FIRMWARE_DIR/Speaker_o" 2>/dev/null || true
+    sudo rm -f "$FIRMWARE_DIR/Keypad_i" "$FIRMWARE_DIR/Keypad_o" 2>/dev/null || true
+    
+    echo "Clearing temporary logs..."
+    sudo rm -f /tmp/firmware.log /tmp/hampod_output.txt /tmp/hampod_debug.log 2>/dev/null || true
+    
+    print_success "System state reset successfully."
+}
+
 # --- Main Entry Point ---
 
 if [ $# -eq 0 ]; then
@@ -107,7 +143,13 @@ case "$COMMAND" in
     help)
         cmd_help
         ;;
-    clear-cache|reset|backup-config|restore-config)
+    clear-cache)
+        cmd_clear_cache
+        ;;
+    reset)
+        cmd_reset
+        ;;
+    backup-config|restore-config)
         print_error "Command '$COMMAND' is coming in a future update."
         ;;
     *)
