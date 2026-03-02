@@ -4,12 +4,12 @@
 This plan details the implementation of a centralized `hampod` command-line interface (CLI) to manage the entire HAMPOD system efficiently, and a refactoring of the system's logging mechanisms. 
 
 To follow Git best practices and keep changes isolated, this work will be split across two separate branches:
-1.  **`feature/hampod-cli-utilities`**: Focuses on creating the new CLI tools and system symlink without altering existing core behavior.
+1.  **`feature/hampod-cli-and-symlink`**: Focuses on creating the new CLI tools and system symlink without altering existing core behavior.
 2.  **`feature/logging-refactor`**: Focuses on the more pervasive changes required to centralize and standardize logging across the C components and bash scripts.
 
 ---
 
-## Branch 1: `feature/hampod-cli-utilities`
+## Branch 1: `feature/hampod-cli-and-symlink`
 This branch implements the new user-facing CLI and update management tools. It introduces new scripts but avoids major changes to existing system operations.
 
 ### 1. The `hampod` CLI Script (`Documentation/scripts/hampod_cli.sh`)
