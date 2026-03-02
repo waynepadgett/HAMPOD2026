@@ -64,6 +64,7 @@ function cmd_help() {
     echo ""
     echo "  reset"
     echo "      Performs a hard reset of system state, clearing logs and stale processes."
+    echo "      Also resets the hampod.conf configuration file to factory defaults."
     echo ""
     echo "  backup-config"
     echo "      Backs up the current hampod.conf file with an interactive prompt."
