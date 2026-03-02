@@ -71,15 +71,15 @@ function cmd_help() {
     echo "  restore-config"
     echo "      Restores from an existing config backup interactively."
     echo ""
+    echo "  monitor_mem"
+    echo "      Runs the memory monitoring script."
+    echo ""
     echo "--- Useful Scripts ---"
     echo "To run regression tests, run them directly from Documentation/scripts:"
     echo "  - Regression_Phase0_Integration.sh"
     echo "  - Regression_Phase_One_Manual_Radio_Test.sh"
     echo "  - Regression_Phase_Two_Manual_Test.sh"
     echo "  - Regression_Phase_Three_Manual_Test.sh"
-    echo ""
-    echo "To run the memory monitor, use:"
-    echo "  - monitor_mem.sh"
     echo ""
     echo "For full installation flags, see the install_hampod.sh script header."
     echo -e "${CYAN}======================================================${NC}"
@@ -95,6 +95,17 @@ function cmd_start() {
     fi
     
     # Pass all arguments passed to `hampod start` directly to `run_hampod.sh`
+    "$run_script" "$@"
+}
+
+function cmd_monitor_mem() {
+    local run_script="$SCRIPT_DIR/monitor_mem.sh"
+    
+    if [ ! -x "$run_script" ]; then
+        print_error "Cannot find or execute $run_script."
+        exit 1
+    fi
+    
     "$run_script" "$@"
 }
 
@@ -269,6 +280,9 @@ case "$COMMAND" in
         ;;
     restore-config)
         cmd_restore_config
+        ;;
+    monitor_mem|monitor_mem.sh)
+        cmd_monitor_mem "$@"
         ;;
     *)
         print_error "Unknown command: $COMMAND"
