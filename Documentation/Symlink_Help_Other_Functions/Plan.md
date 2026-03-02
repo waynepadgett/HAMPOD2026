@@ -52,6 +52,17 @@ Create the `Documentation/scripts/update_hampod.sh` script to handle clean code 
   2. Run `./Documentation/scripts/update_hampod.sh`.
   3. Verify that the system pulls cleanly without conflict, recompiles, and the local `hampod.conf` edits are preserved.
 
+
+
+commit 6
+
+documentation. see the root level readme and rpi_setup_guide.md for more information.
+
+change the update_hampod.sh script to use the same method as the hampod_cli.sh script to find the script directory. and add to the CLI as `update`
+
+side feature: decrease the polling rate for disconnected radios from 5 seconds to 1 second.
+note that this doesnt rly belong in this branch, but it is a small change that will make the system more responsive, and i dont commit to main. 
+
 ---
 
 ## Branch 2: `feature/logging-refactor`
