@@ -57,11 +57,11 @@ function cmd_help() {
     echo "  reset"
     echo "      Performs a hard reset of system state, clearing logs and stale processes."
     echo ""
-    echo "  backup-config (Coming Soon)"
-    echo "      Backs up the current hampod.conf file."
+    echo "  backup-config"
+    echo "      Backs up the current hampod.conf file with an interactive prompt."
     echo ""
-    echo "  restore-config (Coming Soon)"
-    echo "      Restores from an existing config backup."
+    echo "  restore-config"
+    echo "      Restores from an existing config backup interactively."
     echo ""
     echo "--- Useful Scripts ---"
     echo "To run regression tests, run them directly from Documentation/scripts:"
@@ -128,6 +128,84 @@ function cmd_reset() {
     print_success "System state reset successfully."
 }
 
+function cmd_backup_config() {
+    print_header "HAMPOD CLI - Backup Config"
+    local config_file="$SOFTWARE2_DIR/config/hampod.conf"
+    local backup_dir="$SOFTWARE2_DIR/config/backups"
+    
+    if [ ! -f "$config_file" ]; then
+        print_error "Config file not found: $config_file"
+        echo "Please ensure you have run the system at least once."
+        exit 1
+    fi
+    
+    mkdir -p "$backup_dir"
+    
+    echo -n "Enter a short name/description for this backup (optional): "
+    read -r backup_name
+    
+    local timestamp=$(date +"%Y%m%d_%H%M%S")
+    local final_name="hampod_${timestamp}"
+    
+    if [ -n "$backup_name" ]; then
+        # Replace spaces with underscores and sanitize slightly
+        local sanitized_name=$(echo "$backup_name" | tr ' ' '_' | tr -cd '[:alnum:]_-')
+        if [ -n "$sanitized_name" ]; then
+            final_name="${final_name}_${sanitized_name}"
+        fi
+    fi
+    
+    final_name="${final_name}.conf"
+    local backup_path="$backup_dir/$final_name"
+    
+    cp "$config_file" "$backup_path"
+    print_success "Config backed up to: $backup_path"
+}
+
+function cmd_restore_config() {
+    print_header "HAMPOD CLI - Restore Config"
+    local config_file="$SOFTWARE2_DIR/config/hampod.conf"
+    local backup_dir="$SOFTWARE2_DIR/config/backups"
+    
+    if [ ! -d "$backup_dir" ]; then
+        print_error "No backups directory found: $backup_dir"
+        exit 1
+    fi
+    
+    # Get list of config files
+    # Use nullglob to prevent returning literal string if empty
+    shopt -s nullglob
+    local backups=("$backup_dir"/*.conf)
+    shopt -u nullglob
+    
+    if [ ${#backups[@]} -eq 0 ]; then
+        print_error "No backups found in $backup_dir"
+        exit 1
+    fi
+    
+    echo "Available backups:"
+    local i=1
+    for b in "${backups[@]}"; do
+        echo "  $i) $(basename "$b")"
+        ((i++))
+    done
+    
+    echo ""
+    echo -n "Select a backup to restore (1-$((i-1))): "
+    read -r selection
+    
+    if [[ ! "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -gt "$((i-1))" ]; then
+        print_error "Invalid selection."
+        exit 1
+    fi
+    
+    local selected_backup="${backups[$((selection-1))]}"
+    
+    cp "$selected_backup" "$config_file"
+    print_success "Config restored from: $selected_backup"
+    echo "Note: You may need to restart HAMPOD for all changes to take effect."
+}
+
 # --- Main Entry Point ---
 
 if [ $# -eq 0 ]; then
@@ -151,8 +229,11 @@ case "$COMMAND" in
     reset)
         cmd_reset
         ;;
-    backup-config|restore-config)
-        print_error "Command '$COMMAND' is coming in a future update."
+    backup-config)
+        cmd_backup_config
+        ;;
+    restore-config)
+        cmd_restore_config
         ;;
     *)
         print_error "Unknown command: $COMMAND"
