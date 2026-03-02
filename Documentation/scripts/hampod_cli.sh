@@ -131,11 +131,12 @@ function cmd_reset() {
     echo ""
     
     echo "Stopping processes..."
-    sudo killall -9 firmware.elf 2>/dev/null || true
-    sudo killall -9 hampod 2>/dev/null || true
-    sudo killall -9 phase0_test 2>/dev/null || true
-    sudo killall -9 piper 2>/dev/null || true
-    sudo killall -9 aplay 2>/dev/null || true
+    # We redirect both stdout and stderr to /dev/null to prevent messy "Killed" outputs
+    sudo killall -9 firmware.elf > /dev/null 2>&1 || true
+    sudo killall -9 hampod > /dev/null 2>&1 || true
+    sudo killall -9 phase0_test > /dev/null 2>&1 || true
+    sudo killall -9 piper > /dev/null 2>&1 || true
+    sudo killall -9 aplay > /dev/null 2>&1 || true
     
     echo "Clearing IPC pipes..."
     sudo rm -f "$FIRMWARE_DIR/Firmware_i" "$FIRMWARE_DIR/Firmware_o" 2>/dev/null || true
