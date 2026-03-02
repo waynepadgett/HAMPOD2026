@@ -7,8 +7,16 @@
 # Usage: hampod <command> [options]
 # =============================================================================
 
-# Define paths
-SCRIPT_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# Resolve the real path if the script is called via a symlink (e.g., from /usr/local/bin/hampod)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SOFTWARE2_DIR="$REPO_ROOT/Software2"
 FIRMWARE_DIR="$REPO_ROOT/Firmware"
