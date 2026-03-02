@@ -450,26 +450,14 @@ main() {
     # Make scripts executable
     chmod +x "$HAMPOD_DIR/Documentation/scripts/"*.sh 2>/dev/null || true
     
-    # Add run_hampod to PATH so it can be run from anywhere
-    if [ -L "/usr/local/bin/run_hampod" ] || [ -f "/usr/local/bin/run_hampod" ]; then
-        sudo rm -f "/usr/local/bin/run_hampod"
+    # Create global symlinks for the CLI scripts
+    if [ -x "$HAMPOD_DIR/Documentation/scripts/setup_cli.sh" ]; then
+        print_info "Configuring global CLI commands..."
+        run_with_spinner "Creating symlinks..." sudo "$HAMPOD_DIR/Documentation/scripts/setup_cli.sh"
+        print_success "CLI commands setup successfully"
+    else
+        print_warning "setup_cli.sh not found or not executable. Skipping CLI symlinks."
     fi
-    sudo ln -s "$HAMPOD_DIR/Documentation/scripts/run_hampod.sh" "/usr/local/bin/run_hampod"
-    print_info "Added run_hampod to system PATH"
-    
-    # Add install_hampod to PATH so it can be updated from anywhere
-    if [ -L "/usr/local/bin/install_hampod" ] || [ -f "/usr/local/bin/install_hampod" ]; then
-        sudo rm -f "/usr/local/bin/install_hampod"
-    fi
-    sudo ln -s "$HAMPOD_DIR/Documentation/scripts/install_hampod.sh" "/usr/local/bin/install_hampod"
-    print_info "Added install_hampod to system PATH"
-    
-    # Add the main hampod CLI to PATH so it can be run globally
-    if [ -L "/usr/local/bin/hampod" ] || [ -f "/usr/local/bin/hampod" ]; then
-        sudo rm -f "/usr/local/bin/hampod"
-    fi
-    sudo ln -s "$HAMPOD_DIR/Documentation/scripts/hampod_cli.sh" "/usr/local/bin/hampod"
-    print_info "Added hampod CLI to system PATH"
     
     # Check if Piper is already installed
     if command -v piper &> /dev/null && [ -f "$HAMPOD_DIR/Firmware/models/en_US-lessac-low.onnx" ]; then

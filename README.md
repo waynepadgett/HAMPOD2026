@@ -92,15 +92,41 @@ cd ~/HAMPOD2026 && ./Documentation/scripts/install_hampod.sh --verbose --hard-re
 
 ### Running HAMPOD
 
+The system is controlled primarily through the `hampod` Command Line Interface (CLI).
+
+To test the basic functionality:
+```bash
+hampod help
+```
+
 To start the system:
-
-```
-cd ~/HAMPOD2026 && ./Documentation/scripts/run_hampod.sh
+```bash
+hampod start
 # To start with verbose Hamlib debug logging:
-cd ~/HAMPOD2026 && ./Documentation/scripts/run_hampod.sh --debug
+hampod start --debug
+# To start without rebuilding C code:
+hampod start --no-build
 ```
 
-To stop, press Control-C.
+To safely update the system from GitHub (preserves config):
+```bash
+hampod update
+```
+
+To manage the configuration:
+```bash
+hampod backup-config
+hampod restore-config
+```
+
+To perform maintenance:
+```bash
+hampod clear-cache   # Clears the TTS audio cache
+hampod reset         # Hard resets the system state and restores factory config
+hampod monitor_mem   # Tracks system memory usage
+```
+
+To stop HAMPOD once running, press Control-C.
 
 ## Configuration
 

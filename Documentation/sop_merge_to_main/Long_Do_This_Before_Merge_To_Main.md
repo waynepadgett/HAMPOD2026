@@ -334,7 +334,58 @@ If tuning fails, speech is wrong, or it locks up on frequency entry: **test fail
 
 ---
 
-### 10\. Error & Edge‑Case Observations
+### 10\. Config Mode Entry & Navigation
+
+10.1 **Entering Config Mode**
+
+1. Press and hold the **`-` (minus)** key (or designated Config key) for ~1 sec.
+2. Expected: System speaks **"Configuration Mode"** followed by the first parameter (e.g. "Volume: XX percent").
+
+10.2 **Navigating Parameters**
+
+1. Press **`/` (slash/A)** to step forward through parameters: Volume -> Speech Speed -> Keypad Layout -> System Shutdown.
+2. Press **`*` (asterisk/B)** to step backward through parameters.
+3. Verify speech correctly identifies each parameter as you navigate.
+
+10.3 **Adjusting Settings**
+
+1. Navigate to "Volume".
+2. Press **`+` (plus/D)** to decrease volume and **`-` (minus/C)** to increase volume (or according to current mapping).
+3. Verify the spoken announcement reflects the change and the actual audio output volume changes immediately.
+4. Navigate to "Speech Speed" and verify you can lower the speed down to a very slow rate, then bring it back to a comfortable rate. The TTS should instantly speak slower/faster.
+
+10.4 **Exit and Save / Discard Modes**
+
+1. **Save and Exit:** Change the Keypad Layout to "Phone". Hold the **`-` (minus)** key to exit. Verify it speaks **"Configuration Saved"**. Ensure the new layout is active (e.g., the `7` key now behaves like the `1` key). Re-enter config and change it back to "Calculator" and save.
+2. **Discard and Exit:** Re-enter Config Mode. Change volume to an extreme value. Hold the **`*` (asterisk/B)** key. Verify it speaks **"Configuration Cancelled"**. Verify the volume instantly reverts to your original setting.
+3. **Apply for Session (No Save):** Re-enter Config Mode. Change volume. Hold the **`+` (plus/D)** key. Verify it speaks **"Configuration applied for this session"**.
+
+If any of the parameters fail to apply immediately during selection, or if the save/discard logic does not behave as required: **test fails**.
+
+---
+
+### 11\. CLI Utilities Verification
+
+11.1 **Basic CLI Commands**
+
+1. Exit the interactive software cleanly.
+2. Run `hampod help` and verify the output displays all expected commands.
+3. Run `hampod start` to start the system, verify it is running, and use `Ctrl+C` to stop it.
+4. Run `hampod clear-cache` and verify it reports success.
+5. Run `hampod reset` and verify it also reports success (this will restore default configs and kill stray processes).
+
+11.2 **Configuration Backup & Restore**
+
+1. Run `hampod backup-config`. Enter a test name when prompted. Verify a backup is created in `Software2/config/backups/`.
+2. Delete or manually corrupt `Software2/config/hampod.conf`.
+3. Run `hampod restore-config`. Select the backup you just made.
+4. Verify the `hampod.conf` file is correctly restored.
+
+If any CLI command errors out, fails to execute cleanly from the global `hampod` command, or hangs: **test fails**.
+
+---
+
+### 12\. Error & Edge‑Case Observations
 
 During all steps above, watch for:
 
@@ -351,11 +402,11 @@ Any such issue discovered should:
 
 ---
 
-### 11\. Exit Criteria for Merge to `main`
+### 13\. Exit Criteria for Merge to `main`
 
 Branch is **eligible to merge** only if:
 
--   All sections (2–9) above pass **without** regressions compared to current `main`.
+-   All sections (2–11) above pass **without** regressions compared to current `main`.
 -   No new silent failures or “radio not found” issues in valid setups.
 -   Interrupt, frequency entry, and configuration behavior is consistent and stable.
 

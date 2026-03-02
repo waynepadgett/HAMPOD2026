@@ -56,7 +56,7 @@ Create the `Documentation/scripts/update_hampod.sh` script to handle clean code 
 
 commit 6
 
-documentation. see the root level readme and rpi_setup_guide.md for more information.
+
 
 (note that im not sure this is needed double check me on that)
 change the update_hampod.sh script to use the same method as the hampod_cli.sh script to find the script directory. and add to the CLI as `update`
@@ -65,7 +65,24 @@ side feature: decrease the polling rate for disconnected radios from 5 seconds t
 note that this doesnt rly belong in this branch, but it is a small change that will make the system more responsive, and i dont commit to main. 
 
 ---
+### Commit 7: Documentation, Integration, and Pre-Merge Testing
+Finalize the branch by documenting the new CLI, integrating the setup script, and ensuring the system is ready for the `main` branch.
 
+
+
+- **Documentation Updates:**
+  - Add documentation for the `hampod` CLI and all of its commands (`help`, `start`, `update`, `clear-cache`, `reset`, `backup-config`, `restore-config`, and `monitor_mem`) to the root `README.md`.
+  - Update `Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md` with any necessary references to the CLI or the symlink setup.
+- **Integration:**
+  - Call `./Documentation/scripts/setup_cli.sh` from within the main `./Documentation/scripts/install_hampod.sh` script so the symlink is created automatically during a fresh install.
+- **Testing Plan:**
+  0. do a fresh install. 
+  1. Carefully run through the checklist in `Documentation/sop_merge_to_main/Short_Do_This_Before_Merge_To_Main.md`.
+  2. Perform exhaustive manual testing of all `hampod` CLI commands to verify unexpected inputs are handled gracefully and permissions (e.g., `sudo`) function identically when called globally vs. locally.
+  3. test the config mode on the rpi. 
+    note for this i may need to write a test procedure and add it to the short do this before merge to main...
+
+    
 ## Branch 2: `feature/logging-refactor`
 This branch handles changes to how the system outputs information. Isolating this work ensures that if bugs are introduced during the refactor, they don't impact the new CLI utilities developed in Branch 1.
 
