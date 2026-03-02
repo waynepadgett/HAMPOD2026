@@ -1,9 +1,18 @@
 # Implementation Plan: HAMPOD CLI, Logging, and Maintenance Utilities
 
 ## Summary
-This plan details the implementation of a centralized `hampod` command-line interface (CLI) to manage the entire HAMPOD system efficiently. The goal is to provide a single, unified entry point (symlinked to the system PATH) for starting the system, viewing help documentation, managing TTS caches, updating from the repository gracefully, and handling configuration backups. Additionally, logging mechanisms will be refactored and consolidated for better maintainability and troubleshooting.
+This plan details the implementation of a centralized `hampod` command-line interface (CLI) to manage the entire HAMPOD system efficiently, and a refactoring of the system's logging mechanisms. 
 
-## 1. The `hampod` CLI Script (`Documentation/scripts/hampod_cli.sh`)
+To follow Git best practices and keep changes isolated, this work will be split across two separate branches:
+1.  **`feature/hampod-cli-utilities`**: Focuses on creating the new CLI tools and system symlink without altering existing core behavior.
+2.  **`feature/logging-refactor`**: Focuses on the more pervasive changes required to centralize and standardize logging across the C components and bash scripts.
+
+---
+
+## Branch 1: `feature/hampod-cli-utilities`
+This branch implements the new user-facing CLI and update management tools. It introduces new scripts but avoids major changes to existing system operations.
+
+### 1. The `hampod` CLI Script (`Documentation/scripts/hampod_cli.sh`)
 Create a master bash script `hampod_cli.sh` that will parse subcommands. This script will consolidate various disjointed commands into one easy-to-remember interface.
 
 **Subcommands to Implement:**
@@ -15,9 +24,8 @@ Create a master bash script `hampod_cli.sh` that will parse subcommands. This sc
 - `hampod reset`: Performs a hard reset of the system state. Unlike `clear-cache`, this will clear system logs (`/tmp/firmware.log`, `/tmp/hampod_output.txt`, etc.), remove stale IPC pipes, stop background processes, and optionally prompt to reset the `hampod.conf` to its factory default.
 - `hampod backup-config`: Copies `Software2/config/hampod.conf` to a timestamped backup location (e.g., `hampod.conf.bak_YYYYMMDD`).
 - `hampod restore-config`: Prompts the user with available backups and restores the configuration from a selected backup file.
-- `hampod monitor-mem`: Executes the `monitor_mem.sh` script to continuously log the memory usage of the system's core processes (`firmware.elf`, `hampod`, `piper`) every 5 minutes. Useful for diagnosing memory leaks over long periods.
 
-## 2. System Symlink (`/usr/local/bin/hampod`)
+### 2. System Symlink (`/usr/local/bin/hampod`)
 To ensure the `hampod` command is globally available, an installation step must be added (or a separate `setup_cli.sh` created) to symlink the CLI script into the system PATH.
 **Command:**
 ```bash
@@ -25,7 +33,7 @@ sudo ln -sf /path/to/HAMPOD2026/Documentation/scripts/hampod_cli.sh /usr/local/b
 ```
 This guarantees that running `hampod <command>` will work regardless of the current working directory.
 
-## 3. Graceful Pull/Update Script (`Documentation/scripts/update_hampod.sh`)
+### 3. Graceful Pull/Update Script (`Documentation/scripts/update_hampod.sh`)
 Currently, `git pull` complains due to compiled artifacts or local edits in `hampod.conf`. This script will provide a seamless update experience.
 
 **Workflow Workflow:**
@@ -35,7 +43,12 @@ Currently, `git pull` complains due to compiled artifacts or local edits in `ham
 4. **Restore Config:** Move the stashed configuration file back into place, preserving user preferences.
 5. **Rebuild:** Run `make` in the respective directories to recompile with the latest codebase.
 
-## 4. Logging Refactor
+---
+
+## Branch 2: `feature/logging-refactor`
+This branch handles changes to how the system outputs information. Isolating this work ensures that if bugs are introduced during the refactor, they don't impact the new CLI utilities developed in Branch 1.
+
+### 4. Logging Refactor
 Currently, logging is functional but scattered across different outputs and `/tmp/` files. We will structure this to make debugging straightforward.
 
 - **Centralization:** Centralize all logs into a single directory (e.g., `~/HAMPOD2026/logs/` or `/var/log/hampod/`).
