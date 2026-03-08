@@ -75,6 +75,10 @@ Finalize the branch by documenting the new CLI, integrating the setup script, an
   - Update `Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md` with any necessary references to the CLI or the symlink setup.
 - **Integration:**
   - Call `./Documentation/scripts/setup_cli.sh` from within the main `./Documentation/scripts/install_hampod.sh` script so the symlink is created automatically during a fresh install.
+
+
+
+
 - **Testing Plan:**
   0. do a fresh install. 
   1. Carefully run through the checklist in `Documentation/sop_merge_to_main/Short_Do_This_Before_Merge_To_Main.md`.
@@ -83,6 +87,46 @@ Finalize the branch by documenting the new CLI, integrating the setup script, an
     note for this i may need to write a test procedure and add it to the short do this before merge to main...
 
     
+
+extra testing for edge cases
+
+1. The "Already Running" Start
+In 
+
+hampod_cli.sh
+, the 
+
+start
+ command delegates to 
+
+run_hampod.sh
+. Does the system check if an instance is already active? If a user accidentally runs hampod start twice, you might end up with two firmware.elf processes fighting over the same serial ports or audio devices.
+
+2. Config Version Skew
+When using restore-config, if the user restores a backup from three months ago onto a brand new version of the software that has new mandatory fields in hampod.conf, will the system handle the missing keys gracefully? It might be worth a quick check to see if the firmware "fills in the blanks" with defaults if a key is missing.
+
+3. Permissions on the TTS Cache
+Your clear-cache command uses sudo rm -rf /root/.cache/hampod/tts. This is correct since the firmware runs as root, but if a user has been running bits of the system manually (without sudo) for testing, they might have a cache in ~/.cache/hampod/tts as well. Probably a non-issue for the target Pi environment, but something to keep in mind.
+
+
+5. Symlink Setup Pathing
+In setup_cli.sh (which I assume is what the installer calls), make sure it checks if /usr/local/bin is in the user's $PATH. Most modern distros have it, but every now and then a minimal install misses it.
+
+
+CRITICAL TODO: define error handling for the symlink setup script
+
+Instead of just describing behavior, define it:
+
+All CLI commands must exit with:
+0 on success
+non-zero on failure
+2 for invalid arguments
+3 for runtime/system errors
+
+
+
+
+
 ## Branch 2: `feature/logging-refactor`
 This branch handles changes to how the system outputs information. Isolating this work ensures that if bugs are introduced during the refactor, they don't impact the new CLI utilities developed in Branch 1.
 
@@ -93,3 +137,4 @@ Currently, logging is functional but scattered across different outputs and `/tm
 - **Standardization:** Enforce a uniform logging format across both C-code components:
   `[TIMESTAMP] [COMPONENT] [LEVEL] Message` (e.g., `[2026-02-28 15:00:01] [FIRMWARE] [INFO] Keypad initialized.`)
 - **Redirection:** Update `hampod start` and individual C applications to consistently append to these specific log files instead of dumping everything to standard output.
+
