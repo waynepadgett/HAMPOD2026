@@ -124,10 +124,16 @@ static void apply_volume_live(int vol) {
   char vol_cmd[256];
   if (card >= 0) {
     snprintf(vol_cmd, sizeof(vol_cmd),
-             "amixer -c %d -q sset PCM %d%% 2>/dev/null", card, vol);
+             "amixer -c %d -q sset Speaker %d%% 2>/dev/null || "
+             "amixer -c %d -q sset PCM %d%% 2>/dev/null || "
+             "amixer -c %d -q sset Master %d%% 2>/dev/null",
+             card, vol, card, vol, card, vol);
   } else {
-    snprintf(vol_cmd, sizeof(vol_cmd), "amixer -q sset PCM %d%% 2>/dev/null",
-             vol);
+    snprintf(vol_cmd, sizeof(vol_cmd),
+             "amixer -q sset Speaker %d%% 2>/dev/null || "
+             "amixer -q sset PCM %d%% 2>/dev/null || "
+             "amixer -q sset Master %d%% 2>/dev/null",
+             vol, vol, vol);
   }
   system(vol_cmd);
 }
