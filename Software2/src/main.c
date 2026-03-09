@@ -203,6 +203,7 @@ int main(int argc, char *argv[]) {
   int card_number = 2; // Default fallback
   if (comm_query_audio_card_number(&card_number) == 0) {
     printf("Audio card detected: %d\n", card_number);
+    config_set_audio_card_number(card_number); // UPDATE: Save value to state
   } else {
     printf("WARNING: Could not query audio card, using default card %d\n",
            card_number);
@@ -217,11 +218,17 @@ int main(int argc, char *argv[]) {
   printf("Setting volume to %d%% on card %d...\n", volume, card_number);
   char vol_cmd[256];
   snprintf(vol_cmd, sizeof(vol_cmd),
-           "amixer -c %d -q sset PCM %d%% 2>/dev/null", card_number, volume);
+           "amixer -c %d -q sset Speaker %d%% 2>/dev/null || "
+           "amixer -c %d -q sset PCM %d%% 2>/dev/null || "
+           "amixer -c %d -q sset Master %d%% 2>/dev/null",
+           card_number, volume, card_number, volume, card_number, volume);
   if (system(vol_cmd) != 0) {
     printf("WARNING: Volume command failed, trying default device\n");
-    snprintf(vol_cmd, sizeof(vol_cmd), "amixer -q sset PCM %d%% 2>/dev/null",
-             volume);
+    snprintf(vol_cmd, sizeof(vol_cmd),
+             "amixer -q sset Speaker %d%% 2>/dev/null || "
+             "amixer -q sset PCM %d%% 2>/dev/null || "
+             "amixer -q sset Master %d%% 2>/dev/null",
+             volume, volume, volume);
     system(vol_cmd);
   }
 
@@ -248,7 +255,7 @@ int main(int argc, char *argv[]) {
   // Initialize radio with auto-reconnect
   if (!skip_radio) {
     printf("Connecting to radio...\n");
-    if (radio_init() != 0) {
+    if (radio_init(false) != 0) {
       printf(
           "WARNING: Could not connect to radio (will retry automatically)\n");
       speech_say_text("Radio not found. Will retry.");

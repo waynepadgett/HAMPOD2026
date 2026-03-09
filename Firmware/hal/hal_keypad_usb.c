@@ -29,8 +29,10 @@
 /* Runtime layout mode: 0 = calculator (default), 1 = phone */
 static int g_phone_layout = 0;
 
-/* File descriptor for keypad device */
-static int keypad_fd = -1;
+/* File descriptors for all matching keypad devices */
+#define MAX_KEYPADS 16
+static int keypad_fds[MAX_KEYPADS];
+static int num_keypads = 0;
 
 /* Debouncing state for '00' key (calculator mode) */
 static struct {
@@ -58,7 +60,8 @@ static struct {
   int pending;              /* 1 if waiting to determine 0 vs 00 */
   struct timeval wall_time; /* Wall-clock time when pending was set */
   int raw_code;             /* Saved raw keycode */
-} kp0_defer = {0, {0, 0}, 0};
+  int source_fd_idx;        /* FD index of the pending keypress */
+} kp0_defer = {0, {0, 0}, 0, -1};
 
 /* Stash for events read during 0/00 disambiguation */
 static struct input_event stashed_ev;
@@ -96,6 +99,26 @@ static const KeymapEntry keymap_calculator[] = {
     {KEY_KPDOT, '*'},     /* . (DEL) → * */
     {KEY_NUMLOCK, 'X'},   /* NUM_LOCK → X */
     {KEY_BACKSPACE, 'Y'}, /* BACKSPACE → Y */
+
+    /* Standard QWERTY ALPHANUMERIC Fallbacks */
+    {KEY_0, '0'},
+    {KEY_1, '1'},
+    {KEY_2, '2'},
+    {KEY_3, '3'},
+    {KEY_4, '4'},
+    {KEY_5, '5'},
+    {KEY_6, '6'},
+    {KEY_7, '7'},
+    {KEY_8, '8'},
+    {KEY_9, '9'},
+    {KEY_A, 'A'},
+    {KEY_B, 'B'},
+    {KEY_C, 'C'},
+    {KEY_D, 'D'},
+    {KEY_ENTER, '#'},
+    {KEY_DOT, '*'},
+    {KEY_X, 'X'},
+    {KEY_Y, 'Y'},
 
     {-1, '\0'} /* End marker */
 };
@@ -142,26 +165,46 @@ static const KeymapEntry keymap_phone[] = {
 
     /* Top row keys (NumLock, /, *) unmapped — fall through to '-' */
 
+    /* Standard QWERTY ALPHANUMERIC Fallbacks */
+    {KEY_0, '0'},
+    {KEY_1, '1'},
+    {KEY_2, '2'},
+    {KEY_3, '3'},
+    {KEY_4, '4'},
+    {KEY_5, '5'},
+    {KEY_6, '6'},
+    {KEY_7, '7'},
+    {KEY_8, '8'},
+    {KEY_9, '9'},
+    {KEY_A, 'A'},
+    {KEY_B, 'B'},
+    {KEY_C, 'C'},
+    {KEY_D, 'D'},
+    {KEY_ENTER, '#'},
+    {KEY_DOT, '*'},
+    {KEY_X, 'X'},
+    {KEY_Y, 'Y'},
+
     {-1, '\0'} /* End marker */
 };
 
 /**
- * @brief Find USB keypad device
+ * @brief Find all USB keypad devices
  */
-static int find_usb_keypad(char *device_path, size_t max_len) {
+static int find_usb_keypads(char paths[MAX_KEYPADS][256]) {
   glob_t glob_result;
-  int ret = -1;
+  int count = 0;
 
   if (glob(KEYPAD_DEVICE_PATTERN, 0, NULL, &glob_result) == 0) {
-    if (glob_result.gl_pathc > 0) {
-      strncpy(device_path, glob_result.gl_pathv[0], max_len - 1);
-      device_path[max_len - 1] = '\0';
-      ret = 0;
+    for (size_t i = 0; i < glob_result.gl_pathc && count < MAX_KEYPADS; i++) {
+      strncpy(paths[count], glob_result.gl_pathv[i], 255);
+      paths[count][255] = '\0';
+      count++;
     }
     globfree(&glob_result);
   }
 
-  return ret;
+  return count;
 }
 
 /**
@@ -181,20 +224,39 @@ static char map_keycode_to_symbol(int keycode) {
 /* HAL Implementation Functions */
 
 int hal_keypad_init(void) {
-  char device_path[256];
+  char device_paths[MAX_KEYPADS][256];
+  num_keypads = find_usb_keypads(device_paths);
 
-  if (find_usb_keypad(device_path, sizeof(device_path)) != 0) {
-    fprintf(stderr, "HAL Keypad: USB keypad device not found\n");
+  if (num_keypads == 0) {
+    fprintf(stderr, "HAL Keypad: No USB keypad devices found\n");
     return -1;
   }
 
-  keypad_fd = open(device_path, O_RDONLY | O_NONBLOCK);
-  if (keypad_fd < 0) {
-    perror("HAL Keypad: Failed to open device");
+  int success = 0;
+  for (int i = 0; i < num_keypads; i++) {
+    keypad_fds[i] = open(device_paths[i], O_RDONLY | O_NONBLOCK);
+    if (keypad_fds[i] >= 0) {
+      printf("HAL Keypad: Opened USB keypad %d at %s\n", i, device_paths[i]);
+      success++;
+    } else {
+      perror("HAL Keypad: Failed to open device");
+    }
+  }
+
+  if (success == 0) {
     return -1;
   }
 
-  printf("HAL Keypad: Initialized USB keypad at %s (layout: %s)\n", device_path,
+  // Condense the fd array
+  int j = 0;
+  for (int i = 0; i < num_keypads; i++) {
+    if (keypad_fds[i] >= 0) {
+      keypad_fds[j++] = keypad_fds[i];
+    }
+  }
+  num_keypads = j;
+
+  printf("HAL Keypad: Initialized %d USB keypads (layout: %s)\n", num_keypads,
          g_phone_layout ? "phone" : "calculator");
   return 0;
 }
@@ -208,9 +270,10 @@ void hal_keypad_set_phone_layout(int phone_layout) {
 KeypadEvent hal_keypad_read(void) {
   KeypadEvent event = {'-', 0, 0}; /* Default: invalid event */
   struct input_event ev;
-  ssize_t bytes_read;
+  ssize_t bytes_read = -1;
+  int current_fd_idx = -1;
 
-  if (keypad_fd < 0) {
+  if (num_keypads == 0) {
     return event;
   }
 
@@ -223,7 +286,7 @@ KeypadEvent hal_keypad_read(void) {
      */
     if (!has_stashed_ev) {
       while (1) {
-        bytes_read = read(keypad_fd, &ev, sizeof(ev));
+        bytes_read = read(keypad_fds[kp0_defer.source_fd_idx], &ev, sizeof(ev));
         if (bytes_read != sizeof(ev))
           break; /* Buffer empty */
 
@@ -280,8 +343,15 @@ KeypadEvent hal_keypad_read(void) {
     ev = stashed_ev;
     has_stashed_ev = 0;
     bytes_read = sizeof(ev);
+    current_fd_idx = kp0_defer.source_fd_idx; /* Reset original context */
   } else {
-    bytes_read = read(keypad_fd, &ev, sizeof(ev));
+    for (int i = 0; i < num_keypads; i++) {
+      bytes_read = read(keypad_fds[i], &ev, sizeof(ev));
+      if (bytes_read == sizeof(ev)) {
+        current_fd_idx = i;
+        break;
+      }
+    }
   }
 
   if (bytes_read == sizeof(ev) && ev.type == EV_KEY) {
@@ -293,7 +363,8 @@ KeypadEvent hal_keypad_read(void) {
         kp0_defer.pending = 1;
         gettimeofday(&kp0_defer.wall_time, NULL);
         kp0_defer.raw_code = ev.code;
-        return event; /* Don't report yet */
+        kp0_defer.source_fd_idx = current_fd_idx; /* Store where it came from */
+        return event;                             /* Don't report yet */
       }
 
       /* Calculator-mode: debounce '00' key */
@@ -347,11 +418,14 @@ KeypadEvent hal_keypad_read(void) {
 }
 
 void hal_keypad_cleanup(void) {
-  if (keypad_fd >= 0) {
-    close(keypad_fd);
-    keypad_fd = -1;
-    printf("HAL Keypad: Cleaned up\n");
+  for (int i = 0; i < num_keypads; i++) {
+    if (keypad_fds[i] >= 0) {
+      close(keypad_fds[i]);
+      keypad_fds[i] = -1;
+    }
   }
+  num_keypads = 0;
+  printf("HAL Keypad: Cleaned up\n");
 }
 
 const char *hal_keypad_get_impl_name(void) { return "USB Numeric Keypad"; }
