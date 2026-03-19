@@ -15,7 +15,7 @@ This branch implements the new user-facing CLI and update management tools. **To
 ### Quick Reference TODO List
 - TODO: Edge Cases Testing
   - [x] **"Already Running" Start**: Verify `hampod start` doesn't run multiple instances of firmware.elf, fighting over serial ports.
-  - [ ] **Config Version Skew**: Check if `restore-config` handles missing fields from old backups gracefully.
+  - [x] **Config Version Skew**: Check if `restore-config` handles missing fields from old backups gracefully.
   - [ ] **TTS Caching Permissions**: Test `clear-cache` to ensure it removes both root (`/root/.cache/...`) and user (`~/.cache/...`) TTS caches.
   - [ ] **Symlink Pathing**: Ensure `setup_cli.sh` checks if `/usr/local/bin` is in `$PATH` during installation.
 - TODO: Define error handling and exit codes for CLI commands

@@ -291,6 +291,23 @@ function cmd_restore_config() {
     # We use cp with permissions preservation
     if cp "$selected_backup" "$config_file" 2>/dev/null || sudo cp "$selected_backup" "$config_file"; then
         sudo chown $USER:$USER "$config_file" 2>/dev/null || true
+        
+        # Gracefully handle version skew by filling in missing keys from factory default
+        local factory_config="$SOFTWARE2_DIR/config/hampod.conf.factory"
+        if [ -f "$factory_config" ]; then
+            python3 -c "
+import configparser
+f, b = configparser.ConfigParser(), configparser.ConfigParser()
+f.read('$factory_config')
+b.read('$config_file')
+for sec in f.sections():
+    if not b.has_section(sec): b.add_section(sec)
+    for k, v in f.items(sec):
+        if not b.has_option(sec, k): b.set(sec, k, v)
+with open('$config_file', 'w') as out: b.write(out)
+" 2>/dev/null || true
+        fi
+        
         print_success "Config restored from: $selected_backup"
         echo "Note: You may need to restart HAMPOD for all changes to take effect."
     else
