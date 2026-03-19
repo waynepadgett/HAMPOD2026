@@ -65,9 +65,10 @@ function cmd_help() {
     echo "  clear-cache"
     echo "      Clears the TTS audio cache directory."
     echo ""
-    echo "  reset"
+    echo "  reset [--yes|-y]"
     echo "      Performs a hard reset of system state, clearing logs and stale processes."
     echo "      Also resets the hampod.conf configuration file to factory defaults."
+    echo "      --yes / -y: Skip confirmation prompt (for scripted use)."
     echo ""
     echo "  backup-config"
     echo "      Backs up the current hampod.conf file with an interactive prompt."
@@ -156,13 +157,23 @@ function cmd_reset() {
     echo -e "${YELLOW}Warning: This will forcefully stop HAMPOD and clear all temporary system state, including configuration.${NC}"
     echo ""
     
-    echo -n "Are you sure you want to continue? [y/N] "
-    read -r confirm
-    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-        echo "Reset cancelled."
-        exit 0
+    # Allow --yes / -y to skip confirmation (for scripted/non-interactive use)
+    local skip_confirm=false
+    for arg in "$@"; do
+        case "$arg" in
+            --yes|-y) skip_confirm=true ;;
+        esac
+    done
+
+    if [ "$skip_confirm" = false ]; then
+        echo -n "Are you sure you want to continue? [y/N] "
+        read -r confirm
+        if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+            echo "Reset cancelled."
+            exit 0
+        fi
+        echo ""
     fi
-    echo ""
     echo "Stopping processes..."
     # We redirect both stdout and stderr to /dev/null to prevent messy "Killed" outputs
     sudo killall -9 firmware.elf > /dev/null 2>&1 || true
@@ -359,7 +370,7 @@ case "$COMMAND" in
         cmd_clear_cache
         ;;
     reset)
-        cmd_reset
+        cmd_reset "$@"
         ;;
     backup-config)
         cmd_backup_config

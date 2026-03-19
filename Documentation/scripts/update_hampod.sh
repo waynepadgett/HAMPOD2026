@@ -62,7 +62,7 @@ fi
 
 # 2. Stop running processes
 echo "Stopping any running HAMPOD processes..."
-"$CLI_SCRIPT" reset > /dev/null 2>&1 || true
+"$CLI_SCRIPT" reset --yes > /dev/null 2>&1 || true
 
 # 3. Clean the repository and pull
 echo "Cleaning and pulling latest code from GitHub..."
