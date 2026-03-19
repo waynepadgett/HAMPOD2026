@@ -400,17 +400,23 @@ main() {
         
         cd "$HAMPOD_DIR"
         
+        # Detect the current branch so we don't accidentally reset to a different one
+        CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "main")
+        if [ -z "$CURRENT_BRANCH" ]; then
+            CURRENT_BRANCH="main"
+        fi
+        
         if [[ ! "$pull_choice" =~ ^[Nn]$ ]]; then
-            print_info "Performing clean pull..."
+            print_info "Performing clean pull on branch '$CURRENT_BRANCH'..."
             run_with_spinner "Fetching updates..." git fetch origin
-            run_with_spinner "Resetting to main..." git reset --hard origin/main
+            run_with_spinner "Resetting to $CURRENT_BRANCH..." git reset --hard "origin/$CURRENT_BRANCH"
             run_with_spinner "Cleaning untracked..." git clean -fd
             print_success "Clean pull successful"
         else
-            print_info "Attempting standard pull..."
+            print_info "Attempting standard pull on branch '$CURRENT_BRANCH'..."
             # Suppress normal stdout, preserve errors
             git stash > /dev/null 2>&1 || true
-            run_with_spinner "Pulling updates..." git pull origin main || git pull origin master || true
+            run_with_spinner "Pulling updates..." git pull origin "$CURRENT_BRANCH" || true
             git stash pop > /dev/null 2>&1 || true
             print_success "Standard pull successful"
         fi
