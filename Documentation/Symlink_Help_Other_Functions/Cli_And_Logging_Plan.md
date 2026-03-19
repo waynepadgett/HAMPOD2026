@@ -16,13 +16,13 @@ This branch implements the new user-facing CLI and update management tools. **To
 - TODO: Edge Cases Testing
   - [x] **"Already Running" Start**: Verify `hampod start` doesn't run multiple instances of firmware.elf, fighting over serial ports.
   - [x] **Config Version Skew**: Check if `restore-config` handles missing fields from old backups gracefully.
-  - [ ] **TTS Caching Permissions**: Test `clear-cache` to ensure it removes both root (`/root/.cache/...`) and user (`~/.cache/...`) TTS caches.
-  - [ ] **Symlink Pathing**: Ensure `setup_cli.sh` checks if `/usr/local/bin` is in `$PATH` during installation.
+  - [x] **TTS Caching Permissions**: Test `clear-cache` to ensure it removes both root (`/root/.cache/...`) and user (`~/.cache/...`) TTS caches.
+  - [x] **Symlink Pathing**: Ensure `setup_cli.sh` checks if `/usr/local/bin` is in `$PATH` during installation.
 - TODO: Define error handling and exit codes for CLI commands
-  - [ ] Implement exit code `0` for success.
-  - [ ] Implement exit code `2` for invalid arguments.
-  - [ ] Implement exit code `3` for runtime/system errors.
-  - [ ] Add explicit error handling/checking to the symlink setup script.
+  - [x] Implement exit code `0` for success.
+  - [x] Implement exit code `2` for invalid arguments.
+  - [x] Implement exit code `3` for runtime/system errors.
+  - [x] Add explicit error handling/checking to the symlink setup script.
 
 ### Commit 1: Core CLI Structure & basic commands
 Create the master bash script `Documentation/scripts/hampod_cli.sh` and implement the foundational commands (`help` and `start`).

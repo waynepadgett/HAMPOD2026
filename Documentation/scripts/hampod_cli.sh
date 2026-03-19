@@ -95,7 +95,7 @@ function cmd_start() {
     
     if [ ! -x "$run_script" ]; then
         print_error "Cannot find or execute $run_script."
-        exit 1
+        exit 3
     fi
     
     # Pass all arguments passed to `hampod start` directly to `run_hampod.sh`
@@ -107,7 +107,7 @@ function cmd_update() {
     
     if [ ! -x "$run_script" ]; then
         print_error "Cannot find or execute $run_script."
-        exit 1
+        exit 3
     fi
     
     "$run_script" "$@"
@@ -118,7 +118,7 @@ function cmd_monitor_mem() {
     
     if [ ! -x "$run_script" ]; then
         print_error "Cannot find or execute $run_script."
-        exit 1
+        exit 3
     fi
     
     "$run_script" "$@"
@@ -126,16 +126,28 @@ function cmd_monitor_mem() {
 
 function cmd_clear_cache() {
     print_header "HAMPOD CLI - Clear Cache"
+    local cleared=false
+
     # The Firmware TTS cache is stored in the HOME of the user running firmware.elf.
     # Since run_hampod.sh uses sudo, this is located at /root/.cache/hampod/tts
-    local cache_dir="/root/.cache/hampod/tts"
-    
-    echo "Clearing TTS cache at: $cache_dir"
-    # We use sudo because the directory is owned by root
-    if sudo rm -rf "$cache_dir"/* 2>/dev/null; then
+    local root_cache="/root/.cache/hampod/tts"
+    echo "Clearing root TTS cache at: $root_cache"
+    if sudo rm -rf "$root_cache"/* 2>/dev/null; then
+        cleared=true
+    fi
+
+    # Also clear the non-root user cache, in case the system was tested without sudo
+    local user_cache="$HOME/.cache/hampod/tts"
+    if [ -d "$user_cache" ]; then
+        echo "Clearing user TTS cache at: $user_cache"
+        rm -rf "$user_cache"/* 2>/dev/null && cleared=true
+    fi
+
+    if [ "$cleared" = true ]; then
         print_success "TTS cache cleared."
     else
         print_error "Failed to clear TTS cache or it is already empty."
+        exit 3
     fi
 }
 
@@ -217,7 +229,7 @@ function cmd_backup_config() {
     if [ ! -f "$config_file" ]; then
         print_error "Config file not found: $config_file"
         echo "Please ensure you have run the system at least once."
-        exit 1
+        exit 3
     fi
     
     mkdir -p "$backup_dir" 2>/dev/null || sudo mkdir -p "$backup_dir"
@@ -245,7 +257,7 @@ function cmd_backup_config() {
         print_success "Config backed up to: $backup_path"
     else
         print_error "Failed to copy config file to backup path!"
-        exit 1
+        exit 3
     fi
 }
 
@@ -256,7 +268,7 @@ function cmd_restore_config() {
     
     if [ ! -d "$backup_dir" ]; then
         print_error "No backups directory found: $backup_dir"
-        exit 1
+        exit 3
     fi
     
     # Get list of config files
@@ -267,7 +279,7 @@ function cmd_restore_config() {
     
     if [ ${#backups[@]} -eq 0 ]; then
         print_error "No backups found in $backup_dir"
-        exit 1
+        exit 3
     fi
     
     echo "Available backups:"
@@ -283,7 +295,7 @@ function cmd_restore_config() {
     
     if [[ ! "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -gt "$((i-1))" ]; then
         print_error "Invalid selection."
-        exit 1
+        exit 2
     fi
     
     local selected_backup="${backups[$((selection-1))]}"
@@ -312,7 +324,7 @@ with open('$config_file', 'w') as out: b.write(out)
         echo "Note: You may need to restart HAMPOD for all changes to take effect."
     else
         print_error "Failed to restore config file!"
-        exit 1
+        exit 3
     fi
 }
 
@@ -355,6 +367,6 @@ case "$COMMAND" in
         print_error "Unknown command: $COMMAND"
         echo ""
         cmd_help
-        exit 1
+        exit 2
         ;;
 esac
