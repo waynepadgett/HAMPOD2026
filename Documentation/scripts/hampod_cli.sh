@@ -156,6 +156,13 @@ function cmd_reset() {
     echo -e "${YELLOW}Warning: This will forcefully stop HAMPOD and clear all temporary system state, including configuration.${NC}"
     echo ""
     
+    echo -n "Are you sure you want to continue? [y/N] "
+    read -r confirm
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+        echo "Reset cancelled."
+        exit 0
+    fi
+    echo ""
     echo "Stopping processes..."
     # We redirect both stdout and stderr to /dev/null to prevent messy "Killed" outputs
     sudo killall -9 firmware.elf > /dev/null 2>&1 || true
