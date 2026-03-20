@@ -395,8 +395,8 @@ main() {
         # 2. Handle the Git Pull strategy
         echo ""
         print_info "Do you want to perform a CLEAN PULL?"
-        print_warning "WARNING: This will DESTROY any code modifications you have made!"
-        read -p "      If you say NO, it will attempt a standard stash/pull/pop. [Y/n] " pull_choice
+        print_warning "You should probably say YES. This will set your hampod code to match the repo exactly. If you are developing code directly on the hampod and not in the repo (you should not do this) you would lose those changes."
+        read -p "      If you say NO, it will attempt a standard stash/pull/pop to preserve your changes and you will not be in sync with the repo. [Y/n] " pull_choice
         
         cd "$HAMPOD_DIR"
         
