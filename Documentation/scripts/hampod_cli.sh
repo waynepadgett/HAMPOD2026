@@ -79,6 +79,15 @@ function cmd_help() {
     echo "  monitor_mem"
     echo "      Runs the memory monitoring script."
     echo ""
+    echo "  install"
+    echo "      Runs the HAMPOD installation script."
+    echo ""
+    echo "  autostart"
+    echo "      Runs the script to configure HAMPOD to start on powerup."
+    echo ""
+    echo "  writeprotect"
+    echo "      Runs the power-down protection script to make the OS read-only."
+    echo ""
     echo "--- Useful Scripts ---"
     echo "To run regression tests, run them directly from Documentation/scripts:"
     echo "  - Regression_Phase0_Integration.sh"
@@ -105,6 +114,39 @@ function cmd_start() {
 
 function cmd_update() {
     local run_script="$SCRIPT_DIR/update_hampod.sh"
+    
+    if [ ! -x "$run_script" ]; then
+        print_error "Cannot find or execute $run_script."
+        exit 3
+    fi
+    
+    "$run_script" "$@"
+}
+
+function cmd_install() {
+    local run_script="$SCRIPT_DIR/install_hampod.sh"
+    
+    if [ ! -x "$run_script" ]; then
+        print_error "Cannot find or execute $run_script."
+        exit 3
+    fi
+    
+    "$run_script" "$@"
+}
+
+function cmd_autostart() {
+    local run_script="$SCRIPT_DIR/hampod_on_powerup.sh"
+    
+    if [ ! -x "$run_script" ]; then
+        print_error "Cannot find or execute $run_script."
+        exit 3
+    fi
+    
+    "$run_script" "$@"
+}
+
+function cmd_writeprotect() {
+    local run_script="$SCRIPT_DIR/power_down_protection.sh"
     
     if [ ! -x "$run_script" ]; then
         print_error "Cannot find or execute $run_script."
@@ -362,6 +404,15 @@ case "$COMMAND" in
         ;;
     update)
         cmd_update "$@"
+        ;;
+    install)
+        cmd_install "$@"
+        ;;
+    autostart)
+        cmd_autostart "$@"
+        ;;
+    writeprotect)
+        cmd_writeprotect "$@"
         ;;
     help)
         cmd_help

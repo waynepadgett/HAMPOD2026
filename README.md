@@ -119,6 +119,13 @@ hampod backup-config
 hampod restore-config
 ```
 
+To install or configure the system:
+```bash
+hampod install       # Runs the HAMPOD installation script
+hampod autostart     # Configures HAMPOD to start on powerup
+hampod writeprotect  # Enables power-down protection (read-only OS)
+```
+
 To perform maintenance:
 ```bash
 hampod clear-cache   # Clears the TTS audio cache
