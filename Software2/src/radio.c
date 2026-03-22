@@ -87,6 +87,10 @@ int radio_init(bool debug_mode) {
           sizeof(temp_rig->state.rigport.pathname) - 1);
   temp_rig->state.rigport.parm.serial.rate = baud;
 
+  // Dramatically reduce Hamlib timeout latency to prevent UI freezes on disconnect
+  temp_rig->state.rigport.retry = 0;
+  temp_rig->state.rigport.timeout = 200;
+
   // Open connection (can block for several seconds on timeout)
   // We do NOT hold the g_rig_mutex during this time to avoid blocking UI keys
   int retcode = rig_open(temp_rig);
