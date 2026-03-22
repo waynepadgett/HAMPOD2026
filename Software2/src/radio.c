@@ -88,8 +88,15 @@ int radio_init(bool debug_mode) {
   temp_rig->state.rigport.parm.serial.rate = baud;
 
   // Dramatically reduce Hamlib timeout latency to prevent UI freezes on disconnect
-  temp_rig->state.rigport.retry = 0;
-  temp_rig->state.rigport.timeout = 200;
+  // Using explicit API token configuration so backends don't override with defaults
+  token_t t_timeout = rig_token_lookup(temp_rig, "timeout");
+  if (t_timeout != RIG_CONF_END) {
+      rig_set_conf(temp_rig, t_timeout, "200");
+  }
+  token_t t_retry = rig_token_lookup(temp_rig, "retry");
+  if (t_retry != RIG_CONF_END) {
+      rig_set_conf(temp_rig, t_retry, "0");
+  }
 
   // Open connection (can block for several seconds on timeout)
   // We do NOT hold the g_rig_mutex during this time to avoid blocking UI keys
