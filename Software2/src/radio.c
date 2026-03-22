@@ -91,11 +91,22 @@ int radio_init(bool debug_mode) {
   // We do NOT hold the g_rig_mutex during this time to avoid blocking UI keys
   int retcode = rig_open(temp_rig);
 
+  if (retcode == RIG_OK) {
+    // Actively verify the radio is responding (powered on).
+    // An active USB-serial adapter might succeed in rig_open, but will time out here.
+    freq_t test_freq;
+    retcode = rig_get_freq(temp_rig, RIG_VFO_CURR, &test_freq);
+    if (retcode != RIG_OK) {
+      DEBUG_PRINT("radio_init: rig_open succeeded, but radio isn't responding (off?).\n");
+      rig_close(temp_rig); // Close since open succeeded
+    }
+  }
+
   // Re-acquire mutex to update global state
   pthread_mutex_lock(&g_rig_mutex);
 
   if (retcode != RIG_OK) {
-    fprintf(stderr, "radio_init: rig_open failed: %s\n", rigerror(retcode));
+    fprintf(stderr, "radio_init: Connection to radio failed: %s\n", rigerror(retcode));
     rig_cleanup(temp_rig);
     pthread_mutex_unlock(&g_rig_mutex);
     return -1;
