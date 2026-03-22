@@ -8,7 +8,7 @@ This implementation plan describes the step-by-step approach to introducing Conf
 > 1. Volume (10-100%, steps of 10)
 > 2. Speech Speed (0.1 to 2.0x, steps of 0.1)
 > 3. Keypad Layout (Phone vs. Calculator)
-> 4. System Shutdown (Initiate safe shutdown of Raspberry Pi, requires pressing `[#]` to confirm)
+> 4. System Power Action (Cycles between Shutdown and Reboot via C and D keys, requires pressing `[#]` to confirm)
 
 > [!NOTE]
 > *Undo UI Concept*: The user will hear "Configuration cancelled" and the prior saved settings will be pushed back into the audio/piper systems. In code, this unwinds the `config.c` history depth back to the snapshot saved upon entering the Config Mode. The user has to do nothing other than `[B]` Hold to trigger this.

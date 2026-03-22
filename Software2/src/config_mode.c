@@ -22,6 +22,7 @@
 
 static ConfigModeState g_state = CONFIG_MODE_OFF;
 static ConfigModeParameter g_current_param = CONFIG_PARAM_VOLUME;
+static bool g_reboot_selected = false;
 
 // We use config.c's undo stack, so we need to track how deep to undo if
 // cancelled.
@@ -62,6 +63,7 @@ void config_mode_enter(void) {
   if (g_state == CONFIG_MODE_OFF) {
     g_state = CONFIG_MODE_BROWSING;
     g_current_param = CONFIG_PARAM_VOLUME;
+    g_reboot_selected = false;
     g_undo_depth_on_entry = config_get_undo_count();
     speech_say_text("Configuration Mode");
     announce_param_value(g_current_param);
@@ -164,7 +166,11 @@ static void announce_param_value(ConfigModeParameter param) {
   } break;
 
   case CONFIG_PARAM_SHUTDOWN:
-    snprintf(buffer, sizeof(buffer), "System Shutdown, press Enter to confirm");
+    if (g_reboot_selected) {
+      snprintf(buffer, sizeof(buffer), "System Reboot, press Enter to confirm");
+    } else {
+      snprintf(buffer, sizeof(buffer), "System Shutdown, press Enter to confirm");
+    }
     break;
 
   default:
@@ -218,8 +224,8 @@ static void change_param_value(ConfigModeParameter param, bool increment) {
   } break;
 
   case CONFIG_PARAM_SHUTDOWN:
-    // Non-numeric. Explain the exit requirement
-    speech_say_text("Press Enter to shut down, or navigate away");
+    g_reboot_selected = !g_reboot_selected;
+    announce_param_value(param);
     break;
 
   default:
@@ -294,8 +300,13 @@ bool config_mode_handle_key(char key, bool is_hold) {
 
   // Shutdown execution
   if (key == '#' && g_current_param == CONFIG_PARAM_SHUTDOWN) {
-    speech_say_text("Shutting down");
-    system("sudo shutdown -h now");
+    if (g_reboot_selected) {
+      speech_say_text("Rebooting");
+      system("sudo reboot");
+    } else {
+      speech_say_text("Shutting down");
+      system("sudo shutdown -h now");
+    }
     return true;
   }
 
