@@ -11,12 +11,10 @@
 
 #include <fcntl.h>
 #include <hamlib/rig.h>
-#include <linux/usbdevice_fs.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <unistd.h>
 
 // ============================================================================
@@ -61,6 +59,7 @@ int radio_init(bool debug_mode) {
     fprintf(stderr, "radio_init: Already connected\n");
     return -1;
   }
+  pthread_mutex_unlock(&g_rig_mutex);
 
   int model = config_get_radio_model();
   const char *device = config_get_radio_device();
@@ -68,11 +67,10 @@ int radio_init(bool debug_mode) {
 
   DEBUG_PRINT("radio_init: model=%d device=%s baud=%d\n", model, device, baud);
 
-  // Initialize Hamlib rig
-  g_rig = rig_init(model);
-  if (!g_rig) {
+  // Initialize Hamlib rig locally first
+  RIG *temp_rig = rig_init(model);
+  if (!temp_rig) {
     fprintf(stderr, "radio_init: rig_init failed for model %d\n", model);
-    pthread_mutex_unlock(&g_rig_mutex);
     return -1;
   }
 
@@ -85,20 +83,25 @@ int radio_init(bool debug_mode) {
   }
 
   // Configure serial port
-  strncpy(g_rig->state.rigport.pathname, device,
-          sizeof(g_rig->state.rigport.pathname) - 1);
-  g_rig->state.rigport.parm.serial.rate = baud;
+  strncpy(temp_rig->state.rigport.pathname, device,
+          sizeof(temp_rig->state.rigport.pathname) - 1);
+  temp_rig->state.rigport.parm.serial.rate = baud;
 
-  // Open connection
-  int retcode = rig_open(g_rig);
+  // Open connection (can block for several seconds on timeout)
+  // We do NOT hold the g_rig_mutex during this time to avoid blocking UI keys
+  int retcode = rig_open(temp_rig);
+
+  // Re-acquire mutex to update global state
+  pthread_mutex_lock(&g_rig_mutex);
+
   if (retcode != RIG_OK) {
     fprintf(stderr, "radio_init: rig_open failed: %s\n", rigerror(retcode));
-    rig_cleanup(g_rig);
-    g_rig = NULL;
+    rig_cleanup(temp_rig);
     pthread_mutex_unlock(&g_rig_mutex);
     return -1;
   }
 
+  g_rig = temp_rig;
   g_connected = true;
   DEBUG_PRINT("radio_init: Connected to radio\n");
 
@@ -344,54 +347,12 @@ static void *reconnect_thread_func(void *arg) {
             g_connect_callback();
           }
         } else {
-          // Device exists but Hamlib can't open it — try USB reset
-          // This handles stale USB enumeration (radio powered on with
-          // cable already plugged in)
-          printf("reconnect_thread: Device exists but init failed, resetting "
-                 "USB...\n");
-
-          // Find the USB bus/device from sysfs
-          const char *basename = strrchr(device, '/');
-          if (basename)
-            basename++;
-          else
-            basename = device;
-
-          char sysfs_path[256];
-          char buf[16];
-          int busnum = -1, devnum = -1;
-
-          snprintf(sysfs_path, sizeof(sysfs_path),
-                   "/sys/class/tty/%s/device/../../busnum", basename);
-          FILE *f = fopen(sysfs_path, "r");
-          if (f) {
-            if (fgets(buf, sizeof(buf), f))
-              busnum = atoi(buf);
-            fclose(f);
-          }
-
-          snprintf(sysfs_path, sizeof(sysfs_path),
-                   "/sys/class/tty/%s/device/../../devnum", basename);
-          f = fopen(sysfs_path, "r");
-          if (f) {
-            if (fgets(buf, sizeof(buf), f))
-              devnum = atoi(buf);
-            fclose(f);
-          }
-
-          if (busnum > 0 && devnum > 0) {
-            char usb_path[64];
-            snprintf(usb_path, sizeof(usb_path), "/dev/bus/usb/%03d/%03d",
-                     busnum, devnum);
-            int fd = open(usb_path, O_WRONLY);
-            if (fd >= 0) {
-              printf("reconnect_thread: Resetting USB device %s\n", usb_path);
-              ioctl(fd, USBDEVFS_RESET, 0);
-              close(fd);
-              // Wait for device to re-enumerate
-              sleep(2);
-            }
-          }
+          // Device exists but Hamlib can't open it.
+          // Wait and let the loop naturally retry. 
+          // The aggressive USBDEVFS_RESET has been removed because it causes
+          // serial RS-232 adapters (like TS570) to disconnect and re-enumerate 
+          // as a different node (e.g., ttyUSB1), permanently breaking the connection.
+          DEBUG_PRINT("reconnect_thread: Device %s exists but init failed. Retrying on next cycle.\n", device);
         }
       }
     }
