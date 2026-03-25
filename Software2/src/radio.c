@@ -41,7 +41,7 @@ static radio_disconnect_callback g_disconnect_callback = NULL;
 #define POLL_INTERVAL_MS 100
 #define DEBOUNCE_TIME_MS 1000
 #define DISCONNECT_THRESHOLD                                                   \
-  3 // consecutive failures before declaring disconnect
+  1 // consecutive failures before declaring disconnect
 #define RECONNECT_INTERVAL_SEC 1 // seconds between reconnect attempts
 
 // ============================================================================
@@ -219,6 +219,24 @@ static void *polling_thread_func(void *arg) {
 
   while (g_polling_active) {
     double current_freq = radio_get_frequency();
+
+    // Health check: Hamlib aggressively caches frequencies on some radios (Kenwood TS570).
+    // If the cache hits, rig_get_freq() endlessly returns success even when powered off.
+    // Every 1 second (10 iterations), poll the S-meter (doesn't cache) to verify connection.
+    static int health_check_ticks = 0;
+    if (current_freq > 0 && ++health_check_ticks >= 10) {
+        health_check_ticks = 0;
+        pthread_mutex_lock(&g_rig_mutex);
+        if (g_rig) {
+            value_t val;
+            int ret = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_STRENGTH, &val);
+            // -11 is RIG_ENAVAIL (radio doesn't support S-Meter). Anything else under 0 is a timeout/error!
+            if (ret < 0 && ret != -11) {
+                current_freq = -1.0; // Force a failure exactly as if freq timed out
+            }
+        }
+        pthread_mutex_unlock(&g_rig_mutex);
+    }
 
     if (current_freq > 0) {
       fail_count = 0; // Reset on success
