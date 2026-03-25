@@ -47,9 +47,9 @@ static bool g_suppress_next_poll = false;
 static const char *vfo_name(VfoSelection vfo) {
   switch (vfo) {
   case VFO_A:
-    return "VFO A";
+    return "VFO A.";
   case VFO_B:
-    return "VFO B";
+    return "VFO B.";
   case VFO_CURRENT:
     return "Current VFO";
   default:
