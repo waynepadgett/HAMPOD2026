@@ -41,7 +41,7 @@ static radio_disconnect_callback g_disconnect_callback = NULL;
 #define POLL_INTERVAL_MS 100
 #define DEBOUNCE_TIME_MS 1000
 #define DISCONNECT_THRESHOLD                                                   \
-  1 // consecutive failures before declaring disconnect
+  3 // consecutive failures before declaring disconnect
 #define RECONNECT_INTERVAL_SEC 1 // seconds between reconnect attempts
 
 // ============================================================================
