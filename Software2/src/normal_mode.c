@@ -121,19 +121,19 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
       // Suppress polling announcement since we'll announce ourselves
       frequency_mode_suppress_next_poll();
       if (radio_set_vfo(RADIO_VFO_A) == 0) {
-        speech_say_text("VFO A");
+        speech_say_text("VFO A.");
         announce_frequency();
       } else {
-        speech_say_text("VFO A not available");
+        speech_say_text("VFO A. not available");
       }
     } else {
       // Select VFO B
       frequency_mode_suppress_next_poll();
       if (radio_set_vfo(RADIO_VFO_B) == 0) {
-        speech_say_text("VFO B");
+        speech_say_text("VFO B.");
         announce_frequency();
       } else {
-        speech_say_text("VFO B not available");
+        speech_say_text("VFO B. not available");
       }
     }
     return true;
