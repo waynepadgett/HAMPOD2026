@@ -196,9 +196,9 @@ const char *radio_get_vfo_string(void) {
   RadioVfo vfo = radio_get_vfo();
   switch (vfo) {
   case RADIO_VFO_A:
-    return "VFO A";
+    return "VFO A.";
   case RADIO_VFO_B:
-    return "VFO B";
+    return "VFO B.";
   case RADIO_VFO_CURRENT:
     return "Current VFO";
   default:
