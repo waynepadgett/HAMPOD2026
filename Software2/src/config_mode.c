@@ -22,7 +22,7 @@
 
 static ConfigModeState g_state = CONFIG_MODE_OFF;
 static ConfigModeParameter g_current_param = CONFIG_PARAM_VOLUME;
-static bool g_reboot_selected = false;
+static bool g_reboot_selected = true;
 
 // We use config.c's undo stack, so we need to track how deep to undo if
 // cancelled.
@@ -63,7 +63,7 @@ void config_mode_enter(void) {
   if (g_state == CONFIG_MODE_OFF) {
     g_state = CONFIG_MODE_BROWSING;
     g_current_param = CONFIG_PARAM_VOLUME;
-    g_reboot_selected = false;
+    g_reboot_selected = true;
     g_undo_depth_on_entry = config_get_undo_count();
     speech_say_text("Configuration Mode");
     announce_param_value(g_current_param);

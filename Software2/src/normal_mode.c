@@ -124,7 +124,7 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
         speech_say_text("VFO A.");
         announce_frequency();
       } else {
-        speech_say_text("VFO A. not available");
+        speech_say_text("VFO A. Not available");
       }
     } else {
       // Select VFO B
@@ -133,7 +133,7 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
         speech_say_text("VFO B.");
         announce_frequency();
       } else {
-        speech_say_text("VFO B. not available");
+        speech_say_text("VFO B. Not available");
       }
     }
     return true;
