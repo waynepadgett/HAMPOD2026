@@ -12,6 +12,7 @@ Current capabilities:
 - Piper text-to-speech: Fast, natural-sounding speech synthesis
 - USB keypad input: Standard numeric keypad for tactile operation
 - Hamlib radio control: Frequency, mode, and band control
+- Robust connection handling: Instant auto-recovery on serial disconnects with zero UI lockups via S-Meter heartbeat
 
 ## Supported Radios
 
