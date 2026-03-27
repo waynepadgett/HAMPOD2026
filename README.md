@@ -140,6 +140,9 @@ To stop HAMPOD once running, press Control-C.
 
 The configuration file is located at `Software2/config/hampod.conf`. Edit this file to configure your radios.
 
+### System Version Tracking
+The System Version is natively compiled dynamically via Git metadata. Inside Configuration Mode, the final menu item explicitly reads aloud the current active tracking branch alongside the total commit counts for `main` and the isolating branch.
+
 ### Audio Settings
 
 - `volume` — Speaker volume level (default: 25)
