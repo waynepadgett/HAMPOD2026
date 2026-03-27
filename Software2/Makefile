@@ -1,5 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -pthread -I./include
+
+# Auto-incrementing version macros
+GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+GIT_MAIN_COUNT := $(shell git rev-list --count main 2>/dev/null || echo 0)
+GIT_BRANCH_COUNT := $(shell git rev-list --count main..HEAD 2>/dev/null || echo 0)
+CFLAGS += -DGIT_BRANCH=\"$(GIT_BRANCH)\"
+CFLAGS += -DGIT_MAIN_COUNT=$(GIT_MAIN_COUNT)
+CFLAGS += -DGIT_BRANCH_COUNT=$(GIT_BRANCH_COUNT)
+
 LDFLAGS = -lhamlib -lpthread
 SRC_DIR = src
 OBJ_DIR = obj

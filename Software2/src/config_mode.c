@@ -16,6 +16,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef GIT_BRANCH
+#define GIT_BRANCH "unknown"
+#endif
+#ifndef GIT_MAIN_COUNT
+#define GIT_MAIN_COUNT 0
+#endif
+#ifndef GIT_BRANCH_COUNT
+#define GIT_BRANCH_COUNT 0
+#endif
+
 // ============================================================================
 // Module State
 // ============================================================================
@@ -165,6 +175,11 @@ static void announce_param_value(ConfigModeParameter param) {
     snprintf(buffer, sizeof(buffer), "Keypad Layout, %s", layout);
   } break;
 
+  case CONFIG_PARAM_VERSION:
+    snprintf(buffer, sizeof(buffer), "System version %s zero point %d point %d",
+             GIT_BRANCH, GIT_MAIN_COUNT, GIT_BRANCH_COUNT);
+    break;
+
   case CONFIG_PARAM_SHUTDOWN:
     if (g_reboot_selected) {
       snprintf(buffer, sizeof(buffer), "System Reboot, press Enter to confirm");
@@ -222,6 +237,10 @@ static void change_param_value(ConfigModeParameter param, bool increment) {
     config_set_keypad_layout(next_layout);
     announce_param_value(param);
   } break;
+
+  case CONFIG_PARAM_VERSION:
+    announce_param_value(param);
+    break;
 
   case CONFIG_PARAM_SHUTDOWN:
     g_reboot_selected = !g_reboot_selected;
