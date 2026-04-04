@@ -147,6 +147,3 @@ to avoid "multiple definition" linker errors with the real implementations.
 1. Ensure Firmware is running: `cd ../Firmware && ./firmware.elf`
 2. Build: `make`
 3. Run: `./bin/hampod`
-
-
-testing 
