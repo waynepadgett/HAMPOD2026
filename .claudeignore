@@ -1,0 +1,43 @@
+# Build artifacts
+Firmware/bin/
+Firmware/obj/
+Software2/bin/
+Software2/obj/
+*.o
+*.elf
+*.a
+*.so
+
+# Runtime config (may contain personal radio settings)
+Software2/config/hampod.conf
+
+# Archived / legacy code
+Archive/
+
+# Hardware design files (binary PCB/schematic files)
+Documentation/Hardware_Files/
+
+# Audio files
+*.wav
+*.mp3
+*.ogg
+*.flac
+
+# Speech benchmarking output (large logs/recordings)
+Speech_Comparison/
+
+# Piper TTS model files (large binaries)
+*.onnx
+*.onnx.json
+
+# Python virtual environments
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Node (if ever added)
+node_modules/
+
+# macOS metadata
+.DS_Store

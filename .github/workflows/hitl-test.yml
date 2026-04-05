@@ -1,0 +1,14 @@
+name: HITL Tests
+
+# Run on every PR targeting dev or main
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  unit-and-hitl:
+    name: Unit Tests + HITL Mock Tests
+    # Runs on the Pi 5 self-hosted runner registered to this repo
+    runs-on: self-hosted
