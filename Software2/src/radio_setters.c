@@ -641,3 +641,141 @@ int radio_set_mode_by_index(int mode_index) {
     DEBUG_PRINT("radio_set_mode_by_index: Set to %s\n", rig_strrmode(mode));
     return 0;
 }
+
+
+int radio_set_tuning_step(int step_hz) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    if (step_hz <= 0) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    int retcode = rig_set_ts(g_rig, RIG_VFO_CURR, (shortfreq_t)step_hz);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_set_tuning_step: %s\n", rigerror(retcode));
+        return -1;
+    }
+
+    DEBUG_PRINT("radio_set_tuning_step: Set to %d Hz\n", step_hz);
+    return 0;
+}
+
+int radio_set_vox_status(bool enable)
+{
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        DEBUG_PRINT("radio_set_vox_status: not connected\n");
+        return -1;
+    }
+
+    int retcode = rig_set_func(
+        g_rig,
+        RIG_VFO_CURR,
+        RIG_FUNC_VOX,
+        enable ? 1 : 0
+    );
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_set_vox_status: %s\n", rigerror(retcode));
+        return -1;
+    }
+
+    DEBUG_PRINT("radio_set_vox_status: %s\n", enable ? "ON" : "OFF");
+    return 0;
+}
+
+int radio_set_filter_number(int filter_num) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    if (filter_num < 1 || filter_num > 3) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    rmode_t mode;
+    pbwidth_t current_width;
+    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &current_width);
+    if (retcode != RIG_OK) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        DEBUG_PRINT("radio_set_filter_number get_mode: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    pbwidth_t new_width;
+
+    // Approximate mapping: Filter 1 = wide, Filter 2 = medium, Filter 3 = narrow
+    switch (filter_num) {
+        case 1:
+            new_width = 2400;   // wide
+            break;
+        case 2:
+            new_width = 1800;   // medium
+            break;
+        case 3:
+            new_width = 500;    // narrow
+            break;
+        default:
+            pthread_mutex_unlock(&g_rig_mutex);
+            return -999;
+    }
+
+    retcode = rig_set_mode(g_rig, RIG_VFO_CURR, mode, new_width);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_set_filter_number set_mode: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    return 0;
+}
+
+int radio_set_keyer_speed(int wpm) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    // Optional: basic sanity range (IC-7300 is typically ~6–48 WPM)
+    if (wpm < 5 || wpm > 60) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    value_t val;
+    memset(&val, 0, sizeof(val));
+    val.i = wpm;
+
+    int retcode = rig_set_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_KEYSPD, val);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_set_keyer_speed: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    return 0;
+}
+

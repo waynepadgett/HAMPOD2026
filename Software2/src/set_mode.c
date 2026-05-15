@@ -12,11 +12,12 @@
 #include "hampod_core.h"
 #include "comm.h"
 #include "config.h"
-
+#include "radio.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 // ============================================================================
 // Module State
@@ -64,6 +65,10 @@ static const char* param_name(SetModeParameter param) {
         case SET_PARAM_PREAMP:      return "Pre Amp";
         case SET_PARAM_ATTENUATION: return "Attenuation";
         case SET_PARAM_MODE:        return "Mode";
+        case SET_PARAM_TUNING_STEP: return "Tuning Step";
+        case SET_PARAM_VOX:         return "VOX";
+        case SET_PARAM_FILTER_NUMBER: return "Filter Number";
+        case SET_PARAM_KEYER_SPEED: return "Keyer Speed";
         default:                    return "Unknown";
     }
 }
@@ -136,7 +141,14 @@ static void announce_current_value(SetModeParameter param) {
                 snprintf(buffer, sizeof(buffer), "Pre amp not available");
             }
             break;
-            
+        case SET_PARAM_TUNING_STEP:
+            value = radio_get_tuning_step();
+            if (value > 0) {
+                snprintf(buffer, sizeof(buffer), "Tuning step %d hertz", value);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Tuning step not available");
+            }
+            break;    
         case SET_PARAM_ATTENUATION:
             value = radio_get_attenuation();
             if (value == 0) {
@@ -154,7 +166,35 @@ static void announce_current_value(SetModeParameter param) {
                 snprintf(buffer, sizeof(buffer), "Mode %s", mode);
             }
             break;
-            
+        case SET_PARAM_VOX:
+            value = radio_get_vox_status();
+            if (value >= 0) {
+                snprintf(buffer, sizeof(buffer),
+                        "VOX %s", value ? "on" : "off");
+            } else {
+                snprintf(buffer, sizeof(buffer),
+                        "VOX status not available");
+            }
+            break;
+        case SET_PARAM_FILTER_NUMBER:
+            value = radio_get_filter_number();
+            if (value >= 1 && value <= 3) {
+                snprintf(buffer, sizeof(buffer), "Filter %d", value);
+            } else {
+                snprintf(buffer, sizeof(buffer), "Filter number not available");
+            }
+            break;
+        case SET_PARAM_KEYER_SPEED:
+            value = radio_get_keyer_speed();
+            if (value > 0) {
+                snprintf(buffer, sizeof(buffer),
+                        "Keyer speed %d words per minute", value);
+            } else {
+                snprintf(buffer, sizeof(buffer),
+                        "Keyer speed not available");
+            }
+            break;
+
         default:
             snprintf(buffer, sizeof(buffer), "Select parameter");
             break;
@@ -237,7 +277,40 @@ static void apply_value(void) {
                 }
             }
             break;
-            
+        case SET_PARAM_TUNING_STEP:
+            if (value > 0) {
+                result = radio_set_tuning_step(value);
+                if (result == 0) {
+                    snprintf(buffer, sizeof(buffer), "Tuning step set to %d hertz", value);
+                }
+            }
+            break;
+        case SET_PARAM_VOX:
+            value = radio_get_vox_status();
+            if (value >= 0) {
+                snprintf(buffer, sizeof(buffer), "Vox %s", value ? "on" : "off");
+            } else {
+                snprintf(buffer, sizeof(buffer), "Vox status not available");
+            }
+            break;
+        case SET_PARAM_FILTER_NUMBER:
+            if (value >= 1 && value <= 3) {
+                result = radio_set_filter_number(value);
+                if (result == 0) {
+                    snprintf(buffer, sizeof(buffer), "Filter %d", value);
+                }
+            }
+            break;
+        case SET_PARAM_KEYER_SPEED:
+            if (value > 0) {
+                result = radio_set_keyer_speed(value);
+                if (result == 0) {
+                    snprintf(buffer, sizeof(buffer),
+                            "Keyer speed set to %d", value);
+                }
+            }
+            break;
+
         default:
             break;
     }
@@ -313,6 +386,16 @@ static void toggle_compression(bool enable) {
     }
 }
 
+static void toggle_vox(bool enable) {
+    if (radio_set_vox_status(enable) == 0) {
+        speech_say_text(enable ? "Vox on" : "Vox off");
+    } else {
+        if (config_get_key_beep_enabled()) {
+            comm_play_beep(COMM_BEEP_ERROR);
+        }
+        speech_say_text("Failed");
+    }
+}
 // ============================================================================
 // AGC Handlers
 // ============================================================================
@@ -366,6 +449,7 @@ void set_mode_enter(void) {
     if (g_state == SET_MODE_OFF) {
         g_state = SET_MODE_IDLE;
         g_current_param = SET_PARAM_NONE;
+        in_set_mode = true; // enters set mode 
         clear_value_buffer();
         speech_say_text("Set");
         DEBUG_PRINT("set_mode_enter: Entered Set Mode\n");
@@ -375,6 +459,7 @@ void set_mode_enter(void) {
 void set_mode_exit(void) {
     g_state = SET_MODE_OFF;
     g_current_param = SET_PARAM_NONE;
+    in_set_mode = false;  // exit set mode
     clear_value_buffer();
     speech_say_text("Set Off");
     DEBUG_PRINT("set_mode_exit: Exited Set Mode\n");
@@ -403,7 +488,7 @@ void set_mode_clear_value(void) {
 // ============================================================================
 
 bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
-    DEBUG_PRINT("set_mode_handle_key: key='%c' hold=%d shift=%d state=%d\n", 
+    printf("set_mode_handle_key: key='%c' hold=%d shift=%d state=%d\n", 
                 key, is_hold, is_shifted, g_state);
     
     // [B] - Toggle Set Mode or toggle OFF for toggle parameters
@@ -425,6 +510,9 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
                     return true;
                 case SET_PARAM_COMPRESSION:
                     toggle_compression(false);
+                    return true;
+                case SET_PARAM_VOX:
+                    toggle_vox(false);
                     return true;
                 default:
                     // For other parameters, exit Set Mode
@@ -454,10 +542,13 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
     // SET_MODE_IDLE: Parameter Selection Keys
     // =========================================================================
     
-    if (g_state == SET_MODE_IDLE) {
-        // [9] Hold - Power Level
+    if (g_state == SET_MODE_IDLE) { 
         if (key == '9' && is_hold && !is_shifted) {
             return select_parameter(SET_PARAM_POWER);
+        }
+        //shift 8 keyer speed
+        if(key == '8' && !is_hold && is_shifted){
+            return select_parameter(SET_PARAM_KEYER_SPEED);
         }
         
         // [8] Hold - Mic Gain
@@ -466,7 +557,7 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
         }
         
         // [Shift]+[9] - Compression
-        if (key == '9' && !is_hold && is_shifted) {
+        if (key == '9' && !is_hold && is_shifted  ) {
             return select_parameter(SET_PARAM_COMPRESSION);
         }
         
@@ -474,7 +565,10 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
         if (key == '7' && !is_hold && !is_shifted) {
             return select_parameter(SET_PARAM_NB);
         }
-        
+        // [6] - filter number
+        if (key == '6' && !is_hold && is_shifted) {
+            return select_parameter(SET_PARAM_FILTER_NUMBER);
+        }
         // [8] - Noise Reduction
         if (key == '8' && !is_hold && !is_shifted) {
             return select_parameter(SET_PARAM_NR);
@@ -499,9 +593,21 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
         if (key == '0' && !is_hold && !is_shifted) {
             return select_parameter(SET_PARAM_MODE);
         }
+        // [Shift]+[2] - Tuning Step
+        if (key == '2' && !is_hold && !is_shifted) {
+            return select_parameter(SET_PARAM_TUNING_STEP);
+        }
         
+        if (key == '1' && !is_hold && !is_shifted) {
+            speech_say_text("set one pressed"); 
+        }
+        //shift 1 VOX status
+        if(key == '1' && !is_hold && is_shifted){
+            return select_parameter(SET_PARAM_VOX);
+        }
         // Consume but ignore other keys in idle state
-        return true;
+        // in order for shift to work, need to return false
+        // return false;
     }
     
     // =========================================================================
@@ -509,6 +615,19 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
     // =========================================================================
     
     if (g_state == SET_MODE_EDITING) {
+        // Mode-specific: [0] cycles mode
+        if (g_current_param == SET_PARAM_MODE && key == '0' && !is_hold) {
+            if (radio_cycle_mode() == 0) {
+                const char* mode = radio_get_mode_string();
+                speech_say_text(mode);
+            } else {
+                if (config_get_key_beep_enabled()) {
+                    comm_play_beep(COMM_BEEP_ERROR);
+                }
+                speech_say_text("Failed");
+            }
+            return true;
+}
         // Digits - accumulate value
         if (isdigit(key)) {
             add_digit(key);
@@ -546,6 +665,9 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
                     break;
                 case SET_PARAM_COMPRESSION:
                     toggle_compression(true);
+                    break;
+                case SET_PARAM_VOX:
+                    toggle_vox(true);
                     break;
                 default:
                     break;

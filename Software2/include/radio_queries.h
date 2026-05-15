@@ -119,4 +119,33 @@ const char *radio_get_power_string(char *buffer, int buf_size);
  */
 int radio_get_vox_status(void);
 
+int radio_get_vox_status(void);
+
+int radio_get_break_in_status(void);
+
+int radio_toggle_memory_scan(void);
+
+int radio_get_tuning_step(void);
+
+int radio_get_squelch_level(void);
+
+int radio_toggle_split_mode(void); 
+
+int radio_exchange_vfo(void);
+
+int radio_get_filter_width(void); 
+
+int radio_get_apf_status(void);
+
+int radio_get_filter_number(void); 
+
+int radio_get_tuner_status(void);
+
+int radio_get_antenna(void);
+
+float radio_get_swr(void);
+
+int radio_toggle_data_mode(void);
+
+int radio_get_keyer_speed(void);
 #endif // RADIO_QUERIES_H

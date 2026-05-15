@@ -111,7 +111,7 @@ static void on_keypress(const KeyPressEvent *kp) {
   }
 
   // Route to normal mode (pass shift state)
-  if (normal_mode_handle_key(kp->key, kp->isHold, was_shifted)) {
+  if (normal_mode_handle_key(kp->key, kp->isHold, was_shifted, in_set_mode)) {
     // Auto-clear shift after a shifted key is consumed
     if (was_shifted) {
       g_shift_active = false;

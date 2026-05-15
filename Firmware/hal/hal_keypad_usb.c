@@ -78,15 +78,15 @@ typedef struct {
  */
 static const KeymapEntry keymap_calculator[] = {
     {KEY_KP0, '0'},
-    {KEY_KP1, '1'},
-    {KEY_KP2, '2'},
-    {KEY_KP3, '3'},
+    {KEY_KP1, '7'},
+    {KEY_KP2, '8'},
+    {KEY_KP3, '9'},
     {KEY_KP4, '4'},
     {KEY_KP5, '5'},
     {KEY_KP6, '6'},
-    {KEY_KP7, '7'},
-    {KEY_KP8, '8'},
-    {KEY_KP9, '9'},
+    {KEY_KP7, '1'},
+    {KEY_KP8, '2'},
+    {KEY_KP9, '3'},
 
     /* Function keys mapped to A-D */
     {KEY_KPSLASH, 'A'},    /* / → A */

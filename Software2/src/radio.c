@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 // ============================================================================
 // State Variables
@@ -25,6 +26,7 @@ RIG *g_rig = NULL;
 bool g_connected = false;
 pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool g_radio_debug_mode = false;
+bool in_set_mode = false; // a flag for set mode
 
 // Polling state
 static pthread_t g_poll_thread;

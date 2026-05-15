@@ -41,7 +41,7 @@ void normal_mode_init(void);
  * @param is_shifted true if shift is active (from [A] toggle)
  * @return true if the key was consumed, false to pass to next handler
  */
-bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted);
+bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted, bool in_set_mode);
 
 // ============================================================================
 // Verbosity Control

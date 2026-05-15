@@ -12,7 +12,7 @@
 
 #ifndef RADIO_H
 #define RADIO_H
-
+#include <hamlib/rig.h>
 #include <stdbool.h>
 
 // ============================================================================
@@ -133,4 +133,7 @@ int radio_start_reconnect(radio_connect_callback on_connect,
  */
 void radio_stop_reconnect(void);
 
+extern bool in_set_mode; // allow other files to access this variable
+
 #endif // RADIO_H
+

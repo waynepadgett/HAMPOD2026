@@ -1,0 +1,1383 @@
+diff --git a/Firmware/hal/hal_keypad_usb.c b/Firmware/hal/hal_keypad_usb.c
+index f998c65..797c7d0 100644
+--- a/Firmware/hal/hal_keypad_usb.c
++++ b/Firmware/hal/hal_keypad_usb.c
+@@ -41,15 +41,15 @@ static const struct {
+ } keymap[] = {
+     /* Numeric keys 0-9 */
+     {KEY_KP0, '0'},
+-    {KEY_KP1, '1'},
+-    {KEY_KP2, '2'},
+-    {KEY_KP3, '3'},
++    {KEY_KP1, '7'},
++    {KEY_KP2, '8'},
++    {KEY_KP3, '9'},
+     {KEY_KP4, '4'},
+     {KEY_KP5, '5'},
+     {KEY_KP6, '6'},
+-    {KEY_KP7, '7'},
+-    {KEY_KP8, '8'},
+-    {KEY_KP9, '9'},
++    {KEY_KP7, '1'},
++    {KEY_KP8, '2'},
++    {KEY_KP9, '3'},
+ 
+     /* Function keys mapped to A-D */
+     {KEY_KPSLASH, 'A'},    /* / → A */
+diff --git a/README.md b/README.md
+index 5951306..f269fe0 100644
+--- a/README.md
++++ b/README.md
+@@ -53,8 +53,8 @@ If you need to set up the operating system on your Raspberry Pi and flash an SD
+ SSH into your Raspberry Pi and run these commands:
+ 
+ ```
+-git clone https://github.com/waynepadgett/HAMPOD2026.git
+-cd HAMPOD2026/Documentation/scripts
++git clone https://github.com/rhit-liangj/HAMPOD2026-liang2.git
++cd HAMPOD2026-liang2/Documentation/scripts
+ ./install_hampod.sh
+ ```
+ 
+@@ -65,7 +65,7 @@ The install script will update system packages, install dependencies including H
+ To start the system:
+ 
+ ```
+-cd HAMPOD2026
++cd HAMPOD2026-liang2
+ ./Documentation/scripts/run_hampod.sh
+ ```
+ 
+diff --git a/Software2/config/hampod.conf b/Software2/config/hampod.conf
+index f0895d0..06e7a74 100644
+--- a/Software2/config/hampod.conf
++++ b/Software2/config/hampod.conf
+@@ -5,7 +5,7 @@
+ # volume: 0-100 (percentage)
+ volume = 40
+ # speech_speed: 0.1 = very fast, 1.0 = normal, 3.0 = very slow (duration multiplier)
+-speech_speed = 0.1
++speech_speed = 1
+ # key_beep: 0 = off, 1 = on
+ key_beep = 1
+ preferred_device = USB2.0 Device
+diff --git a/Software2/include/normal_mode.h b/Software2/include/normal_mode.h
+index 11e7040..3f95f49 100644
+--- a/Software2/include/normal_mode.h
++++ b/Software2/include/normal_mode.h
+@@ -41,7 +41,7 @@ void normal_mode_init(void);
+  * @param is_shifted true if shift is active (from [A] toggle)
+  * @return true if the key was consumed, false to pass to next handler
+  */
+-bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted);
++bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted, bool in_set_mode);
+ 
+ // ============================================================================
+ // Verbosity Control
+diff --git a/Software2/include/radio.h b/Software2/include/radio.h
+index 2ca6e64..a1cb2a3 100644
+--- a/Software2/include/radio.h
++++ b/Software2/include/radio.h
+@@ -12,7 +12,7 @@
+ 
+ #ifndef RADIO_H
+ #define RADIO_H
+-
++#include <hamlib/rig.h>
+ #include <stdbool.h>
+ 
+ // ============================================================================
+@@ -99,4 +99,6 @@ void radio_stop_polling(void);
+  */
+ bool radio_is_polling(void);
+ 
++extern bool in_set_mode; // allow other files to access this variable
++
+ #endif // RADIO_H
+diff --git a/Software2/include/radio_queries.h b/Software2/include/radio_queries.h
+index 3d62205..9dc99af 100644
+--- a/Software2/include/radio_queries.h
++++ b/Software2/include/radio_queries.h
+@@ -108,4 +108,33 @@ double radio_get_power_meter(void);
+  */
+ const char* radio_get_power_string(char* buffer, int buf_size);
+ 
++int radio_get_vox_status(void);
++
++int radio_get_break_in_status(void);
++
++int radio_toggle_memory_scan(void);
++
++int radio_get_tuning_step(void);
++
++int radio_get_squelch_level(void);
++
++int radio_toggle_split_mode(void); 
++
++int radio_exchange_vfo(void);
++
++int radio_get_filter_width(void); 
++
++int radio_get_apf_status(void);
++
++int radio_get_filter_number(void); 
++
++int radio_get_tuner_status(void);
++
++int radio_get_antenna(void);
++
++float radio_get_swr(void);
++
++int radio_toggle_data_mode(void);
++
++int radio_get_keyer_speed(void);
+ #endif // RADIO_QUERIES_H
+diff --git a/Software2/include/radio_setters.h b/Software2/include/radio_setters.h
+index b9d01a8..21631a6 100644
+--- a/Software2/include/radio_setters.h
++++ b/Software2/include/radio_setters.h
+@@ -191,4 +191,13 @@ int radio_cycle_mode(void);
+  */
+ int radio_set_mode_by_index(int mode_index);
+ 
++int radio_set_tuning_step(int step_hz);
++
++int radio_set_vox_status(bool enable);
++// int radio_get_filter_number(void);
++int radio_set_filter_number(int filter_num);
++
++int radio_set_keyer_speed(int wpm);
++
++int radio_set_mode_by_number(int mode_num);
+ #endif // RADIO_SETTERS_H
+diff --git a/Software2/include/set_mode.h b/Software2/include/set_mode.h
+index d556ce9..176ca49 100644
+--- a/Software2/include/set_mode.h
++++ b/Software2/include/set_mode.h
+@@ -34,7 +34,11 @@ typedef enum {
+     SET_PARAM_AGC,
+     SET_PARAM_PREAMP,
+     SET_PARAM_ATTENUATION,
+-    SET_PARAM_MODE
++    SET_PARAM_MODE,
++    SET_PARAM_TUNING_STEP,
++    SET_PARAM_VOX,
++    SET_PARAM_FILTER_NUMBER,
++    SET_PARAM_KEYER_SPEED  
+ } SetModeParameter;
+ 
+ // ============================================================================
+@@ -126,4 +130,5 @@ const char* set_mode_get_value_buffer(void);
+  */
+ void set_mode_clear_value(void);
+ 
++
+ #endif // SET_MODE_H
+diff --git a/Software2/src/main.c b/Software2/src/main.c
+index 6fb6f04..d947274 100644
+--- a/Software2/src/main.c
++++ b/Software2/src/main.c
+@@ -100,7 +100,7 @@ static void on_keypress(const KeyPressEvent *kp) {
+   }
+ 
+   // Route to normal mode (pass shift state)
+-  if (normal_mode_handle_key(kp->key, kp->isHold, was_shifted)) {
++  if (normal_mode_handle_key(kp->key, kp->isHold, was_shifted, in_set_mode)) {
+     // Auto-clear shift after a shifted key is consumed
+     if (was_shifted) {
+       g_shift_active = false;
+diff --git a/Software2/src/normal_mode.c b/Software2/src/normal_mode.c
+index c821418..8c8f9f4 100644
+--- a/Software2/src/normal_mode.c
++++ b/Software2/src/normal_mode.c
+@@ -15,6 +15,7 @@
+ 
+ #include <stdio.h>
+ #include <string.h>
++#include <stdbool.h>
+ 
+ // ============================================================================
+ // Module State
+@@ -22,6 +23,7 @@
+ 
+ static bool g_verbosity_enabled = true;  // Auto-announcements on by default
+ 
++
+ // ============================================================================
+ // Internal Helpers
+ // ============================================================================
+@@ -97,12 +99,69 @@ void normal_mode_init(void) {
+ // Key Handling
+ // ============================================================================
+ 
+-bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
++bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted, bool in_set_mode) {
+     DEBUG_PRINT("normal_mode_handle_key: key='%c' hold=%d shift=%d\n", key, is_hold, is_shifted);
+-    
++    // [0] - Announce current mode
++    if (key == '0' && !in_set_mode) {
++        if(!is_hold && !is_shifted){
++        const char* mode = radio_get_mode_string();
++        speech_say_text(mode);
++        return true;
++        }
++        else if(is_shifted && !is_hold){
++            float swr = radio_get_swr();
++            char buffer[64];
++
++            if (swr > 0.0f) {
++                snprintf(buffer, sizeof(buffer), "S W R %.1f", swr);
++            } else {
++                snprintf(buffer, sizeof(buffer), "S W R not available");
++            }
++
++            speech_say_text(buffer);
++            return true;
++        }
++        else if(!is_shifted && is_hold){
++            if (radio_toggle_data_mode() == 0) {
++                const char* mode = radio_get_mode_string();
++                speech_say_text(mode);
++            } else {
++                speech_say_text("Failed");
++            }
++        }
++    }
+     // [1] - VFO selection
+-    if (key == '1') {
+-        if (!is_hold) {
++    if (key == '1'&& !in_set_mode) { // added not in set mode condition, only execute this when not in set mode
++        if(is_shifted && !is_hold){
++        int vox = radio_get_vox_status();
++
++        if (vox < 0) {
++            speech_say_text("VOX status unavailable, shift one pressed");
++            } else if (vox == 1) {
++            speech_say_text("VOX is now on");
++            } else {
++            speech_say_text("VOX is off");
++            }
++        }
++        else if(is_shifted && is_hold ){ 
++        // shift + hold → break-in status
++            int break_in = radio_get_break_in_status();
++
++            if (break_in < 0) {
++                speech_say_text("Break in status unavailable");
++            } 
++            else if (break_in == 2) {
++                speech_say_text("Full break in is on");
++            } 
++            else if (break_in == 1) {
++                speech_say_text("Semi break in is on");
++            } 
++            else {
++                speech_say_text("Break in is off");
++            }
++        }
++
++        else if (!is_hold) {
+             // Select VFO A
+             // Suppress polling announcement since we'll announce ourselves
+             frequency_mode_suppress_next_poll();
+@@ -126,20 +185,73 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+     }
+     
+     // [2] - Announce current frequency
+-    if (key == '2' && !is_hold) {
+-        announce_frequency();
+-        return true;
++    if (key == '2' && !in_set_mode){
++        if(is_shifted && !is_hold){
++            //shift 2 tunning step status
++            int ts = radio_get_tuning_step();
++            if(ts < 0){
++                speech_say_text("tunning step unavailable");
++            }else if (ts >= 1000) {
++            char buffer[64];
++            snprintf(buffer, sizeof(buffer), "Tuning step is %d kilohertz", ts / 1000);
++            speech_say_text(buffer);
++            }
++            else {
++            char buffer[64];
++            snprintf(buffer, sizeof(buffer), "Tuning step is %d hertz", ts);
++            speech_say_text(buffer);
++            }
++        }
++        else if(is_shifted && is_hold){
++            // shift hold 2 get squelch level
++            
++        }
++        else if (!is_hold){
++            announce_frequency();
++            return true;
++        }
++        else{
++            // hold 2 toggle memory scan
++            int scan = radio_toggle_memory_scan();
++            if(scan < 0){
++                speech_say_text("memory scan unavailable");
++            }else if(scan == 1){
++                speech_say_text("memory scan on");
++            }else{
++                speech_say_text("memory scan diabled");
++            }
++        }
+     }
+-    
+-    // [0] - Announce current mode
+-    if (key == '0' && !is_hold) {
+-        const char* mode = radio_get_mode_string();
+-        speech_say_text(mode);
+-        return true;
++    // [3] 
++    if (key == '3' && !in_set_mode){
++        if(is_shifted && !is_hold){
++            //shift 3 Choose Duplex direction
++        }
++        else if(!is_hold){
++            //press 3 toggle split mode
++            int split = radio_toggle_split_mode();
++
++            if (split < 0) {
++                speech_say_text("Split mode unavailable");
++            } else if (split == 1) {
++                speech_say_text("Split mode is now on");
++            } else {
++                speech_say_text("Split mode is now off");
++            }
++        }
++        else{
++            //hold 3 Exchange VFO A and VFO b
++            int exchange = radio_exchange_vfo();
++            if (exchange < 0){
++                speech_say_text("exchange vfo unavailable");
++            }else{
++                speech_say_text("VFO A and B exchanged");
++            }
++        }
+     }
+     
+     // [4] - PreAmp (press) / AGC (hold) / Attenuation (shift+press)
+-    if (key == '4') {
++    if (key == '4'&& !in_set_mode) {
+         char buffer[64];
+         if (is_shifted && !is_hold) {
+             // [Shift]+[4] - Attenuation query
+@@ -172,22 +284,124 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+             return true;
+         }
+     }
+-    
++    // [5] 
++    if(key == '5' && !in_set_mode){
++        if(is_shifted && !is_hold){
++            speech_say_text("shift five");
++        }
++        else if(is_hold){
++            // hold 5 functions implement in future
++        }
++        else{
++            // press 5 functions implement in future
++        }
++    }
++
++    // [6]
++    if (key == '6'&& !in_set_mode) {
++        if (is_shifted && !is_hold) {
++            // shift + press 6 -> get filter number
++            int filter = radio_get_filter_number();
++            char msg[32];
++
++            if (filter == -999) {
++                speech_say_text("Filter number unavailable");
++            } else {
++                snprintf(msg, sizeof(msg), "Filter %d", filter);
++                speech_say_text(msg);
++            }
++        }
++        else if (!is_shifted && is_hold) {
++            // hold 6 -> audio peaking filter
++            int status = radio_get_apf_status();
++
++            if (status == -999) {
++                speech_say_text("Audio peaking filter unavailable");
++            } else if (status) {
++                speech_say_text("Audio peaking filter is on");
++            } else {
++                speech_say_text("Audio peaking filter is off");
++            }
++        }
++        else if (!is_shifted && !is_hold) {
++            // press 6 -> read filter width
++            int width = radio_get_filter_width();
++            char msg[64];
++
++            if (width == -999) {
++                speech_say_text("Filter width unavailable");
++            }
++            else if (width <= 0) {
++                speech_say_text("Filter width is normal");
++            }
++            else if (width >= 1000) {
++                snprintf(msg, sizeof(msg), "Filter width is %.1f kilohertz", width / 1000.0);
++                speech_say_text(msg);
++            }
++            else {
++                snprintf(msg, sizeof(msg), "Filter width is %d hertz", width);
++                speech_say_text(msg);
++            }
++        }
++    }
+     // [7] - Noise Blanker query
+-    if (key == '7' && !is_hold) {
+-        char buffer[64];
+-        bool nb_on = radio_get_nb_enabled();
+-        int nb_level = radio_get_nb_level();
+-        snprintf(buffer, sizeof(buffer), "Noise blanker %s, level %d", 
+-                 nb_on ? "on" : "off", nb_level >= 0 ? nb_level : 0);
+-        speech_say_text(buffer);
+-        return true;
++    if (key == '7' && !in_set_mode){
++        if(is_shifted && !is_hold){//shift 7, attenna selection status
++            int ant = radio_get_antenna();
++            char buffer[64];
++
++            if (ant > 0) {
++                snprintf(buffer, sizeof(buffer), "Antenna %d", ant);
++            } else {
++                snprintf(buffer, sizeof(buffer), "Antenna not available");
++            }
++
++            speech_say_text(buffer);
++            return true;
++        }
++        else if(!is_hold){
++            char buffer[64];
++            bool nb_on = radio_get_nb_enabled();
++            int nb_level = radio_get_nb_level();
++            snprintf(buffer, sizeof(buffer), "Noise blanker %s, level %d", 
++                    nb_on ? "on" : "off", nb_level >= 0 ? nb_level : 0);
++            speech_say_text(buffer);
++            return true;
++        }
++        else{// attena tuner status
++            int tuner = radio_get_tuner_status();
++            char buffer[64];
++
++            if (tuner >= 0) {
++                snprintf(buffer, sizeof(buffer), "Tuner %s", tuner ? "on" : "off");
++            } else {
++                snprintf(buffer, sizeof(buffer), "Tuner status not available");
++            }
++            speech_say_text(buffer);
++            return true;
++        }
+     }
++
+     
+     // [8] - Noise Reduction (press) / Mic Gain (hold)
+-    if (key == '8') {
++    if (key == '8'&& !in_set_mode) {
+         char buffer[64];
+-        if (is_hold) {
++        if (is_shifted && !is_hold){
++            int speed = radio_get_keyer_speed();
++            char buffer[64];
++
++            if (speed > 0) {
++                snprintf(buffer, sizeof(buffer),
++                        "Keyer speed %d words per minute", speed);
++            } else {
++                snprintf(buffer, sizeof(buffer),
++                        "Keyer speed not available");
++            }
++
++            speech_say_text(buffer);
++            return true;
++        }
++        else if (is_hold) {
+             // [8] Hold - Mic Gain query
+             int mic = radio_get_mic_gain();
+             if (mic >= 0) {
+@@ -209,9 +423,9 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+     }
+     
+     // [9] - Compression (shift+press) / Power (hold)
+-    if (key == '9') {
++    if (key == '9' && !in_set_mode) {
+         char buffer[64];
+-        if (is_shifted && !is_hold) {
++        if (is_shifted && !is_hold /*&& not in set mode idle*/) {
+             // [Shift]+[9] - Compression query
+             int comp = radio_get_compression();
+             bool comp_on = radio_get_compression_enabled();
+@@ -257,7 +471,6 @@ bool normal_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+         }
+         return true;
+     }
+-    
+     // Key not handled by normal mode
+     return false;
+ }
+diff --git a/Software2/src/radio.c b/Software2/src/radio.c
+index 8a1cae3..c937b16 100644
+--- a/Software2/src/radio.c
++++ b/Software2/src/radio.c
+@@ -14,6 +14,7 @@
+ #include <string.h>
+ #include <pthread.h>
+ #include <hamlib/rig.h>
++#include <stdbool.h>
+ 
+ // ============================================================================
+ // Module State (non-static for access by radio_queries.c)
+@@ -22,6 +23,7 @@
+ RIG *g_rig = NULL;
+ bool g_connected = false;
+ pthread_mutex_t g_rig_mutex = PTHREAD_MUTEX_INITIALIZER;
++bool in_set_mode = false; // a flag for set mode
+ 
+ // Polling state
+ static pthread_t g_poll_thread;
+diff --git a/Software2/src/radio_queries.c b/Software2/src/radio_queries.c
+index be41ed9..aeb768c 100644
+--- a/Software2/src/radio_queries.c
++++ b/Software2/src/radio_queries.c
+@@ -13,6 +13,7 @@
+ #include <string.h>
+ #include <pthread.h>
+ #include <hamlib/rig.h>
++#include <stdbool.h>
+ 
+ // ============================================================================
+ // External Access to Radio Handle
+@@ -257,3 +258,414 @@ const char* radio_get_power_string(char* buffer, int buf_size) {
+     
+     return buffer;
+ }
++// get radio vox status
++int radio_get_vox_status(void){
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    int status = 0;
++    int retcode = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_VOX, &status);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_vox_status: %s\n", rigerror(retcode));
++        return -1;
++    }
++
++    return status ? 1 : 0;
++}
++
++// get radio break in status
++int radio_get_break_in_status(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    int semi = 0;
++    int full = 0;
++
++    int ret_semi = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_SBKIN, &semi);
++    int ret_full = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_FBKIN, &full);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (ret_semi != RIG_OK && ret_full != RIG_OK) {
++        DEBUG_PRINT("radio_get_break_in_status: break-in unavailable\n");
++        return -1;
++    }
++
++    if (full) return 2;   // full break-in
++    if (semi) return 1;   // semi break-in
++    return 0;             // off
++}
++
++// toggle memory scan
++int radio_toggle_memory_scan(void)
++{
++    // pthread_mutex_lock(&g_rig_mutex);
++
++    // if (!g_connected || !g_rig) {
++    //     pthread_mutex_unlock(&g_rig_mutex);
++    //     return -1;
++    // }
++
++    // int status;
++    // int ret = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_SCAN, &status);
++
++    // if (ret != RIG_OK) {
++    //     pthread_mutex_unlock(&g_rig_mutex);
++    //     DEBUG_PRINT("scan status error: %s\n", rigerror(ret));
++    //     return -1;
++    // }
++
++    // int result;
++
++    // if (status) {
++    //     result = rig_scan(g_rig, RIG_VFO_CURR, RIG_SCAN_STOP);
++    // } else {
++    //     result = rig_scan(g_rig, RIG_VFO_CURR, RIG_SCAN_MEM);
++    // }
++
++    // pthread_mutex_unlock(&g_rig_mutex);
++
++    // if (result != RIG_OK) {
++    //     DEBUG_PRINT("scan toggle error: %s\n", rigerror(result));
++    //     return -1;
++    // }
++
++    // return !status;
++}
++
++// get tunning step status
++int radio_get_tuning_step(void)
++{
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    shortfreq_t ts;
++    int ret = rig_get_ts(g_rig, RIG_VFO_CURR, &ts);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (ret != RIG_OK) {
++        DEBUG_PRINT("radio_get_tuning_step: %s\n", rigerror(ret));
++        return -1;
++    }
++
++    return ts;   // tuning step in Hz
++}
++
++// get squelch setting
++int radio_get_squelch_level(void)
++{
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    value_t val;
++    int ret = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_SQL, &val);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (ret != RIG_OK) {
++        DEBUG_PRINT("radio_get_squelch_level: %s\n", rigerror(ret));
++        return -1;
++    }
++
++    // normalized value (0.0 – 1.0)
++    return (int)(val.f * 100);
++}
++
++// toggle split mode
++int radio_toggle_split_mode(void)
++{
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    split_t split;
++    vfo_t tx_vfo;
++
++    int ret = rig_get_split_vfo(g_rig, RIG_VFO_CURR, &split, &tx_vfo);
++
++    if (ret != RIG_OK) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        DEBUG_PRINT("radio_toggle_split_mode get: %s\n", rigerror(ret));
++        return -1;
++    }
++
++    split_t new_split = (split == RIG_SPLIT_ON) ? RIG_SPLIT_OFF : RIG_SPLIT_ON;
++
++    ret = rig_set_split_vfo(g_rig, RIG_VFO_CURR, new_split, RIG_VFO_B);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (ret != RIG_OK) {
++        DEBUG_PRINT("radio_toggle_split_mode set: %s\n", rigerror(ret));
++        return -1;
++    }
++
++    return (new_split == RIG_SPLIT_ON) ? 1 : 0;
++}
++
++// exchange vfo A and B
++int radio_exchange_vfo(void)
++{
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    int ret = rig_vfo_op(g_rig, RIG_VFO_CURR, RIG_OP_XCHG);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (ret != RIG_OK) {
++        DEBUG_PRINT("radio_exchange_vfo: %s\n", rigerror(ret));
++        return -1;
++    }
++
++    return 1;
++}
++
++// read filter width
++int radio_get_filter_width(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++    
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++    
++    rmode_t mode;
++    pbwidth_t width;
++    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &width);
++    
++    pthread_mutex_unlock(&g_rig_mutex);
++    
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_filter_width: %s\n", rigerror(retcode));
++        return -999;
++    }
++    
++    // width is the filter width in Hz
++    return (int)width;
++}
++// audio peaker filter
++int radio_get_apf_status(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++    
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++    
++    int status = 0;
++    int retcode = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_APF, &status);
++    
++    pthread_mutex_unlock(&g_rig_mutex);
++    
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_apf_status: %s\n", rigerror(retcode));
++        return -999;
++    }
++    
++    return status;   // 0 = off, nonzero = on
++}
++// get filter number
++int radio_get_filter_number(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++    
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++    
++    rmode_t mode;
++    pbwidth_t width;
++    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &width);
++    
++    pthread_mutex_unlock(&g_rig_mutex);
++    
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_filter_number: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    // If unknown / normal
++    if (width <= 0) {
++        return 1;  // assume default filter
++    }
++
++    // Map width → filter number (approximate)
++    if (width > 2000) {
++        return 1;  // wide
++    } else if (width > 1000) {
++        return 2;  // medium
++    } else {
++        return 3;  // narrow
++    }
++}
++
++int radio_get_tuner_status(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    int status = 0;
++    int retcode = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_TUNER, &status);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_tuner_status: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    return status ? 1 : 0;
++}
++
++int radio_get_antenna(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    ant_t ant_curr = 0;
++    ant_t ant_tx = 0;
++    ant_t ant_rx = 0;
++    value_t option = {0};
++
++    int retcode = rig_get_ant(g_rig, RIG_VFO_CURR, 0,
++                              &option, &ant_curr, &ant_tx, &ant_rx);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_antenna: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    return (ant_curr > 0) ? (int)ant_curr : -999;
++}
++
++float radio_get_swr(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999.0f;
++    }
++
++    value_t val;
++    int retcode = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_SWR, &val);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_swr: %s\n", rigerror(retcode));
++        return -999.0f;
++    }
++
++    return val.f;
++}
++
++int radio_toggle_data_mode(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    rmode_t mode;
++    pbwidth_t width;
++
++    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &width);
++    if (retcode != RIG_OK) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        DEBUG_PRINT("radio_toggle_data_mode get: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    rmode_t new_mode = mode;
++
++    // Toggle logic
++    switch (mode) {
++        case RIG_MODE_USB:
++            new_mode = RIG_MODE_PKTUSB;
++            break;
++        case RIG_MODE_LSB:
++            new_mode = RIG_MODE_PKTLSB;
++            break;
++        case RIG_MODE_PKTUSB:
++            new_mode = RIG_MODE_USB;
++            break;
++        case RIG_MODE_PKTLSB:
++            new_mode = RIG_MODE_LSB;
++            break;
++        default:
++            // Not supported for this mode
++            pthread_mutex_unlock(&g_rig_mutex);
++            return -999;
++    }
++
++    retcode = rig_set_mode(g_rig, RIG_VFO_CURR, new_mode, width);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_toggle_data_mode set: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    return 0;
++}
++
++int radio_get_keyer_speed(void) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    value_t val;
++    memset(&val, 0, sizeof(val));
++
++    int retcode = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_KEYSPD, &val);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_get_keyer_speed: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    return val.i;   // WPM
++}
+\ No newline at end of file
+diff --git a/Software2/src/radio_setters.c b/Software2/src/radio_setters.c
+index 3c73daa..1f9ecf4 100644
+--- a/Software2/src/radio_setters.c
++++ b/Software2/src/radio_setters.c
+@@ -641,3 +641,141 @@ int radio_set_mode_by_index(int mode_index) {
+     DEBUG_PRINT("radio_set_mode_by_index: Set to %s\n", rig_strrmode(mode));
+     return 0;
+ }
++
++
++int radio_set_tuning_step(int step_hz) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    if (step_hz <= 0) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -1;
++    }
++
++    int retcode = rig_set_ts(g_rig, RIG_VFO_CURR, (shortfreq_t)step_hz);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_set_tuning_step: %s\n", rigerror(retcode));
++        return -1;
++    }
++
++    DEBUG_PRINT("radio_set_tuning_step: Set to %d Hz\n", step_hz);
++    return 0;
++}
++
++int radio_set_vox_status(bool enable)
++{
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        DEBUG_PRINT("radio_set_vox_status: not connected\n");
++        return -1;
++    }
++
++    int retcode = rig_set_func(
++        g_rig,
++        RIG_VFO_CURR,
++        RIG_FUNC_VOX,
++        enable ? 1 : 0
++    );
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_set_vox_status: %s\n", rigerror(retcode));
++        return -1;
++    }
++
++    DEBUG_PRINT("radio_set_vox_status: %s\n", enable ? "ON" : "OFF");
++    return 0;
++}
++
++int radio_set_filter_number(int filter_num) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    if (filter_num < 1 || filter_num > 3) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    rmode_t mode;
++    pbwidth_t current_width;
++    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &current_width);
++    if (retcode != RIG_OK) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        DEBUG_PRINT("radio_set_filter_number get_mode: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    pbwidth_t new_width;
++
++    // Approximate mapping: Filter 1 = wide, Filter 2 = medium, Filter 3 = narrow
++    switch (filter_num) {
++        case 1:
++            new_width = 2400;   // wide
++            break;
++        case 2:
++            new_width = 1800;   // medium
++            break;
++        case 3:
++            new_width = 500;    // narrow
++            break;
++        default:
++            pthread_mutex_unlock(&g_rig_mutex);
++            return -999;
++    }
++
++    retcode = rig_set_mode(g_rig, RIG_VFO_CURR, mode, new_width);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_set_filter_number set_mode: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    return 0;
++}
++
++int radio_set_keyer_speed(int wpm) {
++    pthread_mutex_lock(&g_rig_mutex);
++
++    if (!g_connected || !g_rig) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    // Optional: basic sanity range (IC-7300 is typically ~6–48 WPM)
++    if (wpm < 5 || wpm > 60) {
++        pthread_mutex_unlock(&g_rig_mutex);
++        return -999;
++    }
++
++    value_t val;
++    memset(&val, 0, sizeof(val));
++    val.i = wpm;
++
++    int retcode = rig_set_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_KEYSPD, val);
++
++    pthread_mutex_unlock(&g_rig_mutex);
++
++    if (retcode != RIG_OK) {
++        DEBUG_PRINT("radio_set_keyer_speed: %s\n", rigerror(retcode));
++        return -999;
++    }
++
++    return 0;
++}
++
+diff --git a/Software2/src/set_mode.c b/Software2/src/set_mode.c
+index ff330b9..235348f 100644
+--- a/Software2/src/set_mode.c
++++ b/Software2/src/set_mode.c
+@@ -12,11 +12,12 @@
+ #include "hampod_core.h"
+ #include "comm.h"
+ #include "config.h"
+-
++#include "radio.h"
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>
++#include <stdbool.h>
+ 
+ // ============================================================================
+ // Module State
+@@ -64,6 +65,10 @@ static const char* param_name(SetModeParameter param) {
+         case SET_PARAM_PREAMP:      return "Pre Amp";
+         case SET_PARAM_ATTENUATION: return "Attenuation";
+         case SET_PARAM_MODE:        return "Mode";
++        case SET_PARAM_TUNING_STEP: return "Tuning Step";
++        case SET_PARAM_VOX:         return "VOX";
++        case SET_PARAM_FILTER_NUMBER: return "Filter Number";
++        case SET_PARAM_KEYER_SPEED: return "Keyer Speed";
+         default:                    return "Unknown";
+     }
+ }
+@@ -136,7 +141,14 @@ static void announce_current_value(SetModeParameter param) {
+                 snprintf(buffer, sizeof(buffer), "Pre amp not available");
+             }
+             break;
+-            
++        case SET_PARAM_TUNING_STEP:
++            value = radio_get_tuning_step();
++            if (value > 0) {
++                snprintf(buffer, sizeof(buffer), "Tuning step %d hertz", value);
++            } else {
++                snprintf(buffer, sizeof(buffer), "Tuning step not available");
++            }
++            break;    
+         case SET_PARAM_ATTENUATION:
+             value = radio_get_attenuation();
+             if (value == 0) {
+@@ -154,7 +166,35 @@ static void announce_current_value(SetModeParameter param) {
+                 snprintf(buffer, sizeof(buffer), "Mode %s", mode);
+             }
+             break;
+-            
++        case SET_PARAM_VOX:
++            value = radio_get_vox_status();
++            if (value >= 0) {
++                snprintf(buffer, sizeof(buffer),
++                        "VOX %s", value ? "on" : "off");
++            } else {
++                snprintf(buffer, sizeof(buffer),
++                        "VOX status not available");
++            }
++            break;
++        case SET_PARAM_FILTER_NUMBER:
++            value = radio_get_filter_number();
++            if (value >= 1 && value <= 3) {
++                snprintf(buffer, sizeof(buffer), "Filter %d", value);
++            } else {
++                snprintf(buffer, sizeof(buffer), "Filter number not available");
++            }
++            break;
++        case SET_PARAM_KEYER_SPEED:
++            value = radio_get_keyer_speed();
++            if (value > 0) {
++                snprintf(buffer, sizeof(buffer),
++                        "Keyer speed %d words per minute", value);
++            } else {
++                snprintf(buffer, sizeof(buffer),
++                        "Keyer speed not available");
++            }
++            break;
++
+         default:
+             snprintf(buffer, sizeof(buffer), "Select parameter");
+             break;
+@@ -237,7 +277,40 @@ static void apply_value(void) {
+                 }
+             }
+             break;
+-            
++        case SET_PARAM_TUNING_STEP:
++            if (value > 0) {
++                result = radio_set_tuning_step(value);
++                if (result == 0) {
++                    snprintf(buffer, sizeof(buffer), "Tuning step set to %d hertz", value);
++                }
++            }
++            break;
++        case SET_PARAM_VOX:
++            value = radio_get_vox_status();
++            if (value >= 0) {
++                snprintf(buffer, sizeof(buffer), "Vox %s", value ? "on" : "off");
++            } else {
++                snprintf(buffer, sizeof(buffer), "Vox status not available");
++            }
++            break;
++        case SET_PARAM_FILTER_NUMBER:
++            if (value >= 1 && value <= 3) {
++                result = radio_set_filter_number(value);
++                if (result == 0) {
++                    snprintf(buffer, sizeof(buffer), "Filter %d", value);
++                }
++            }
++            break;
++        case SET_PARAM_KEYER_SPEED:
++            if (value > 0) {
++                result = radio_set_keyer_speed(value);
++                if (result == 0) {
++                    snprintf(buffer, sizeof(buffer),
++                            "Keyer speed set to %d", value);
++                }
++            }
++            break;
++
+         default:
+             break;
+     }
+@@ -313,6 +386,16 @@ static void toggle_compression(bool enable) {
+     }
+ }
+ 
++static void toggle_vox(bool enable) {
++    if (radio_set_vox_status(enable) == 0) {
++        speech_say_text(enable ? "Vox on" : "Vox off");
++    } else {
++        if (config_get_key_beep_enabled()) {
++            comm_play_beep(COMM_BEEP_ERROR);
++        }
++        speech_say_text("Failed");
++    }
++}
+ // ============================================================================
+ // AGC Handlers
+ // ============================================================================
+@@ -366,6 +449,7 @@ void set_mode_enter(void) {
+     if (g_state == SET_MODE_OFF) {
+         g_state = SET_MODE_IDLE;
+         g_current_param = SET_PARAM_NONE;
++        in_set_mode = true; // enters set mode 
+         clear_value_buffer();
+         speech_say_text("Set");
+         DEBUG_PRINT("set_mode_enter: Entered Set Mode\n");
+@@ -375,6 +459,7 @@ void set_mode_enter(void) {
+ void set_mode_exit(void) {
+     g_state = SET_MODE_OFF;
+     g_current_param = SET_PARAM_NONE;
++    in_set_mode = false;  // exit set mode
+     clear_value_buffer();
+     speech_say_text("Set Off");
+     DEBUG_PRINT("set_mode_exit: Exited Set Mode\n");
+@@ -403,7 +488,7 @@ void set_mode_clear_value(void) {
+ // ============================================================================
+ 
+ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+-    DEBUG_PRINT("set_mode_handle_key: key='%c' hold=%d shift=%d state=%d\n", 
++    printf("set_mode_handle_key: key='%c' hold=%d shift=%d state=%d\n", 
+                 key, is_hold, is_shifted, g_state);
+     
+     // [B] - Toggle Set Mode or toggle OFF for toggle parameters
+@@ -426,6 +511,9 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+                 case SET_PARAM_COMPRESSION:
+                     toggle_compression(false);
+                     return true;
++                case SET_PARAM_VOX:
++                    toggle_vox(false);
++                    return true;
+                 default:
+                     // For other parameters, exit Set Mode
+                     set_mode_exit();
+@@ -454,11 +542,14 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+     // SET_MODE_IDLE: Parameter Selection Keys
+     // =========================================================================
+     
+-    if (g_state == SET_MODE_IDLE) {
+-        // [9] Hold - Power Level
++    if (g_state == SET_MODE_IDLE) { 
+         if (key == '9' && is_hold && !is_shifted) {
+             return select_parameter(SET_PARAM_POWER);
+         }
++        //shift 8 keyer speed
++        if(key == '8' && !is_hold && is_shifted){
++            return select_parameter(SET_PARAM_KEYER_SPEED);
++        }
+         
+         // [8] Hold - Mic Gain
+         if (key == '8' && is_hold && !is_shifted) {
+@@ -466,7 +557,7 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+         }
+         
+         // [Shift]+[9] - Compression
+-        if (key == '9' && !is_hold && is_shifted) {
++        if (key == '9' && !is_hold && is_shifted  ) {
+             return select_parameter(SET_PARAM_COMPRESSION);
+         }
+         
+@@ -474,7 +565,10 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+         if (key == '7' && !is_hold && !is_shifted) {
+             return select_parameter(SET_PARAM_NB);
+         }
+-        
++        // [6] - filter number
++        if (key == '6' && !is_hold && is_shifted) {
++            return select_parameter(SET_PARAM_FILTER_NUMBER);
++        }
+         // [8] - Noise Reduction
+         if (key == '8' && !is_hold && !is_shifted) {
+             return select_parameter(SET_PARAM_NR);
+@@ -499,9 +593,21 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+         if (key == '0' && !is_hold && !is_shifted) {
+             return select_parameter(SET_PARAM_MODE);
+         }
++        // [Shift]+[2] - Tuning Step
++        if (key == '2' && !is_hold && !is_shifted) {
++            return select_parameter(SET_PARAM_TUNING_STEP);
++        }
+         
++        if (key == '1' && !is_hold && !is_shifted) {
++            speech_say_text("set one pressed"); 
++        }
++        //shift 1 VOX status
++        if(key == '1' && !is_hold && is_shifted){
++            return select_parameter(SET_PARAM_VOX);
++        }
+         // Consume but ignore other keys in idle state
+-        return true;
++        // in order for shift to work, need to return false
++        // return false;
+     }
+     
+     // =========================================================================
+@@ -509,6 +615,19 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+     // =========================================================================
+     
+     if (g_state == SET_MODE_EDITING) {
++        // Mode-specific: [0] cycles mode
++        if (g_current_param == SET_PARAM_MODE && key == '0' && !is_hold) {
++            if (radio_cycle_mode() == 0) {
++                const char* mode = radio_get_mode_string();
++                speech_say_text(mode);
++            } else {
++                if (config_get_key_beep_enabled()) {
++                    comm_play_beep(COMM_BEEP_ERROR);
++                }
++                speech_say_text("Failed");
++            }
++            return true;
++}
+         // Digits - accumulate value
+         if (isdigit(key)) {
+             add_digit(key);
+@@ -547,6 +666,9 @@ bool set_mode_handle_key(char key, bool is_hold, bool is_shifted) {
+                 case SET_PARAM_COMPRESSION:
+                     toggle_compression(true);
+                     break;
++                case SET_PARAM_VOX:
++                    toggle_vox(true);
++                    break;
+                 default:
+                     break;
+             }

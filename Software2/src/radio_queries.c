@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 // ============================================================================
 // External Access to Radio Handle
@@ -324,4 +325,415 @@ int radio_get_vox_status(void) {
   }
 
   return status ? 1 : 0;
+}
+// get radio vox status
+int radio_get_vox_status(void){
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    int status = 0;
+    int retcode = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_VOX, &status);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_vox_status: %s\n", rigerror(retcode));
+        return -1;
+    }
+
+    return status ? 1 : 0;
+}
+
+// get radio break in status
+int radio_get_break_in_status(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    int semi = 0;
+    int full = 0;
+
+    int ret_semi = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_SBKIN, &semi);
+    int ret_full = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_FBKIN, &full);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (ret_semi != RIG_OK && ret_full != RIG_OK) {
+        DEBUG_PRINT("radio_get_break_in_status: break-in unavailable\n");
+        return -1;
+    }
+
+    if (full) return 2;   // full break-in
+    if (semi) return 1;   // semi break-in
+    return 0;             // off
+}
+
+// toggle memory scan
+int radio_toggle_memory_scan(void)
+{
+    // pthread_mutex_lock(&g_rig_mutex);
+
+    // if (!g_connected || !g_rig) {
+    //     pthread_mutex_unlock(&g_rig_mutex);
+    //     return -1;
+    // }
+
+    // int status;
+    // int ret = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_SCAN, &status);
+
+    // if (ret != RIG_OK) {
+    //     pthread_mutex_unlock(&g_rig_mutex);
+    //     DEBUG_PRINT("scan status error: %s\n", rigerror(ret));
+    //     return -1;
+    // }
+
+    // int result;
+
+    // if (status) {
+    //     result = rig_scan(g_rig, RIG_VFO_CURR, RIG_SCAN_STOP);
+    // } else {
+    //     result = rig_scan(g_rig, RIG_VFO_CURR, RIG_SCAN_MEM);
+    // }
+
+    // pthread_mutex_unlock(&g_rig_mutex);
+
+    // if (result != RIG_OK) {
+    //     DEBUG_PRINT("scan toggle error: %s\n", rigerror(result));
+    //     return -1;
+    // }
+
+    // return !status;
+}
+
+// get tunning step status
+int radio_get_tuning_step(void)
+{
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    shortfreq_t ts;
+    int ret = rig_get_ts(g_rig, RIG_VFO_CURR, &ts);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (ret != RIG_OK) {
+        DEBUG_PRINT("radio_get_tuning_step: %s\n", rigerror(ret));
+        return -1;
+    }
+
+    return ts;   // tuning step in Hz
+}
+
+// get squelch setting
+int radio_get_squelch_level(void)
+{
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    value_t val;
+    int ret = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_SQL, &val);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (ret != RIG_OK) {
+        DEBUG_PRINT("radio_get_squelch_level: %s\n", rigerror(ret));
+        return -1;
+    }
+
+    // normalized value (0.0 – 1.0)
+    return (int)(val.f * 100);
+}
+
+// toggle split mode
+int radio_toggle_split_mode(void)
+{
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    split_t split;
+    vfo_t tx_vfo;
+
+    int ret = rig_get_split_vfo(g_rig, RIG_VFO_CURR, &split, &tx_vfo);
+
+    if (ret != RIG_OK) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        DEBUG_PRINT("radio_toggle_split_mode get: %s\n", rigerror(ret));
+        return -1;
+    }
+
+    split_t new_split = (split == RIG_SPLIT_ON) ? RIG_SPLIT_OFF : RIG_SPLIT_ON;
+
+    ret = rig_set_split_vfo(g_rig, RIG_VFO_CURR, new_split, RIG_VFO_B);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (ret != RIG_OK) {
+        DEBUG_PRINT("radio_toggle_split_mode set: %s\n", rigerror(ret));
+        return -1;
+    }
+
+    return (new_split == RIG_SPLIT_ON) ? 1 : 0;
+}
+
+// exchange vfo A and B
+int radio_exchange_vfo(void)
+{
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -1;
+    }
+
+    int ret = rig_vfo_op(g_rig, RIG_VFO_CURR, RIG_OP_XCHG);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (ret != RIG_OK) {
+        DEBUG_PRINT("radio_exchange_vfo: %s\n", rigerror(ret));
+        return -1;
+    }
+
+    return 1;
+}
+
+// read filter width
+int radio_get_filter_width(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+    
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+    
+    rmode_t mode;
+    pbwidth_t width;
+    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &width);
+    
+    pthread_mutex_unlock(&g_rig_mutex);
+    
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_filter_width: %s\n", rigerror(retcode));
+        return -999;
+    }
+    
+    // width is the filter width in Hz
+    return (int)width;
+}
+// audio peaker filter
+int radio_get_apf_status(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+    
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+    
+    int status = 0;
+    int retcode = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_APF, &status);
+    
+    pthread_mutex_unlock(&g_rig_mutex);
+    
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_apf_status: %s\n", rigerror(retcode));
+        return -999;
+    }
+    
+    return status;   // 0 = off, nonzero = on
+}
+// get filter number
+int radio_get_filter_number(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+    
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+    
+    rmode_t mode;
+    pbwidth_t width;
+    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &width);
+    
+    pthread_mutex_unlock(&g_rig_mutex);
+    
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_filter_number: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    // If unknown / normal
+    if (width <= 0) {
+        return 1;  // assume default filter
+    }
+
+    // Map width → filter number (approximate)
+    if (width > 2000) {
+        return 1;  // wide
+    } else if (width > 1000) {
+        return 2;  // medium
+    } else {
+        return 3;  // narrow
+    }
+}
+
+int radio_get_tuner_status(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    int status = 0;
+    int retcode = rig_get_func(g_rig, RIG_VFO_CURR, RIG_FUNC_TUNER, &status);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_tuner_status: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    return status ? 1 : 0;
+}
+
+int radio_get_antenna(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    ant_t ant_curr = 0;
+    ant_t ant_tx = 0;
+    ant_t ant_rx = 0;
+    value_t option = {0};
+
+    int retcode = rig_get_ant(g_rig, RIG_VFO_CURR, 0,
+                              &option, &ant_curr, &ant_tx, &ant_rx);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_antenna: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    return (ant_curr > 0) ? (int)ant_curr : -999;
+}
+
+float radio_get_swr(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999.0f;
+    }
+
+    value_t val;
+    int retcode = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_SWR, &val);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_swr: %s\n", rigerror(retcode));
+        return -999.0f;
+    }
+
+    return val.f;
+}
+
+int radio_toggle_data_mode(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    rmode_t mode;
+    pbwidth_t width;
+
+    int retcode = rig_get_mode(g_rig, RIG_VFO_CURR, &mode, &width);
+    if (retcode != RIG_OK) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        DEBUG_PRINT("radio_toggle_data_mode get: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    rmode_t new_mode = mode;
+
+    // Toggle logic
+    switch (mode) {
+        case RIG_MODE_USB:
+            new_mode = RIG_MODE_PKTUSB;
+            break;
+        case RIG_MODE_LSB:
+            new_mode = RIG_MODE_PKTLSB;
+            break;
+        case RIG_MODE_PKTUSB:
+            new_mode = RIG_MODE_USB;
+            break;
+        case RIG_MODE_PKTLSB:
+            new_mode = RIG_MODE_LSB;
+            break;
+        default:
+            // Not supported for this mode
+            pthread_mutex_unlock(&g_rig_mutex);
+            return -999;
+    }
+
+    retcode = rig_set_mode(g_rig, RIG_VFO_CURR, new_mode, width);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_toggle_data_mode set: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    return 0;
+}
+
+int radio_get_keyer_speed(void) {
+    pthread_mutex_lock(&g_rig_mutex);
+
+    if (!g_connected || !g_rig) {
+        pthread_mutex_unlock(&g_rig_mutex);
+        return -999;
+    }
+
+    value_t val;
+    memset(&val, 0, sizeof(val));
+
+    int retcode = rig_get_level(g_rig, RIG_VFO_CURR, RIG_LEVEL_KEYSPD, &val);
+
+    pthread_mutex_unlock(&g_rig_mutex);
+
+    if (retcode != RIG_OK) {
+        DEBUG_PRINT("radio_get_keyer_speed: %s\n", rigerror(retcode));
+        return -999;
+    }
+
+    return val.i;   // WPM
 }
