@@ -540,10 +540,9 @@ main() {
     chmod +x "$HAMPOD_DIR/Documentation/scripts/run_hampod_service.sh" 2>/dev/null || true
     chmod +x "$HAMPOD_DIR/Documentation/scripts/power_down_protection.sh" 2>/dev/null || true
     
-    # TEMPORARILY DISABLED DUE TO SUDO/PERMISSIONS ISSUES
-    # "$HAMPOD_DIR/Documentation/scripts/hampod_on_powerup.sh" --enable
-    # print_success "HAMPOD will start automatically on boot"
-    print_warning "HAMPOD auto-start has been temporarily disabled."
+    # Auto-start properly enabled with permission cleanup logic
+    sudo "$HAMPOD_DIR/Documentation/scripts/hampod_on_powerup.sh" --enable
+    print_success "HAMPOD will start automatically on boot"
     
     # -------------------------------------------------------------------------
     # Step 9: SD Card Protection (Optional)

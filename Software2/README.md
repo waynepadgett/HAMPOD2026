@@ -66,6 +66,21 @@ make tests
 make clean
 ```
 
+## Keypad Features
+
+The system features numerous radio queries mapped to the keypad in normal mode:
+- **[0]**: Mode (Press), Data Mode (Hold), SWR (Shift+Press)
+- **[1]**: VFO Select (Press), VOX (Shift+Press), Break-in (Shift+Hold)
+- **[2]**: Announce Freq (Press), Memory Scan (Hold), Tuning Step (Shift+Press)
+- **[3]**: Split Mode (Press), VFO Exchange (Hold)
+- **[4]**: PreAmp (Press), AGC (Hold), Attenuation (Shift+Press)
+- **[6]**: Filter Width (Press), Audio Peaking Filter (Hold), Filter Number (Shift+Press)
+- **[7]**: Noise Blanker (Press), Tuner Status (Hold), Antenna Status (Shift+Press)
+- **[8]**: Noise Reduction (Press), Mic Gain (Hold), Keyer Speed (Shift+Press)
+- **[9]**: Power Level (Hold), Compression (Shift+Press)
+- **[*]**: S-Meter (Press), Power Meter (Hold)
+- **[C]**: Toggle Verbosity (Press), Enter Config Mode (Hold)
+
 ## Modules
 
 | Module | File | Status | Description |
