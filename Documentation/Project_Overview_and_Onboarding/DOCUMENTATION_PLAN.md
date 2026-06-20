@@ -2,10 +2,19 @@
 
 **Document Status:** Draft  
 **Created:** December 4, 2025  
+**Updated:** June 20, 2026
 **Authors:** Amber Padgett, Wayne Padgett  
 **Purpose:** Plan for comprehensive repository documentation and management-ready deliverables
 
 ---
+
+## 0. Documentation Refactor 2026-06-20
+
+- Create a planning folder for ongoing TODOs
+- Refactor all plans to be easy to navigate and archive completed
+- Remove duplication across plan documents
+- Add status markers to plan documents (completed vs. in-progress vs. planned)
+- Audit and standardize naming conventions across all docs
 
 ## 1. Project Summary (Initial Understanding)
 
