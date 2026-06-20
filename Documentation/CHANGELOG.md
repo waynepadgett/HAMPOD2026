@@ -6,6 +6,17 @@ This file tracks all changes to the Documentation/ directory.
 
 ---
 
+## [2026-06-20] Documentation_Plan.md Cleanup
+
+### Changed
+- `Planning/Documentation_Plan.md` — Rewrote from 605 lines to ~80 lines
+- Removed bloat: Master Analysis, Repository Audit Plan, Diagram Plan, Documents to Create, Execution Timeline, Questions, Success Criteria
+- Flagged `Guides/Multiple_Modes_Guide.md` as missing (HIGH PRIORITY)
+- Marked Set Mode plan consolidation as requiring separate commit
+- Noted Comm_Router and Integration_Test plan archival as deferred open question
+
+---
+
 ## [2026-06-20] Documentation Refactor
 
 ### Added
