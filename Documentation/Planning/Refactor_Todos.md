@@ -42,64 +42,20 @@ Items were checked against the codebase. Most are confirmed; exceptions:
 
 | Phase | Checklist sections | Target | Effort (est.) |
 |-------|--------------------|--------|---------------|
-| 1 – Documentation hygiene | §0.1, 0.2, 0.3, 0.4, 6.1 | Week 1 | ~2.5 h |
-| 2 – Legacy vs active | §1.1, 1.2, 3.1, 3.2, 0.5 | Week 1–2 | ~1 h |
-| 3 – Script & path consistency | §1.3, 3.3 | Week 2 | ~1 h |
-| 4 – Test clarity | §4.1, 4.2, 4.3, 2.6 (deprecated tests) | Weeks 3–4 | ~5 h |
-| 5 – Code refactoring | §2.1–2.6 | Weeks 4–6 | ~15 h (core) + ~7 h (optional) |
-| 6 – Build & deploy | §5.1, 5.2 | Week 6–7 | ~1 h |
-| 7 – Polish & tooling | §2.5 (naming/logging), CI/CD, header guards | Ongoing | ~8 h |
+| 1 – Legacy vs active | §1.1, 1.2, 3.1, 3.2, 0.5 | Week 1–2 | ~1 h |
+| 2 – Script & path consistency | §1.3, 3.3 | Week 2 | ~1 h |
+| 3 – Test clarity | §4.1, 4.2, 4.3, 2.6 (deprecated tests) | Weeks 3–4 | ~5 h |
+| 4 – Code refactoring | §2.1–2.6 | Weeks 4–6 | ~15 h (core) + ~7 h (optional) |
+| 5 – Build & deploy | §5.1, 5.2 | Week 6–7 | ~1 h |
+| 6 – Polish & tooling | §2.5 (naming/logging), CI/CD, header guards | Ongoing | ~8 h |
 
-**Effort summary:** Documentation ~4.5 h | Test clarity ~5 h | Code refactoring ~15–22 h | Build & deploy ~1 h | Polish ~8 h
+**Effort summary:** Test clarity ~5 h | Code refactoring ~15–22 h | Build & deploy ~1 h | Polish ~8 h
 
-**Suggested owners:** Documentation → Technical writing | Radio/HAL/Firmware → Embedded team | Config/Comm → Backend team | Unit tests → QA | CI/CD → DevOps | General → Project lead
-
----
-
-## 0. Documentation Folder Audit (Summary)
-
-*Audit performed: Feb 2026. Specific files and issues found in Documentation/.*
-
-### 0.1 Broken links
-- [ ] **Documentation/README.md** – Line 8: Link `Hampod%20RPi%20change%20plan.md` (space) does not match actual file `Hampod_RPi_change_plan.md` (underscore). Fix to `Hampod_RPi_change_plan.md`.
-
-### 0.2 Machine-specific paths (file:///c:/Users/wayne/...)
-- [ ] **key_mapping_process.md** – Replace 8+ `file:///c:/Users/wayne/github/hampod/HAMPOD2026/...` links with repo-relative paths (e.g. `Firmware/hal/hal_keypad_usb.c`, `Software2/src/comm.c`).
-- [ ] **Project_Overview_and_Onboarding/fresh-start-phase-zero-plan.md** – Fix `file:///c:/Users/wayne/...` link to `firmware_bug_fix_plan.md`.
-- [ ] **Project_Overview_and_Onboarding/firmware_bug_fix_plan.md** – Fix `file:///c:/Users/wayne/...` link to `fresh-start-phase-zero-plan.md`.
-
-### 0.3 Outdated script references
-- [ ] **remote_install.sh** – Currently builds `Software` and uses `waynesr@HAMPOD.local`. Update to build Firmware + Software2 and use `hampod@hampod.local` (or document correct target). See Documentation/README.md Option C for consistency.
-- [ ] **Documentation/README.md** – Line 98: Says "run make in the Software directory" but should say "Firmware and Software2" to match active codebase.
-- [ ] **remote_install.ps1** – Already marked deprecated; still builds Software. Either fix to build Software2 + Firmware and use correct SSH target, or remove/archive if superseded.
-
-### 0.4 Documentation index gaps
-- [ ] **Documentation/README.md** – Missing from Project_Spec list: Regression_Testing_Plan.md, OVERCLOCK_AND_TODOS.md. Consider adding with one-line purpose.
-- [ ] **Scattered docs** – `key_mapping_process.md`, `frequency_mode_diagram.md`, `test_diagram.md`, `Manual_tests_for_set_mode.md`, `Future_Work_ ideas.md` (typo: space before "ideas") live in Documentation root; consider adding to index or moving to appropriate subfolder.
-
-### 0.5 Legacy Software references in docs
-- [ ] **System_Architecture_Detail.md** – Describes legacy architecture: `Configs.txt`, `Software/ConfigSettings/ConfigLoad.c`, `ModeRouting.c`, `keypadInput()`. Add disclaimer at top or update to Software2 (comm.c, config.c, set_mode.c, hampod.conf).
-- [ ] **paying-tech-debt.md** – Entirely about legacy Software; add header "LEGACY – describes Software/, not Software2" or move to archive.
-- [ ] **Project_Overview_and_Onboarding/** – Several plan docs (COMMIT_HISTORY_ANALYSIS, DOCUMENTATION_PLAN, etc.) reference Software/ paths; consider archiving completed plans or adding legacy labels.
+**Suggested owners:** Radio/HAL/Firmware → Embedded team | Config/Comm → Backend team | Unit tests → QA | CI/CD → DevOps | General → Project lead
 
 ---
 
-## 1. Documentation clarity
 
-### 1.1 Single source of truth for "what's active"
-- [ ] **State explicitly in one place** (e.g. root README or `Documentation/README.md`) that **Software2** is the active application and **Software** is legacy/reference. New contributors should not have to infer this.
-
-### 1.2 Align Project_Spec with the active codebase
-- [ ] **System_Architecture_Detail.md** – Update it to describe **Software2** architecture (e.g. `set_mode.c`, `config.c`, `comm.c`, `speech.c`, `hampod.conf`) or add a clear note at the top: "This section describes the legacy Software/ architecture; the active application is Software2 (see README and Project_Plan)."
-- [ ] **Config file name** – Use one canonical path: **`Software2/config/hampod.conf`**. No mixed references to `Configs.txt` without stating it's legacy Software.
-
-### 1.3 Script and path consistency
-- [ ] **Script paths** – All docs that mention scripts should use **`Documentation/scripts/<script>.sh`** (or `.ps1`). Audit: Hardware_Constraints, System_Architecture_Detail, Regression_Testing_Plan, README, any "quick start" guides.
-- [ ] **RPi_Setup_Guide / install path** – Ensure "run from repo root" vs "run from `Documentation/scripts`" is stated consistently (e.g. "From repo root: `./Documentation/scripts/install_hampod.sh`").
-
-### 1.4 Doc cross-references and index
-- [ ] **Documentation/README.md** – Keep the "Project_Spec" list up to date when new spec docs are added; consider a one-line purpose for each doc.
-- [ ] **Tests index** – Either in Regression_Testing_Plan or a short "Test index" section elsewhere: list every test entry point (unit tests, HAL test, Phase 0, Normal Mode, Frequency Mode, manual radio tests, deprecated) with path and one-line purpose. Reduces "which script do I run?" confusion.
 
 ---
 
