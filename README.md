@@ -31,13 +31,18 @@ Tested radios:
 ## Repository Structure
 
 - Documentation folder: Build guides, plans, and install scripts
-  - Project_Overview_and_Onboarding subfolder: Developer onboarding documents
-  - scripts subfolder: Install and run scripts
+  - Planning/ — Active and completed implementation plans
+  - Guides/ — How-to documentation (setup, CLI, debugging)
+  - Reference/ — Architecture, specs, and lookup materials
+  - Archive/ — Stale and superseded documents
+  - scripts/ — Install and run scripts
 - Firmware folder: Low-level hardware code for keypad, audio, and text-to-speech
 - Software2 folder: Application layer with radio control and user modes
   - config subfolder: Contains hampod.conf configuration file
   - src subfolder: Source code files
 - Hardware_Files folder: Schematics and PCB designs
+
+See [Documentation Overview](Documentation/DOCS_OVERVIEW.md) for a complete index of all docs.
 
 ## Quick Start
 
@@ -225,23 +230,24 @@ cd Documentation/scripts
 ## Documentation
 
 Key documents for developers:
-- [RPi Setup Guide](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md) - Manual setup instructions
-- [Startup Device Handling Plan](Documentation/Project_Overview_and_Onboarding/startup_device_handling_plan.md) - Audio and radio device handling
-- [Currently Implemented Keys](Documentation/Project_Overview_and_Onboarding/Currently_Implemented_Keys.md) - Keypad mapping reference
+- [Documentation Overview](Documentation/DOCS_OVERVIEW.md) - Complete index of all docs
+- [RPi Setup Guide](Documentation/Guides/RPi_Setup_Guide.md) - Manual setup instructions
+- [Startup Device Handling Plan](Documentation/Planning/Startup_Device_Plan.md) - Audio and radio device handling
+- [Currently Implemented Keys](Documentation/Reference/Currently_Implemented_Keys.md) - Keypad mapping reference
 - [ICOMReaderManual2](Documentation/Original_Hampod_Docs/ICOMReaderManual2.md) - Original feature specification
 
 ### Project Specification and Plan
 - [Project Plan](Documentation/Project_Spec/Project_Plan.md) – Integration/testing strategy, risks & mitigations, milestones, code readability
-- [Refactor Todos](Documentation/Project_Spec/Refactor_Todos.md) – Checklist to reach maximum clarity (docs, code, structure, tests)
+- [Refactor Todos](Documentation/Planning/Refactor_Todos.md) – Checklist to reach maximum clarity (docs, code, structure, tests)
 - [Hardware Constraints](Documentation/Project_Spec/Hardware_Constraints.md)
 - [Project Objectives and Target Users](Documentation/Project_Spec/Project_Objectives_and_Target_Users.md)
 - [Project Functional Requirements](Documentation/Project_Spec/Project_Functional_Requirements.md)
 - [System Architecture](Documentation/Project_Spec/System_Architecture.md)
 - [System Architecture (detailed)](Documentation/Project_Spec/System_Architecture_Detail.md)
-- [Raspberry Pi Migration Plan](Documentation/Hampod%20RPi%20change%20plan.md)
+- [Raspberry Pi Migration Plan](Documentation/Planning/Completed/RPi_Migration_Plan.md)
 
 ## License
 
 This project is maintained for accessibility purposes. See repository for license details.
 
-Last updated: March 2026
+Last updated: June 2026
