@@ -15,6 +15,8 @@
 - Remove duplication across plan documents
 - Add status markers to plan documents (completed vs. in-progress vs. planned)
 - Audit and standardize naming conventions across all docs
+- Add changelog.md
+- Add doc for git branch overview
 
 ## 1. Project Summary (Initial Understanding)
 
