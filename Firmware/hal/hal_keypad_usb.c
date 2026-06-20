@@ -143,16 +143,16 @@ static const KeymapEntry keymap_calculator[] = {
  * 0/00 disambiguation logic (single → '*', double → '0').
  */
 static const KeymapEntry keymap_phone[] = {
-    /* Numeric keys - swapped rows for phone-style positioning */
-    {KEY_KP1, '7'},
-    {KEY_KP2, '8'},
-    {KEY_KP3, '9'},
+    /* Numeric keys - standard phone layout: 1-2-3 on top, 7-8-9 on bottom */
+    {KEY_KP1, '1'},
+    {KEY_KP2, '2'},
+    {KEY_KP3, '3'},
     {KEY_KP4, '4'},
     {KEY_KP5, '5'},
     {KEY_KP6, '6'},
-    {KEY_KP7, '1'},
-    {KEY_KP8, '2'},
-    {KEY_KP9, '3'},
+    {KEY_KP7, '7'},
+    {KEY_KP8, '8'},
+    {KEY_KP9, '9'},
 
     /* Right column: A, B, C, D from top to bottom */
     {KEY_BACKSPACE, 'A'}, /* Top-right → A */
