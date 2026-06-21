@@ -26,6 +26,17 @@ This file tracks all changes to the Documentation/ directory.
 
 ---
 
+## [2026-06-21] Integration_Test_Plan.md — Verified Complete, Archived
+
+### Changed
+- `Planning/Integration_Test_Plan.md` — Status 🔄→✅, date bumped, checklist ticked (all 9 steps)
+- `Planning/Documentation_Plan.md` — Task 3 marked ✅ COMPLETED (both plans archived)
+
+### Moved
+- `Planning/Integration_Test_Plan.md` → `Planning/Completed/Integration_Test_Plan.md` — All 9 steps verified against `main_phase0.c`
+
+---
+
 ## [2026-06-21] Set_Mode_Correction_Plan.md — Verified Against Code
 
 ### Changed

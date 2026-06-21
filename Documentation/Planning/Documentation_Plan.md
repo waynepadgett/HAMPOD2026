@@ -41,16 +41,14 @@ Two plans cover overlapping Set Mode work:
 
 **Commit:** Must be a dedicated commit. Do not bundle with other changes.
 
-## 3. ❓ OPEN — Plan Archival
+## 3. ✅ COMPLETED — Plan Archival
 
-Two plans may be complete and ready to move to `Planning/Completed/`:
+Both plans verified and archived to `Planning/Completed/`:
 
-| Plan | Evidence | Status |
-|------|----------|--------|
-| `Comm_Router_Plan.md` | All 12 implementation steps marked completed | Possibly done |
-| `Integration_Test_Plan.md` | Status says "In Progress" but may be done | Needs verification |
-
-**Action:** Deferred. Not investigating now. Open question for later.
+| Plan | Verification | Result |
+|------|-------------|--------|
+| `Comm_Router_Plan.md` | All 12 steps verified against `comm.h`, `comm.c`, `speech.c`, `test_comm_queue.c` + git log | ✅ Done, archived |
+| `Integration_Test_Plan.md` | All 9 steps from plan match `main_phase0.c` line-for-line. Regression script exists. | ✅ Done, archived |
 
 ## 4. 📝 NOTED — Stale Regression_Testing_Plan.md
 

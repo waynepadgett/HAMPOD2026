@@ -60,7 +60,6 @@ Active plans, in-progress work, and completed phases.
 | [Memory_Leak_Investigation.md](Planning/Memory_Leak_Investigation.md) | 🔄 Partial | Monitoring only, no confirmed fix |
 | [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | ⚠️ Stale | Needs update for current codebase |
 | [Set_Mode_Correction_Plan.md](Planning/Set_Mode_Correction_Plan.md) | 🟡 Partial | Most corrections done — beeps, [*], announcement verified. 2 items remain: frequency format, test_set_mode.c |
-| [Integration_Test_Plan.md](Planning/Integration_Test_Plan.md) | 🔄 In Progress | Integration testing |
 | [Refactor_Todos.md](Planning/Refactor_Todos.md) | 🔴 Not Started | Code clarity checklist |
 
 ### Completed Phases
@@ -82,6 +81,7 @@ Active plans, in-progress work, and completed phases.
 | [Overclocking_Plan.md](Planning/Completed/Overclocking_Plan.md) | Performance | CPU/GPU overclock settings |
 | [Commit_History_Analysis.md](Planning/Completed/Commit_History_Analysis.md) | Analysis | Development timeline (64 commits) |
 | [Comm_Router_Plan.md](Planning/Completed/Comm_Router_Plan.md) | Comm | Router thread architecture, all 12 steps done |
+| [Integration_Test_Plan.md](Planning/Completed/Integration_Test_Plan.md) | Test | Phase 0 integration test, all 9 steps verified |
 | [Firmware_Test_Fix.md](Planning/Completed/Firmware_Test_Fix.md) | Firmware | Firmware test fixes |
 
 ---
