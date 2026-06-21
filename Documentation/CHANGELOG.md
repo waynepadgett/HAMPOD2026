@@ -16,6 +16,16 @@ This file tracks all changes to the Documentation/ directory.
 
 ---
 
+## [2026-06-21] Comm_Router_Plan.md — Verified Complete, Archived
+
+### Changed
+- `Planning/Comm_Router_Plan.md` — Status header flipped 🔄→✅, date bumped to 2026-06-21
+
+### Moved
+- `Planning/Comm_Router_Plan.md` → `Planning/Completed/Comm_Router_Plan.md` — All 12 implementation steps verified against source code
+
+---
+
 ## [2026-06-21] Set_Mode_Correction_Plan.md — Verified Against Code
 
 ### Changed

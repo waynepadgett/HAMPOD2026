@@ -59,7 +59,6 @@ Active plans, in-progress work, and completed phases.
 | [TTS_Caching_Plan.md](Planning/TTS_Caching_Plan.md) | 🔄 Partial | Missing warmup script |
 | [Memory_Leak_Investigation.md](Planning/Memory_Leak_Investigation.md) | 🔄 Partial | Monitoring only, no confirmed fix |
 | [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | ⚠️ Stale | Needs update for current codebase |
-| [Comm_Router_Plan.md](Planning/Comm_Router_Plan.md) | 🔄 In Progress | Communication router design |
 | [Set_Mode_Correction_Plan.md](Planning/Set_Mode_Correction_Plan.md) | 🟡 Partial | Most corrections done — beeps, [*], announcement verified. 2 items remain: frequency format, test_set_mode.c |
 | [Integration_Test_Plan.md](Planning/Integration_Test_Plan.md) | 🔄 In Progress | Integration testing |
 | [Refactor_Todos.md](Planning/Refactor_Todos.md) | 🔴 Not Started | Code clarity checklist |
@@ -82,6 +81,7 @@ Active plans, in-progress work, and completed phases.
 | [Install_Script_Plan.md](Planning/Completed/Install_Script_Plan.md) | Tooling | Automated install script |
 | [Overclocking_Plan.md](Planning/Completed/Overclocking_Plan.md) | Performance | CPU/GPU overclock settings |
 | [Commit_History_Analysis.md](Planning/Completed/Commit_History_Analysis.md) | Analysis | Development timeline (64 commits) |
+| [Comm_Router_Plan.md](Planning/Completed/Comm_Router_Plan.md) | Comm | Router thread architecture, all 12 steps done |
 | [Firmware_Test_Fix.md](Planning/Completed/Firmware_Test_Fix.md) | Firmware | Firmware test fixes |
 
 ---
