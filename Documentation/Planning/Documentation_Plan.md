@@ -50,9 +50,16 @@ Both plans verified and archived to `Planning/Completed/`:
 | `Comm_Router_Plan.md` | All 12 steps verified against `comm.h`, `comm.c`, `speech.c`, `test_comm_queue.c` + git log | ✅ Done, archived |
 | `Integration_Test_Plan.md` | All 9 steps from plan match `main_phase0.c` line-for-line. Regression script exists. | ✅ Done, archived |
 
-## 4. 📝 NOTED — Stale Regression_Testing_Plan.md
+## 4. ✅ COMPLETED — Stale Regression_Testing_Plan.md
 
-`Regression_Testing_Plan.md` (created 2025-12-19) is marked ⚠️ Stale in `DOCS_OVERVIEW.md`. This is already tracked. Update when regression testing is actively revisited.
+`Regression_Testing_Plan.md` (created 2025-12-19) was marked ⚠️ Stale in `DOCS_OVERVIEW.md`. Now updated:
+
+- All three core test procedures verified against current source code
+- "Future Test Improvements" section overhauled — completed items moved to ✅ table, untracked tests inventoried
+- Added current test inventory: `Software2/tests/` (6 files), `Firmware/hal/tests/` (7 files), regression scripts (4)
+- Test 3 naming fixed: "Phase 0.9" → "Phase Zero" to match `main_phase0.c`
+- Cross-reference added to archived `Integration_Test_Plan.md`
+- Status in `DOCS_OVERVIEW.md`: ⚠️ Stale → 🔄 In Progress
 
 ---
 

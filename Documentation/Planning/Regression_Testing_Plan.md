@@ -1,5 +1,5 @@
-> **Status:** ⚠️ Stale (needs update for current codebase)
-> **Last Updated:** 2026-06-20
+> **Status:** ✅ Current (all procedures verified, future section overhauled)
+> **Last Updated:** 2026-06-21
 
 # HAMPOD2026 Regression Testing Plan
 
@@ -156,11 +156,14 @@ cd ~/HAMPOD2026
 
 ---
 
-### Test 3: Phase 0.9 Integration Test (Software2 + Router Thread)
+### Test 3: Phase Zero Integration Test (Software2 + Router Thread)
+
+> Called "Phase 0.9" in the regression script, "Phase Zero" in `main_phase0.c:2`. Same test.
+> Archived integration plan: `Planning/Completed/Integration_Test_Plan.md` (all 9 steps verified).
 
 **Purpose:** Verifies the Software2 router thread architecture, which handles concurrent keypad polling and speech output without packet type conflicts. **This is the only test that exercises the router thread!**
 
-**Location:** `Software2/bin/phase0_test`
+**Location:** `Software2/bin/phase0_test` (built from `Software2/src/main_phase0.c`)
 
 #### What This Test Covers (that other tests don't)
 - ✅ Router thread in `comm.c` dispatching packets by type
@@ -267,61 +270,42 @@ Use this template to document each test run:
 
 ---
 
-## 🚀 Future Test Improvements
+## ✅ Completed (from earlier "Future" items)
 
-### Short-Term Improvements
+The following items from the original plan are now implemented:
 
-1. **Automated Pass/Fail Detection**
-   - Add log parsing to detect expected patterns
-   - Return exit codes based on test success criteria
-   - Create a CI-friendly test runner
+| Item | Status | Evidence |
+|------|--------|----------|
+| Automated pass/fail detection | ✅ Done | `Regression_Phase0_Integration.sh` parses logs for Firmware connection, router thread, key presses, packet errors; returns exit code |
+| Configurable test timeout | ✅ Done | Script accepts `timeout_seconds` parameter (default 20s), uses `timeout` command |
+| Test 3 regression script | ✅ Done | `Documentation/scripts/Regression_Phase0_Integration.sh` fully automates the Phase Zero procedure |
+| Software2 comm tests | Partially done | `test_comm_queue.c` exists; `test_comm_read/write/keypad_events/speech_queue` still needed |
+| E2E mode tests | Partially done | `test_frequency_mode.c`, `test_config_mode.c` exist; DTMF relay, memory mode still needed |
 
-2. **Test Timeouts**
-   - Add configurable timeouts for all tests
-   - Auto-fail if expected events don't occur within timeout
+## 📋 Tests Not Documented in This Plan
 
-3. **Audio Verification Enhancement**
-   - Log audio file paths and durations
-   - Add checksum verification for pre-generated audio files
+The codebase has grown beyond the three core tests in this plan:
 
-### Medium-Term Additions
+| Location | Files | 
+|----------|-------|
+| `Software2/tests/` | `test_comm_queue.c`, `test_config_mode.c`, `test_frequency_mode.c`, `test_radio.c`, `test_config.c`, `test_compile.c` |
+| `Firmware/hal/tests/` | `test_hal_keypad.c`, `test_hal_audio.c`, `test_interrupt_bypass.c`, `test_persistent_piper.c`, `test_tts_cache.c`, `test_hal_usb_util.c` |
+| `Documentation/scripts/` | `Regression_Phase_One_Manual_Radio_Test.sh`, `Regression_Phase_Two_Manual_Test.sh`, `Regression_Phase_Three_Manual_Test.sh` |
 
-1. **Software2 Communication Tests**
-   - `test_comm_read.c` - Verify reading from Firmware
-   - `test_comm_write.c` - Verify writing to Firmware
-   - `test_keypad_events.c` - Verify keypad event handling
-   - `test_speech_queue.c` - Verify speech queue operations
+## 🚀 Remaining Future Work
 
-2. **End-to-End Mode Tests**
-   - Frequency mode announcements
-   - DTMF relay mode
-   - Memory mode operations
+### Short-Term
+- **Audio verification**: Log file paths/durations in test output, checksum pre-generated audio files
 
-3. **Stress Tests**
-   - Rapid key pressing
-   - Long-running stability tests
-   - Memory leak detection
+### Medium-Term
+- **Missing Software2 tests**: `test_comm_read.c`, `test_comm_write.c`, `test_keypad_events.c`, `test_speech_queue.c`
+- **Additional E2E tests**: DTMF relay mode, memory mode operations
+- **Stress tests**: Rapid key pressing, 24h+ stability runs, memory leak detection
 
 ### Long-Term Goals
-
-1. **Unit Test Coverage**
-   - Port existing `Software/UnitTesting/` tests to Software2
-   - Add unit tests for:
-     - Packet serialization/deserialization
-     - Key mapping functions
-     - Mode state machine transitions
-     - Configuration parsing
-   - Target: Cover functionality not tested by integration tests
-
-2. **Hardware Mock Layer**
-   - Create software mocks for keypad input
-   - Create audio output capture for verification
-   - Enable testing without physical hardware
-
-3. **Continuous Integration**
-   - Automated test execution on Pi after each push
-   - Test result reporting and tracking
-   - Regression trend analysis
+- **Unit test coverage**: Packet serialization/deserialization, key mapping, mode state machine transitions, config parsing (target: cover what integration tests don't)
+- **Hardware mock layer**: Software mocks for keypad input, audio capture for verification (enables Pi-free testing)
+- **Continuous Integration**: Automated execution on Pi after push, result reporting, regression alerting
 
 ---
 

@@ -58,7 +58,7 @@ Active plans, in-progress work, and completed phases.
 | [Startup_Device_Plan.md](Planning/Startup_Device_Plan.md) | 🔄 Partial | Missing change detection (Phase 3) |
 | [TTS_Caching_Plan.md](Planning/TTS_Caching_Plan.md) | 🔄 Partial | Missing warmup script |
 | [Memory_Leak_Investigation.md](Planning/Memory_Leak_Investigation.md) | 🔄 Partial | Monitoring only, no confirmed fix |
-| [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | ⚠️ Stale | Needs update for current codebase |
+| [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | 🔄 In Progress | Living doc — updated as tests are added |
 | [Set_Mode_Correction_Plan.md](Planning/Set_Mode_Correction_Plan.md) | 🟡 Partial | Most corrections done — beeps, [*], announcement verified. 2 items remain: frequency format, test_set_mode.c |
 | [Refactor_Todos.md](Planning/Refactor_Todos.md) | 🔴 Not Started | Code clarity checklist |
 

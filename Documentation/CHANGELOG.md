@@ -37,7 +37,15 @@ This file tracks all changes to the Documentation/ directory.
 
 ---
 
-## [2026-06-21] Set_Mode_Correction_Plan.md — Verified Against Code
+## [2026-06-21] Regression_Testing_Plan.md — Stale→Updated, Overhauled
+
+### Changed
+- `Planning/Regression_Testing_Plan.md` — Status ⚠️→✅, date bumped, future section rewritten
+- Test 3 renamed "Phase 0.9" → "Phase Zero" to match source `main_phase0.c`
+- 55-line stale "Future Test Improvements" section replaced with completed/inventory/remaining (42% reduction)
+- Added current test inventory: `Software2/tests/` (6 files), `Firmware/hal/tests/` (7 files), regression scripts (4)
+- `Planning/Documentation_Plan.md` — Task 4 marked ✅ COMPLETED
+- `Documentation/DOCS_OVERVIEW.md` — ⚠️ Stale → 🔄 In Progress
 
 ### Changed
 - `Planning/Set_Mode_Correction_Plan.md` — Rewrote stale sections after code audit
