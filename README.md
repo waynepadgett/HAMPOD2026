@@ -48,7 +48,7 @@ See [Documentation Overview](Documentation/DOCS_OVERVIEW.md) for a complete inde
 
 ### Prerequisites
 
-- Raspberry Pi 3, 4, 5, or Zero 2 W with Debian Trixie installed (see [RPi Setup Guide](Documentation/Project_Overview_and_Onboarding/RPi_Setup_Guide.md) for flashing instructions)
+- Raspberry Pi 3, 4, 5, or Zero 2 W with Debian Trixie installed (see [RPi Setup Guide](Documentation/Guides/RPi_Setup_Guide.md) for flashing instructions)
 - USB numeric keypad
 - USB audio device (such as USB2.0 Device)
 - Amateur radio with USB or serial interface

@@ -3,27 +3,56 @@
 
 # Piper TTS Performance Cache — Phased Implementation Plan
 
-**Branch**: `feature/performance-cache`  
+**Branch**: 
+`feature/performance-cache` (Old - merged into main)  
+`June2026` (new - not started yet)
+
 **Date**: 2026-02-26  
 **Goal**: Reduce TTS latency by ≥50% for repeated phrases via disk caching
 
+
+## Scratch notes and TODOS
+
 NOTE: pi to run the testing on is:
+
+pi ssh cmd:
+
+ssh hamdevpi5-2@hamdevpi5-2.local
+
+and
 
 ssh hamdevpi0-3@hamdevpi0-3.local
 
-ssh hamdevpi5-3@hamdevpi5-3.local 
-
-ssh hamdevpi4@hamdevpi4.local
 
 testing phase 1:
-
 cd ~/HAMPOD2026/Firmware && ./hal/tests/test_tts_cache
 
 to clear cache:
-
-ssh hamdevpi0-2@hamdevpi0-2.local
-
 sudo rm -rf /root/.cache/hampod/tts/*
+
+
+current TODO list:
+- [ ] Write Documentation/scripts/warmup_tts_cache.sh (Phase 2)
+   write a bash script that loops over the phrases listed in lines 142-148, calls piper for each, and pipes to the right cache path. Test it on the Pi. Done.
+- [ ] test it manually
+- [ ] mark this file complete, update docs overview, move this doc to completed. 
+
+
+testing manually:
+```
+# 1. Clear cache so you're starting fresh
+sudo rm -rf /root/.cache/hampod/tts/*
+
+# 2. Run the warmup script
+./Documentation/scripts/warmup_tts_cache.sh
+
+# 3. Verify files were created
+ls -la /root/.cache/hampod/tts/
+
+# 4. Verify warm speak works
+cd ~/HAMPOD2026/Firmware && ./hal/tests/test_tts_cache
+```
+
 
 ---
 
@@ -46,7 +75,7 @@ sudo rm -rf /root/.cache/hampod/tts/*
 
 **Hashing**: DJB2 hash of input text → `%08x.pcm` filename  
 **Cache dir**: `~/.cache/hampod/tts/` (overridable via `HAMPOD_TTS_CACHE_DIR` env var)  
-**Disk limit**: 10GB max, hard cap (LRU eviction planned but not yet implemented)
+**Disk limit**: 10GB max, hard cap (no eviction needed — cache won't fill in practice)
 
 ---
 
@@ -85,7 +114,6 @@ int  hal_tts_cache_clear(void);                   // rm -rf cache contents
 
 - Max total cache size: **10GB** (configurable via `HAMPOD_TTS_CACHE_MAX_SIZE` env var or `DEFAULT_MAX_DISK_CACHE_SIZE` define)
 - **Current behavior:** Hard cap — when full, `hal_tts_cache_store()` returns -1 with "Disk cache full" error. No automatic eviction.
-- **Planned enhancement:** LRU eviction — when storing would exceed limit, delete oldest-accessed `.pcm` files until there's room (not yet implemented)
 - Size tracking: On init, scans the cache dir and sums file sizes; maintains a running total
 
 ### Test: `test_tts_cache.c`
@@ -114,11 +142,16 @@ cc -Wall -DUSE_PIPER hal/hal_tts_cache.c hal/hal_tts_piper.c \
 - [x] Cold speak → cache file written
 - [x] Warm speak latency < 2000ms to completion (actual threshold in test_tts_cache.c)
 - [x] `test_persistent_piper` still passes
-- [ ] Disk limit enforced with LRU eviction (current: hard cap, returns -1 when full)
-
+- [x] Disk limit enforced with LRU eviction (current: hard cap, returns -1 when full)
+(LRU not needed 10gb limit is massive and will never realisticlally fill)
 > **Note**: Fixed a race condition where interrupting TTS could cause partial utterances to be saved to the cache.
 
 ---
+
+
+
+
+
 
 ## Phase 2: Cache Warmup Script
 
@@ -155,6 +188,11 @@ The hash must match the DJB2 hash used in C code. The script will include a smal
 - [ ] Firmware starts up and speaks cached phrases instantly
 
 ~~Phase 3 (Compression) — SKIPPED: Cache is only ~736KB for 28 phrases. Not worth the complexity.~~
+
+
+
+
+
 
 ---
 
