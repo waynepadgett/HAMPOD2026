@@ -1,7 +1,7 @@
 # Documentation_Plan.md
 
 > **Status:** 🔄 In Progress
-> **Last Updated:** 2026-06-20
+> **Last Updated:** 2026-06-21
 
 **Authors:** Amber Padgett, Wayne Padgett
 **Purpose:** Track remaining documentation cleanup tasks after the 2026-06-20 refactor
@@ -14,7 +14,7 @@ The 2026-06-20 refactor completed most documentation organization:
 
 - `Documentation/DOCS_OVERVIEW.md` — central index of all docs
 - `Documentation/CHANGELOG.md` — tracks refactor changes
-- `Documentation/Guides/` — 8 how-to guides (CLI, debugging, merge SOP, etc.)
+- `Documentation/Guides/` — 9 how-to guides (modes, CLI, debugging, merge SOP, etc.)
 - `Documentation/Reference/` — architecture, specs, comparisons
 - `Documentation/Planning/` — active and completed plans
 - `Documentation/Archive/` — superseded documents
@@ -24,19 +24,9 @@ The 2026-06-20 refactor completed most documentation organization:
 
 # Remaining Tasks
 
-## 1. ⚠️ HIGH PRIORITY — Missing Guide File
+## 1. ✅ COMPLETED — Missing Guide File
 
-`DOCS_OVERVIEW.md` line 28 references a guide that does not exist on disk:
-
-| Missing File | Referenced In | Description |
-|--------------|---------------|-------------|
-| `Guides/Multiple_Modes_Guide.md` | DOCS_OVERVIEW.md "New Developers" section | How Normal, Frequency, Set modes work together |
-
-Note: Key mapping reference links to `Reference/Currently_Implemented_Keys.md` — this file exists.
-
-**Action:** Create `Guides/Multiple_Modes_Guide.md`. Content can be sourced from the mode source files (`normal_mode.c`, `frequency_mode.c`, `set_mode.c`).
-
-**Priority:** HIGH — new developers following the onboarding path will hit a broken link.
+`Guides/Multiple_Modes_Guide.md` was created on 2026-06-21. Content verified against `main.c`, `frequency_mode.c`, and `set_mode.c` source files. Covers Normal Mode (default/query), Frequency Mode (direct entry), and Set Mode (radio parameter adjustment) with correct key routing priority.
 
 ## 2. 🔧 SEPARATE COMMIT REQUIRED — Consolidate Set Mode Plans
 

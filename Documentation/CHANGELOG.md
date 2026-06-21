@@ -6,6 +6,16 @@ This file tracks all changes to the Documentation/ directory.
 
 ---
 
+## [2026-06-21] Multiple_Modes_Guide.md Created
+
+### Added
+- `Guides/Multiple_Modes_Guide.md` — How Normal, Frequency, and Set modes work together. Content verified against `main.c`, `frequency_mode.c`, and `set_mode.c`. Covers mode purpose, entry/exit, key routing priority, and Set vs Config Mode distinction.
+
+### Changed
+- `Planning/Documentation_Plan.md` — Task 1 marked ✅ COMPLETED; guide count 8→9
+
+---
+
 ## [2026-06-21] Set_Mode_Correction_Plan.md — Verified Against Code
 
 ### Changed
