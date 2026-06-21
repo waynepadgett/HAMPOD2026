@@ -1,10 +1,11 @@
 # Documentation_Plan.md
 
-> **Status:** 🔄 In Progress
+> **Status:** ✅ COMPLETED — all tasks done, plan archived
 > **Last Updated:** 2026-06-21
+> **Archived To:** `Planning/Completed/Documentation_Plan.md`
 
 **Authors:** Amber Padgett, Wayne Padgett
-**Purpose:** Track remaining documentation cleanup tasks after the 2026-06-20 refactor
+**Purpose:** Track remaining documentation cleanup tasks after the 2026-06-20 refactor (now complete)
 
 ---
 
@@ -24,22 +25,22 @@ The 2026-06-20 refactor completed most documentation organization:
 
 # Remaining Tasks
 
+All 4 tasks are now complete. See below for per-task details.
+
 ## 1. ✅ COMPLETED — Missing Guide File
 
 `Guides/Multiple_Modes_Guide.md` was created on 2026-06-21. Content verified against `main.c`, `frequency_mode.c`, and `set_mode.c` source files. Covers Normal Mode (default/query), Frequency Mode (direct entry), and Set Mode (radio parameter adjustment) with correct key routing priority.
 
-## 2. 🔧 SEPARATE COMMIT REQUIRED — Consolidate Set Mode Plans
+## 2. ✅ COMPLETED — Consolidate Set Mode Plans
 
-Two plans cover overlapping Set Mode work:
+Two plans covered overlapping Set Mode work. Merged into a single comprehensive plan on 2026-06-21:
 
-| Plan | Scope | Status |
-|------|-------|--------|
-| `Phase_3_Set_Mode_Plan.md` | Set Mode implementation (12 chunks) | In Progress — code done, testing pending |
-| `Set_Mode_Correction_Plan.md` | Correct behavior to match ICOMReaderManual2.md | In Progress — phases 1-5 |
+| Plan | Scope | Outcome |
+|------|-------|---------|
+| `Phase_3_Set_Mode_Plan.md` | Set Mode implementation (12 chunks) | Rewritten — consolidated, audit fixes applied, spec compliance added |
+| `Set_Mode_Correction_Plan.md` | Correct behavior to match ICOMReaderManual2.md | Archived to `Planning/Completed/` — content merged into Phase_3_Set_Mode_Plan.md |
 
-**Action:** Merge into a single comprehensive Set Mode plan. This requires careful reading of both files to avoid losing implementation details.
-
-**Commit:** Must be a dedicated commit. Do not bundle with other changes.
+**Audit performed before merge:** Both plans verified against source code. Stale items (state machine, key routing, AGC API, shift notes, test script misnaming) corrected in the consolidated document.
 
 ## 3. ✅ COMPLETED — Plan Archival
 

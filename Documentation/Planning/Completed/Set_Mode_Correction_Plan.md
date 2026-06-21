@@ -1,9 +1,12 @@
-> **Status:** 🟡 Partially Complete — most corrections implemented, 2 items remain
+> **Status:** ✅ ARCHIVED — content merged into Phase_3_Set_Mode_Plan.md
 > **Last Updated:** 2026-06-21
+> **Consolidated Into:** ../Phase_3_Set_Mode_Plan.md
 
-# Set Mode Correction Plan
+# Set Mode Correction Plan (Archived)
 
-> **Goal**: Correct current system behavior to match [ICOMReaderManual2.md](../Original_Hampod_Docs/ICOMReaderManual2.md) specifications for features already implemented. No new features.
+> **Original Goal:** Correct current system behavior to match [ICOMReaderManual2.md](../../Original_Hampod_Docs/ICOMReaderManual2.md) specifications for features already implemented. No new features.
+>
+> **Archived 2026-06-21:** All content merged into the consolidated Phase_3_Set_Mode_Plan.md. Remaining items (frequency format, test_set_mode.c) tracked there.
 
 ---
 

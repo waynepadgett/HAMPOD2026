@@ -6,6 +6,24 @@ This file tracks all changes to the Documentation/ directory.
 
 ---
 
+## [2026-06-21] Set Mode Plans Consolidated — Phase_3 + Correction Merged
+
+### Added
+- `Planning/Phase_3_Set_Mode_Plan.md` — Rewritten as single comprehensive document:
+  - Merged implementation (12 chunks) + spec correction (5 phases) content
+  - Fixed all stale items found by pre-merge audit (state machine, key routing, AGC API, shift notes, test script misnaming)
+  - Added spec compliance table, bonus parameters (Tuning Step, VOX, Filter Number, Keyer Speed), corrected IC-7300 notes
+
+### Moved
+- `Planning/Set_Mode_Correction_Plan.md` → `Planning/Completed/Set_Mode_Correction_Plan.md` — Content merged, plan archived
+- `Planning/Documentation_Plan.md` → `Planning/Completed/Documentation_Plan.md` — All 4 tasks complete, plan archived
+
+### Changed
+- `Documentation/DOCS_OVERVIEW.md` — Removed Documentation_Plan and Set_Mode_Correction_Plan from Active Work; added both to Completed Phases
+- `Documentation/Planning/Documentation_Plan.md` — Task 2 marked ✅ COMPLETED (Set Mode plans consolidated)
+
+---
+
 ## [2026-06-21] Multiple_Modes_Guide.md Created
 
 ### Added
@@ -46,6 +64,10 @@ This file tracks all changes to the Documentation/ directory.
 - Added current test inventory: `Software2/tests/` (6 files), `Firmware/hal/tests/` (7 files), regression scripts (4)
 - `Planning/Documentation_Plan.md` — Task 4 marked ✅ COMPLETED
 - `Documentation/DOCS_OVERVIEW.md` — ⚠️ Stale → 🔄 In Progress
+
+---
+
+## [2026-06-21] Set_Mode_Correction_Plan.md — Verified Against Code
 
 ### Changed
 - `Planning/Set_Mode_Correction_Plan.md` — Rewrote stale sections after code audit

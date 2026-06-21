@@ -51,15 +51,13 @@ Active plans, in-progress work, and completed phases.
 
 | Document | Status | Description |
 |----------|--------|-------------|
-| [Documentation_Plan.md](Planning/Documentation_Plan.md) | 🔄 In Progress | This refactor effort |
 | [Fresh_Start_Master_Plan.md](Planning/Fresh_Start_Master_Plan.md) | 🔄 In Progress | Master phase tracker |
-| [Phase_3_Set_Mode_Plan.md](Planning/Phase_3_Set_Mode_Plan.md) | 🔄 In Progress | Set Mode — code done, testing pending |
+| [Phase_3_Set_Mode_Plan.md](Planning/Phase_3_Set_Mode_Plan.md) | 🔄 In Progress | Consolidated plan — code done, tests + frequency format remain |
 | [Multiple_Synthesizers_Plan.md](Planning/Multiple_Synthesizers_Plan.md) | 🔄 Partial | Missing Flite engine + dispatch layer |
 | [Startup_Device_Plan.md](Planning/Startup_Device_Plan.md) | 🔄 Partial | Missing change detection (Phase 3) |
 | [TTS_Caching_Plan.md](Planning/TTS_Caching_Plan.md) | 🔄 Partial | Missing warmup script |
 | [Memory_Leak_Investigation.md](Planning/Memory_Leak_Investigation.md) | 🔄 Partial | Monitoring only, no confirmed fix |
 | [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | 🔄 In Progress | Living doc — updated as tests are added |
-| [Set_Mode_Correction_Plan.md](Planning/Set_Mode_Correction_Plan.md) | 🟡 Partial | Most corrections done — beeps, [*], announcement verified. 2 items remain: frequency format, test_set_mode.c |
 | [Refactor_Todos.md](Planning/Refactor_Todos.md) | 🔴 Not Started | Code clarity checklist |
 
 ### Completed Phases
@@ -83,6 +81,8 @@ Active plans, in-progress work, and completed phases.
 | [Comm_Router_Plan.md](Planning/Completed/Comm_Router_Plan.md) | Comm | Router thread architecture, all 12 steps done |
 | [Integration_Test_Plan.md](Planning/Completed/Integration_Test_Plan.md) | Test | Phase 0 integration test, all 9 steps verified |
 | [Firmware_Test_Fix.md](Planning/Completed/Firmware_Test_Fix.md) | Firmware | Firmware test fixes |
+| [Documentation_Plan.md](Planning/Completed/Documentation_Plan.md) | Docs | Documentation refactor — all 4 tasks completed (guide, plan consolidation, archival, regression update) |
+| [Set_Mode_Correction_Plan.md](Planning/Completed/Set_Mode_Correction_Plan.md) | Set Mode | Spec verification, beep system, [*] fix — content merged into Phase_3_Set_Mode_Plan |
 
 ---
 
