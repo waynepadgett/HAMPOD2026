@@ -115,6 +115,7 @@ Architecture details, specifications, and lookup materials.
 |----------|-------------|
 | [Keypad_Layout_Overview.md](Reference/Keypad_Layout_Overview.md) | Keypad hardware layout and design |
 | [Key_Mapping_Process.md](Reference/Key_Mapping_Process.md) | How key mappings are defined and dispatched |
+| [Key_Dispatch_Sequence.png](Reference/Key_Dispatch_Sequence.png) | Rendered signal flow diagram (accompanies Key_Mapping_Process.md) |
 | [Currently_Implemented_Keys.md](Reference/Currently_Implemented_Keys.md) | Current key bindings for all modes |
 | [Frequency_Mode_Diagram.md](Reference/Frequency_Mode_Diagram.md) | Frequency Mode state diagram |
 
@@ -169,6 +170,7 @@ Historical, superseded, or stale documents kept for reference.
 | [2025_12_5_Notes.md](Archive/2025_12_5_Notes.md) | Session notes from Dec 5, 2025 |
 | [Obsidian_Notes.md](Archive/Obsidian_Notes.md) | Raw planning notes |
 | [Test_Diagram.md](Archive/Test_Diagram.md) | Placeholder with no content |
+| [behavior_map_architecture.png](Archive/behavior_map_architecture.png) | Architecture diagram (accompanies Future_Work_Behavior_Map.md) |
 
 ---
 

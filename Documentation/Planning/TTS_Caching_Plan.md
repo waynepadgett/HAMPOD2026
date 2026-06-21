@@ -1,5 +1,5 @@
-> **Status:** 🔄 Partial (missing warmup script)
-> **Last Updated:** 2026-06-20
+> **Status:** 🔄 Partial — Phase 1 code complete, Phase 2 (warmup script) remaining
+> **Last Updated:** 2026-06-21
 
 # Piper TTS Performance Cache — Phased Implementation Plan
 
@@ -46,7 +46,7 @@ sudo rm -rf /root/.cache/hampod/tts/*
 
 **Hashing**: DJB2 hash of input text → `%08x.pcm` filename  
 **Cache dir**: `~/.cache/hampod/tts/` (overridable via `HAMPOD_TTS_CACHE_DIR` env var)  
-**Disk limit**: 10GB max, LRU eviction when full
+**Disk limit**: 10GB max, hard cap (LRU eviction planned but not yet implemented)
 
 ---
 
@@ -59,15 +59,16 @@ The minimal viable cache — store raw PCM to disk, play from disk on repeat.
 | File | Purpose |
 |------|---------|
 | `Firmware/hal/hal_tts_cache.h` | Public cache API |
-| `Firmware/hal/hal_tts_cache.c` | Disk cache: init, lookup, store, eviction |
+| `Firmware/hal/hal_tts_cache.c` | Disk cache: init, lookup, store, clear |
 
-### API
+### API (actual, verified against `hal_tts_cache.h`)
 
 ```c
 int  hal_tts_cache_init(void);                    // mkdir -p cache dir
 int  hal_tts_cache_lookup(const char *text,       // Check disk for cached PCM
                           int16_t **samples,
                           size_t *num_samples);
+void hal_tts_cache_release(int16_t *samples);     // Free samples from lookup
 int  hal_tts_cache_store(const char *text,        // Save PCM to disk
                          const int16_t *samples,
                          size_t num_samples);
@@ -82,11 +83,12 @@ int  hal_tts_cache_clear(void);                   // rm -rf cache contents
 
 ### Disk Limits
 
-- Max total cache size: **10GB** (configurable via `#define`)
-- Eviction: When storing a new entry would exceed the limit, delete the **oldest-accessed** `.pcm` files until there's room
-- Size tracking: On init, scan the cache dir and sum file sizes; maintain a running total
+- Max total cache size: **10GB** (configurable via `HAMPOD_TTS_CACHE_MAX_SIZE` env var or `DEFAULT_MAX_DISK_CACHE_SIZE` define)
+- **Current behavior:** Hard cap — when full, `hal_tts_cache_store()` returns -1 with "Disk cache full" error. No automatic eviction.
+- **Planned enhancement:** LRU eviction — when storing would exceed limit, delete oldest-accessed `.pcm` files until there's room (not yet implemented)
+- Size tracking: On init, scans the cache dir and sums file sizes; maintains a running total
 
-### Test: `test_tts_cache_phase1.c`
+### Test: `test_tts_cache.c`
 
 | Test | Expected |
 |------|----------|
@@ -110,9 +112,9 @@ cc -Wall -DUSE_PIPER hal/hal_tts_cache.c hal/hal_tts_piper.c \
 ### ✅ Phase 1 Done When
 - [x] `make` compiles cleanly
 - [x] Cold speak → cache file written
-- [x] Warm speak latency < 1ms (to first chunk)
+- [x] Warm speak latency < 2000ms to completion (actual threshold in test_tts_cache.c)
 - [x] `test_persistent_piper` still passes
-- [x] Disk limit enforced (tested with small limit)
+- [ ] Disk limit enforced with LRU eviction (current: hard cap, returns -1 when full)
 
 > **Note**: Fixed a race condition where interrupting TTS could cause partial utterances to be saved to the cache.
 
@@ -189,7 +191,7 @@ With caching in place, aggressive overclocking provides **diminishing returns**:
 | Phase | Test Command | Success Criteria |
 |-------|-------------|------------------|
 | 1 | `make clean && make` | Compiles clean ✅ |
-| 1 | `./hal/tests/test_tts_cache` | Warm < 1ms to first chunk ✅ |
+| 1 | `./hal/tests/test_tts_cache` | Warm < 2000ms to completion ✅ |
 | 1 | `./hal/tests/test_persistent_piper` | Existing tests pass |
-| 2 | `./Documentation/scripts/warmup_tts_cache.sh` | Cache populated |
+| 2 | `./Documentation/scripts/warmup_tts_cache.sh` | Cache populated (not yet created) |
 
