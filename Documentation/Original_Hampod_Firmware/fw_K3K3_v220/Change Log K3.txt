@@ -1,0 +1,86 @@
+Firmware Version Change Log
+
+K3 Reader:
+
+v1.20 Added KX2 configurations menu options for "Logging" and "FM Tone"
+
+v1.19b1 Fixed addressing for future large memory firmware builds.
+
+v1.19 Added new query for K3/K3S for "Previous SWR" result
+
+v1.18 Added extra commands in SWR query to exit transmit mode since it would occasionally remain in TX. 
+
+v1.17 DTMF Mode now has a related configuration option to set the tone duration from 100 to 500 milliseconds.
+	Added AR command for RX Antenna selection (K3/K3S)
+
+v1.16 Added DTMF Mode. 
+	Added ability to interrupt a radio timeout with a key press. 
+
+v1.15 Added SWR Watch mode. Useful for tuning a load or antenna , such as a loop
+
+v1.14 Added initial support for KX2
+
+v1.13 Added three new options in K3 configuration menu: VFO LNK, ATTEN, and PRE AMP2.
+	Recognizes K3S on startup.
+	Pre Amp 2 status now detected
+	Multiple a tenuation levels now detected on K3S
+	Added new key function "Snap to Zero for VFO A and VFO B.
+
+v1.12 Added save current frequency to temporary buffer for ReCall keypress function with Shift+Enter hold.
+
+v1.11 Added HamPod configuration item for improved firmware flashing.
+
+v1.10 Internal code structure changes. No new features.
+
+v1.09 Added auto detection and support for new KX3 configuration menu to support ATU Mode. This is also the KAT3 menu on the K3.
+
+v1.08 Fixed bug with Split detection when querying from keypad.
+	Occasionally  split status was not correct.
+
+v1.07 Added support for KX3 Power Amp Mode and 2 Meter Mode screens.
+
+v1.06 Added last entered frequency ReCall with Shift+Enter.
+	Other minor internal tweaks.
+
+v1.05 Added support for KX3 and additional functionality for both K3 and KX3.
+	The K3 Reader automatically detects radio type when connecting or switching between ports. 
+	Keypad queries are automatically adapted to radio type if needed.
+	Added support for 26 badditional new KX3 Configuration/Menu screens.
+	Added a 2nd "Shift" level to increase number of available keypad queries. SO now the Shift key cycles through: "Shift", "Shift 2", and "Shift Off".
+	When performing direct frequency keypad input, VFO selection entry now remains at last VFO for which an entry was made.
+
+	Added the following keypad queries:
+	2nd Shift '1': Miscellaneous Status
+	2nd Shift '2': CW and Data Status
+	2nd Shift '3': Voice Status
+	Added dual VFO A and B VFO text watch to Shift '3' Hold key. Simultaneously watch and announce any change to both text areas.
+	Shift '7' Hold: Sub RX antenna selection (K3 only).
+
+	Modified existing keypad queries:
+	Shift '5' Hold: Added support for SWR query on KX3 using 2.5 watts.
+	Text Buffer read mode on/off moved  from Shift '3' Hold to Shift '0' Hold key.
+	Noise Blanker status query no longer hangs if bSET is on.
+
+	With verbosity on, improved announcement of front panel filter adjustment encoders (FC, BW, LO, HI).
+	Added HamPod configuration menu item for AF & RF announcement on/off while verbosity is on.
+	Band Width encoder now displays value in  "SW TEST" configuration screen.
+	Fixed announcements for quick band change when using a KX3.
+	Added support for KX3 Nr, and NB/level  keypad queries.
+	added enhanced config/menu announcements for configuration  screens that change text in both VFO A and B text areas.
+	Combined KeyTime Out Enable/Disable with Key Time Out Duration configuration menu item.
+		The following configuration/menu screens are now "enhanced":
+		K3: Repeater Offset, Receive and Transmit Equalizer, CW Weight, FM Deviation, Digital Voice Recorder, Main Squelch, Switch Test, Tech Mode, AGC Threshold, Power Set, VFO Offset, RIT Clear, VFO Coarse, Signal Removal
+		KX3: RX NR
+	Other minor tweaks.
+
+v1.04 Improved voltage variation imunity with processor configuration bits.
+	Fixed bug with Quick Volume Keys after exiting configuration menu.
+v1.03 Added quick band change. Keys: [B] + [0 to 9]
+v1.02 Added support for second serial port.
+	Added reconnect to K3 when switching between serial ports.
+	Added query for VOX and QSK status. Keys: [A],[1],Hold
+	Fixed Watch VFO A and VFO B Display to not exit immediately on key release.
+v1.01 Added test for frequency of 777 to announce product and firmware info.
+	Fixed interrupt issues to stop sending sporadic invalid queries to K3.
+v1.00 initial release
+

@@ -1,0 +1,1 @@
+ds30LoaderConsole.exe -f=K3K3.X.production.hex -k=COM3 -r=38400 -d=PIC18F47K40 -p -e -c

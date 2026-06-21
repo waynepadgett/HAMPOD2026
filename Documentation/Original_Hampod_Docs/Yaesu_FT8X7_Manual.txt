@@ -1,0 +1,544 @@
+Yaesu Reader for FT-857/897 and eventually FT-817
+Revised 01/27/2020
+Firmware: v1.00b5
+
+OVERVIEW
+  The HamPod series of Amateur Radio station accessories are stand-alone, micro-processor based text-to-speech devices designed to provide speech output and accessibility to common station equipment such as transceivers, Radios, antenna controllers and rotor controllers, SWR/Power meters and other equipment capable of serial data exchange. The voice synthesizer utilizes the popular "DoubleTalk" voice synthesizer and is customizable to your personal preferences.
+
+  The HAMPod Yaesu Reader has been specifically designed to work with several Yaesu transceivers to provide as much capability and accessibility to the radio as possible. With the Yaesu Reader you will have access to many parameters of your radio and therefore be able to use your equipment with a high degree of capability. All without the need for a connected station computer or help from a fellow ham or long-suffering partner!
+
+  There are several options that determine how the HamPod Yaesu Reader performs and interacts with your Radio and all options are stored in EEPROM and retain their settings when powered off. The HamPod Yaesu reader can be set to automatically report some changes as you operate your Radio or can be configured to be silent and only report information when requested by you with a key press on the HamPod Yaesu Readers 16 button keypad. The keypad is used to configure the HamPod Yaesu Reader and to request information from your Radio.
+
+
+GENERAL DESCRIPTION
+  The rear of the HamPod has two male DB9 serial ports and a DC power jack. The serial ports are identified as serial port 1 and serial port 2. The connector located next to the power jack is port 1. With the HamPod Yaesu Reader, you can connect two supported pieces of equipment and switch between them by using the keypad as described later in this manual. Serial port 1 is also used to connect to a computer serial port using a null modem adapter or cable to flash the firmware in the HamPod Yaesu Reader when an upgrade is available. See Appendix C for upgrade instructions. The power jack accepts 9 to 15 volts dc and has a positive center pin. New versions of the HamPod also have a 3.5mm headphone jack on the right side. There is also a small hole at the lower left corner of the speaker grill which provides access to a reset button inside the enclosure. This hole is located within the very bottom groove of the speaker grill and about one quarter of an inch from the left end of the groove. You can use a paper clip to reach into the box to push this button. The button is about one inch below the top cover. Be careful not to poke through the speaker cone if you happen to be somewhere above the very bottom  groove of the speaker grill area. Cycling power to the HamPod will essentially do the same thing and may be easier. This button will reboot the HamPod Yaesu Reader without changing any configuration settings. This does not reset or effect your connected device.
+Important firmware Update note:
+As of 02/01/2019, the HamPod is now shipping with a new version of the Microchip CPU processor which has twice the flash memory available for firmware. This is needed to accommodate some combinations of firmware builds that require the extra memory space. When downloading firmware from the HamPod.com web site, you need to be sure to get the version for the processor chip currently in your HamPod. Firmware versions that starts with v1.xx is for the older CPU while v2.xx if for the new CPU. Check the manual for your HamPod to see how to access the version number. On most radio firmware, you can do this by attempting to send a frequency of 777 to the radio.
+
+
+CONNECTING THE HamPod Yaesu READER
+IMPORTANT!
+A.  It is a good idea to not apply power to the HamPod until you have connected it to your Radio. This is because the serial port jacks on the rear of the HamPod are male connectors and it is possible to short one of these pins to the grounded shell while trying to engage the female end of the serial cable into this connector.
+B.  Currently, all Yaesu transceivers supported by this firmware have a female 8 pin MiniDin serial data port connector on the rear of the radio. So you need to use a special male 8 pin MiniDin to female DE-9 DSub serial cable to connect to the HamPod. These cables contain some active level shifting circuitry as part of the cable so be sure to get a cable that has the DE-9 DSub connector on one end and not a USB connector. 
+1. Connect one end of the female end of the supplied serial cable to the RS-232 serial port on the rear of the HamPod using the port configured for Yaesu Radios as determined by the firmware build you received or loaded.
+2. Connect the other end of the cable to the 8 pin MiniDin serial connector on the rear of your Yaesu Radio.
+3. Connect the supplied 9 volt DC, 800MA wall power unit to the HamPod . This is a center pin positive 2.1mm x 5.5mm coaxial power connector. You may also connect this using your own cable to your shack 13.8 volt DC power distribution system if desired. There is no on/off switch as the HamPod draws minimal current (about 20mA), when not in use.
+
+  The Yaesu Reader communicates with an Yaesu Radio at a baud rate of 4800, 9600, or 38,400 depending on the HamPod configuration baudrate setting and the radio port setting. If possible, you should set both the HamPod and radio to 38,400 baud for best performance. When powered up, the Yaesu Reader will play a quick Morse letter "R" and announce "Ham Pod" and then will look for a connected Yaesu Radio. When found, the Yaesu Reader will report "Yaesu", letting you know it has established a connection with your Radio. The Yaesu Reader then continuously polls for the Radio at the configured baud rate at about once a second to monitor the connection.
+
+
+KEYPAD
+  The layout  of the first 12 keys of the 16 button keypad is similar to a standard 12 key telephone keypad with an additional column of 4 keys to the right. The 16 push buttons keys are arranged as 4 rows of 4 columns and each key is capable of two different functions depending on the current mode of the HamPod. They are operated with both a standard push or an extended longer push and hold action. With the addition of a "SHIFT" key, each key can generate up to four unique operations. A second shift level called "Shift 2", will then provide an additional 2 unique key actions. A synopsis of the switches and their functions are listed in Appendix A for quick reference. 
+		As previously mentioned, the first three columns of keys are identically labeled as a standard 12 key telephone keypad and  are similar in layout to most radio's that are equipped with a numeric keypad. The fourth column of keys are primarily configuration and modifier keys.
+
+  In this document, the key labels are enclosed within square brackets. For reference, left to right, top to bottom, the keys are labeled:
+
+Row 1: [1], [2], [3], [A]
+Row 2: [4], [5], [6], [B]
+Row 3: [7[, [8], [9], [C]
+Row 4: [*], [0], [#], [D]
+
+  The keys are always pushed individually. Never is more than one key pressed simultaneously to perform any function.
+
+  There are five primary modes of operation for the keypad when used with an Yaesu FT-857, 897 and 817 Radio and is as follows:
+1. Normal or key Mode. Standard user query and control operations.
+2. Frequency Entry Mode. Convenient frequency entry for your Yaesu.
+3. SETMode. Convenient entry of some data and control levels on supported Yaesu models.
+4. DTMF Mode. Use the HamPod keypad to generate touch tone audio. 
+5. Configuration Mode. This allows setup of the HamPod voice parameters as well as Yaesu Reader options.
+
+
+1. NORMAL MODE
+Note about Alternate Key definitions:
+The [A] key is also often referred to as the [Shift[ key.
+The [B] key as the [Set] key.
+The [#] key as the [Enter] key.
+  In the list below are  the assigned functions for each key. Most keys have two potential functions by either simply pressing the key, or pressing and continue holding the key down for an additional .5 second. If you proceed that key with a press of the [SHIFT] key, we can obtain four possible functions.
+
+In normal mode, the keys and their associated functions are listed below. Note that not all functions are supported by every model of Yaesu Radio. 
+
+[1] : Read VFO frequency and single letter mode if that is enabled in the configuration menu. 
+[SHIFT] , [1] : VOX status, and Gain level if enabled
+[SHIFT] , [1] Hold : Break in status and Delay level if enabled
+
+[2] : Turn VFO Lock Off
+[2] Hold : Turn VFO Lock On
+[Shift] , [2] : Report Active VFO and announces if in Memory Mode or silent if in VFO Mode
+
+[3] : Turn Split Mode Off
+[3] Hold : Turn Split Mode On
+
+[A] : Rotate through Shift, and Shift Off
+[A] Hold : HamPod Volume Up
+
+[4] : PreAmp (IPO) status per current band
+[Shift] , [4] : Attenuation status per current band (-10db)
+[4] Hold : Narrow FM status per current band
+
+[5] : AGC status (Fast / Slow / Auto / Disabled)
+[Set] , [Shift] , [5] : Set Repeater Offset frequency and direction
+Offset frequency entered in MHz followed with the [Enter] key. Example: for 2m, enter ".6 for 600KHz, or for 70cm, enter "5" for a 5MHz split. 
+Also keys [A], [B], and [C] are available to set offset direction:
+[A] : Enable a plus offset. 
+[B] : Enable a minus offset. 
+[C] : Enable Simplex operation.
+You can enter either the offset frequency or offset direction, or both simultaneously when performing this function. 
+[Set] , [5] Hold : Set CTCSS frequency and status, (Continuous Tone Coded Squelch)
+CTCSS frequency entered without a decimal point and followed with the [Enter] key. Example: Enter"67" for 67.0Hz, "123" for 123.0 Hz, or "1622" for 162.2 Hz. 
+Also keys [A], [B], and [C] are available to set CTCSS Mode:
+[A] : Enable TX encode only. 
+[B] : Enable both TX and RX encode and decode. 
+[C] : Disable CTCSS. 
+You can enter either the CTCSS frequency or CTCSS Mode, or both simultaneously when performing this function. 
+[Set] , [Shift] , [5] Hold : Set DCS Code and status, (Digital Tone Coded Squelch)
+Enter a DTCS code and follow with the [Enter] key. Example: Enter "23" for 023, "754" for 754. 
+Also keys [A], [B], and [C] are available to set DTCS Code:
+[A] : Enable TX encode only. 
+[B] : Enable both TX and RX encode and decode. 
+[C] : Disable DTCS. 
+You can enter either the DTCS Code or DTCS Mode, or both simultaneously when performing this function. 
+[6] : DSP Bandpass Filter status and Width if enabled
+[6] Hold : Optional Crystal Filter 1 or 2 status
+
+[B] : Rotates through Set, and Off
+[B] Hold : HamPod Volume Down
+
+[7] : Noise Blanker status and level if enabled
+
+[8] : Noise Reduction status and level if enabled
+[8] Hold : Mic Gain level (not available in CW Mode)
+[Shift] , [8] : Keyer status and Speed if enabled
+[Shift] , [8] Hold : Mic Equalizer setting
+
+[9] : Auto Notch status
+[9] Hold : Power (4 settings, HF / 6m / 2m / 70cm)
+[Shift] , [9] : Speech Processor status and Level if enabled
+
+[C] Hold : Enter/Save Hampod Configuration Mode
+
+[*] : Read S Meter when in Receive mode
+[*] Hold : Read Power level when in transmit mode. Also announces if Split Mode is on. 
+[Shift] , [*] : Read all 4 meter raw values when in transmit mode (Power, ALC, SWR, Modulation). 
+
+[0] : Read Current mode
+[Set] , [0] : Set Mode. 
+[0] Hold : Read Current Yaesu Configuration Menu number. You must exit the menu system on the radio in order for it to return the currently selected menu number. See appendix D for more details about accessing the menus on the radio.
+
+[#] : Enter a frequency
+[#] Hold : Toggle between VFO A and B
+[*] : used for a decimal point or clear key if pressed twice while entering a frequency. 
+[D] : Also acts as a clear key while entering a frequency. 
+If you clear a frequency entry, you must start over with an initial press of the pound (enter) key before trying to reenter a frequency. 
+[Shift] , [#] : Recall and write to radio a previously saved (or manually entered) frequency from the HamPod 
+[Shift] , [#] hold : Read current frequency from radio and save into temporary HamPod memory. You can then write this back to the radio later with the Recall
+function above. 
+
+[D] : Toggles between Verbosity and Terse modes
+[D] Hold : Switch between HamPod ports 1 and 2
+[D] Hold : Exit Configuration without saving or Exit DTMF mode
+[Shift] , [D] Hold : Enter DTMF mode
+
+
+2. Frequency Entry Mode:
+  Pressing the [#] key will prepare the HamPod Yaesu Reader to accept a frequency from the keypad.  After hearing the VFO prompt, enter your desired frequency
+inserting a decimal point (star key) where needed and press the [ENTER] key to send it to your radio. Frequency entry format is the same as used when entering
+a frequency directly on the radio itself. 
+
+A few special notes here: 
+1. A second press of the [DECIMAL POINT] key while entering a frequency will clear your entry and return the HamPod Yaesu Reader to the normal mode. 
+2. Once you initiate frequency entry, the [D] key also functions as a clear key. 
+3. If the Keypad Timeout option is enabled, the HamPod Yaesu Reader will clear the partial entry and return to normal mode it you exceed the timeout duration.
+
+4. There are two special frequencies you can enter which will perform the following functions: 
+A.  enter a frequency of 777 and press the [ENTER] key. This will announce the product information and the firmware version number currently installed.
+
+B.  enter a frequency of 999 and press the [ENTER] key. This will restore the HamPod EEPROM to the factory default settings and perform a reset. You can
+do this if the settings ever get scrambled or if you just want to restore to the default settings. 
+
+
+3. SET MODE
+  This mode allows some control levels and data to be entered on the HamPod keypad and sent to your radio. 
+To enter SET mode, press the [B] key until you hear the "Set" prompt.
+Then Choose the available parameter you wish to set using the key assigned to that function as listed in the key assignment list above.
+
+Currently, Radio functions and controls that can potentially be set from the HamPod on supported models (enable/disable and/or set level):
+Frequency
+Operating Mode
+Repeater Offset frequency and direction
+CTCSS tone frequency and mode
+DCS Code and status
+Yaesu radio Menu item
+
+While in Set mode, the [A] through [D] keys assume additional context related functions.
+Typically, the [A] and [B] keys increment or decrements, enable or disable, or rotate through the available values for the selected parameter. 
+The [C] key is usually used with parameters that require additional data. For example,  when setting the polarity of a CTCSS tone. 
+After all data has been selected for the chosen setting, finish the operation with the {#}, (also known as the "Enter") key.
+
+Details regarding setting Operating Mode
+Mode is found on key [0].
+Once in SetMode, choose the Mode key on the HamPod to select it for modification.
+Mode is entered by entering a single digit.
+[#] : Sends command to radio and exits Set Mode
+Example: To enter USB, you only need to enter [2] followed by the [#] key.
+Valid Mode codes are:
+0=LSB, 1=USB, 2=CW, 3=CW-R, 4=AM, 8=FM, 10=Digital, 12=Packet, 88=Narrow FM
+
+Details regarding setting Repeater Offset Direction and Frequency
+Note: You must be in FM Operating mode to set these values.
+	Offset Direction is found on key [Shift] , [5].
+Once in SetMode, choose the Offset Direction key on the HamPod to select it for modification.
+Offset Direction is selected by use of the keys [A] through [C].
+[A] : Plus
+[B] : Minus
+[C] : Simplex
+Offset frequency is entered in MHz. 
+To set an Offset frequency, for 2m, enter [*] [6] for 600KHz, or for 70cm, enter [5] for a 5MHz split, followed by the [#] key to Sends command to radio and exits Set Mode. 
+You can enter either the offset frequency or offset direction, or both simultaneously when performing this function. 
+Example: To set the Offset Direction to Plus with an Offset of 600kHz, you need to press the [*] for a decimal point, then [6] for 600kHz, then [A] key for the Direction, followed by the [#] key.
+Example: To set the Offset Direction to Simplex, you only need to press the [C] key for the Direction, followed by the [#] key.
+
+Details regarding setting CTCSS tone frequency
+Note: You must be in FM Operating mode to set CTCSS mode.
+CTCSS Mode and Frequency is found on key [5] hold.
+Once in SetMode, choose the CTCSS key on the HamPod to select it for modification.
+CTCSS frequency is entered by entering 2 or 3 digits. You do not need to enter all digits. Only the most significant, non-zero digits. You may also enter the tone mode at this point with the keys [A] through [C].
+CTCSS frequency entered without a decimal point and followed with the [Enter] key. Example: Enter"67" for 67.0Hz, "123" for 123.0 Hz, or "1622" for 162.2 Hz. 
+[A] : Enable TX encode only. 
+[B] : Enable both TX and RX encode and decode. 
+[C] : Disable CTCSS. 
+[#] : Sends command to radio and exits Set Mode
+Example: To enter a frequency of 127.3 and set its mode to "TX Encode On", you need to enter [1], [2],[7], for the frequency and press the [A] key for the mode  followed by the [#] key.
+
+Details regarding setting DTCS Digital Tone Coded Squelch
+Note: You must be in FM Operating mode to set DTCS mode.
+CDCS Mode and Code is found on key [Shift], [5] hold.
+Once in SetMode, choose the DTCS key on the HamPod to select it for modification.
+DTCS Codes are entered by entering 2 or 3 digits. You do not need to enter all digits. Only the most significant, non-zero digits. You may also enter the tone mode at this point with the keys [A] through [C].
+[#] : Sends command to radio and exits Set Mode
+[A] : Enable TX encode only. 
+[B] : Enable both TX and RX encode and decode. 
+[C] : Disable DTCS. 
+You can enter either the DTCS Code or DTCS Mode, or both simultaneously when performing this function. 
+Example: Enter "23" for 023, "754" for 754 and follow with the [#] key. 
+
+Details regarding changing or reading the Yaesu Menus
+This function gives you the ability to read and set the menu items within your Yaesu radio.
+See Appendix D below for menu operation.
+
+
+4. DTMF MODE
+You can now place the HamPod into DTMF Mode to generate touch  tones . You can then place the microphone near the HamPod when you need to send tones to activate remote equipment. 
+
+[Shift], [D], Hold : enter DTMF Mode
+[All Keys] : Generate related touch tones
+[D], Hold : Exit DTMF Mode
+
+5. CONFIGURATION MODE
+  This mode allows changes to the various voice settings as well as modifying the options which effect how the  HamPod operates and interacts with your Yaesu transceiver. To enter Configuration Mode, press and hold the [C] key for 1 second. When you enter the configuration menu, you are placed at the option you last viewed when you previously exited the configuration menu.
+
+In Configuration Mode the keypad switches perform the following functions:
+[A]: Step forward through the configuration options.
+[B]: Step backward through the configuration options.
+[C]: Increment the parameter values.
+[D]: Decrements the parameter values.
+These are circular menus and will cycle through once  the first or last choice has been passed.
+
+To exit and save your changes, press and hole the [C] key for 1 second. The settings are stored in EEPROM and will remain even when power is removed.
+
+To exit without saving your changes, press and hold the [D] key for 1 second. Any changes you may have made will not be stored in EEPROM but those changes will still remain in effect until you power off or reset the HamPod. If the key timeout function is active and you don't press a key before the timeout occurs, you will exit configuration mode without saving to EEPROM.
+
+
+HamPod Yaesu READER CONFIGURATION OPTIONS
+1. Key beep: enable or disable. This sounds a beep when a key is pressed.
+2. Key Timeout Duration: disable / 5 - 30 Seconds:  When disabled, no key time out will occur. When set to 5 - 30, in both Frequency and Configuration Modes, this sets a time out  period when a key is pressed which will return the HamPod to Normal Mode if another key is not pressed before the set time out period expires.
+3. Verbosity: on/disable Some keys and controls on the transceiver generate serial data when manipulated by the user and if this option is enabled, the HamPod Yaesu Reader will automatically announce that data as you operate the radio. This might be useful at times but can get pretty chatty. This option also adds some additional speech labels to various readings. Note that automatic Announcement of VFO frequency when changing frequency by use of the VFO encoder controls are not controlled by this option. 
+4. Frequency Plus Mode: on/disable When enabled and you perform a keypad query for the VFO frequency of choice, an additional letter abbreviation will be appended to the read out depicting the current operating mode for that VFO. Some examples are:
+5. Communications Timeout: 5-20 This is an internal HamPod value that dictates how long the Yaesu Reader will wait for a response from the transceiver before generating a time out error message. Smaller values allows slightly better performance but can result in more time outs occurring than if larger values are selected. Choose the smallest number that works reliably with your setup
+6. Yaesu Baud Rate: Choices are 4800, 9600, and 38,400.
+7. DTMF Tone Duration:  (200Milliseconds) The range is from 100 to 500 Milliseconds. This sets how long the tone will sound when pressing a key while in DTMF mode.
+8. Power On To Port:  (default is port 1) Selects which serial port is active when the HamPod is powered on.
+9. Reset or Flash: Used to reset the HamPod or prepare for flashing. When at this option, you can press either the [C] or [D] keys to alternate between enabling or disabling the opportunity to reset or flash. When the HamPod informs you to "Enter to Reset", you can then press the [Enter] key to initiate the reset. If you do choose to reset, the HamPod will perform a 3 second countdown before performing the reset process. This is useful when you want to coordinate the reset with the application running on your PC for the purpose of updating the firmware. This reset only occurs to the HamPod and not the transceiver. You are also given the option to press the [*] key to cause the HamPod to set itself up for flashing. See appendix C for additional flashing instructions.
+
+HamPod  DoubleTalk VOICE PARAMETERS
+  There are nine parameters which effect the voice synthesizer output.
+Volume: 0 to 9. Default is 5.
+Speed: 0 to 13. Default is 5.
+Pitch: 0 to 99. Default is 50.
+Articulation: 0 to 9. Default is 3.
+Expression: 0 to 9. Default is 3.
+Reverb: 0 to 9. Default is 0.
+Formant Frequency: 0 to 99. Default is 50.
+Tone: 0 to 2. Default is 1.
+Voice: 0 to 10. Default is 0.
+
+The last parameter in the above list is the "Voice" parameter and are predefined voice configurations. Please note that many of these predefined "Voices" will override some of the voice parameters such as pitch, tone, and reverb settings that you may have already modified and will be changed when you select one of these alternate "Voices".
+
+A list of all configuration parameters and their range of acceptable values are found in Appendix B.
+
+
+APPENDIX A
+
+[1] : Read VFO frequency and single letter mode if that is enabled in the configuration menu. 
+[SHIFT] , [1] : VOX status, and Gain level if enabled
+[SHIFT] , [1] Hold : Break in status and Delay level if enabled
+
+[2] : Turn VFO Lock Off
+[2] Hold : Turn VFO Lock On
+[Shift] , [2] : Report Active VFO and announces if in Memory Mode or silent if in VFO Mode
+
+[3] : Turn Split Mode Off
+[3] Hold : Turn Split Mode On
+
+[A] : Rotate through Shift, and Shift Off
+[A] Hold : HamPod Volume Up
+
+[4] : PreAmp (IPO) status per current band
+[Shift] , [4] : Attenuation status per current band (-10db)
+[4] Hold : Narrow FM status per current band
+
+[5] : AGC status (Fast / Slow / Auto / Disabled)
+[Set] , [Shift] , [5] : Set Repeater Offset frequency and direction
+[Set] , [5] Hold : Set CTCSS frequency and status, (Continuous Tone Coded Squelch)
+[Set] , [Shift] , [5] Hold : Set DCS Code and status, (Digital Tone Coded Squelch)
+
+[6] : DSP Bandpass Filter status and Width if enabled
+[6] Hold : Optional Crystal Filter 1 or 2 status
+
+[B] : Rotates through Set, and Off
+[B] Hold : HamPod Volume Down
+
+[7] : Noise Blanker status and level if enabled
+
+[8] : Noise Reduction status and level if enabled
+[8] Hold : Mic Gain level (not available in CW Mode)
+[Shift] , [8] : Keyer status and Speed if enabled
+[Shift] , [8] Hold : Mic Equalizer setting
+
+[9] : Auto Notch status
+[9] Hold : Power (4 settings, HF / 6m / 2m / 70cm)
+[Shift] , [9] : Speech Processor status and Level if enabled
+
+[C] Hold : Enter/Save Hampod Configuration Mode
+
+[*] : Read S Meter when in Receive mode
+[*] Hold : Read Power level when in transmit mode. Also announces if Split Mode is on. 
+[Shift] , [*] : Read all 4 meter raw values when in transmit mode (Power, ALC, SWR, Modulation). 
+
+[0] : Read Current mode
+[Set] , [0] : Set Mode. 
+[0] Hold : Read Current Yaesu Configuration Menu number.
+
+[#] : Enter a frequency
+[#] Hold : Toggle between VFO A and B
+[Shift] , [#] : Recall and write to radio a previously saved (or manually entered) frequency from the HamPod 
+[Shift] , [#] hold : Read current frequency from radio and save into temporary HamPod memory. You can then write this back to the radio later with the Recall
+function above. 
+
+[D] : Toggles between Verbosity and Terse modes
+[D] Hold : Switch between HamPod ports 1 and 2
+[D] Hold : Exit Configuration without saving or Exit DTMF mode
+[Shift] , [D] Hold : Enter DTMF mode
+
+
+APPENDIX B
+
+Configuration parameter and value ranges:
+
+Volume: 0-9
+Speed: 0-13
+Pitch: 0-99
+Articulation: 0-9
+Expression: 0-9
+Reverb: 0-9
+Formant Frequency: 0-99
+Tone: 0-2
+Voice: 0-10
+Key Beep: on/disable
+Key Timeout Duration: disable / 5 - 30 Seconds
+Verbosity: on/disable
+Frequency Plus Mode: on/disable
+Communications Timeout: 5-20
+Power On To Port: 1-2
+Reset or Flash: Used to reset the HamPod or prepare it for flashing
+
+
+APPENDIX C
+
+FIRMWARE UPGRADE OVERVIEW
+The procedure to flash the firmware is standard practice as with other devices that utilize a bootloader. There are basically two components used for this procedure:
+1.  The bootloader which is already resident within your HamPod.
+2.  A Windows based computer running an application that communicates with the bootloader and sends the new firmware to the HamPod.
+
+The bootloader is a special application that resides within the HamPod and runs every time the device is either reset or  powered on. This special application looks for a unique command sequence over serial port 1 of the HamPod which is connected to your computer which is running the companion Windows flash loader  application. Once the bootloader begins, you have approximately 1.5 seconds to initiate the flash loader application running on the computer. During that first 1.5 second window of opportunity,the bootloader is in control of the HamPod and is looking for a connection from the computer over the serial port. When a valid connection is established between the HamPod and the application running on the computer, the flash loader application then sends the new firmware to the HamPod. If no connection can be established, the bootloader times out and the HamPod starts running as usual.
+
+  An improved method to flash the HamPod has been added to the configuration menu. This greatly simplifies the required timing synchronization  between the HamPod and the flashing application running on the computer.
+All previous methods for flashing the HamPod still exist but this new method is much easier to perform since it automatically restarts the HamPod for you.
+
+The following steps will walk you through the flashing process:
+1.  Important! You must use a null modem serial cable for this connection. Connect a null modem serial cable between serial port 1 of the HamPod (the connector nearest the DC Power jack), and a serial comm port on your personal computer. The comm port on your computer can be any serial port from COM1: to COM8:. The existing straight wired serial cable provided with your HamPod can be used provided you also use the included null modem adapter in addition to this cable.
+ 2.  Download and extract the ZIP archive update  firmware file to any directory of your choosing on your computer. You may over write any existing files with a new firmware update if you have previously performed this update before. This file can be found from the appropriate page on the HamPod web site at the following URL:
+http://www.HAMPod.com
+
+The files contained within the ZIP archive are:
+ds30LoaderConsole.exe : The command line flash loader application.
+Flash_1.bat : Batch file when using comm port 1 on PC.
+Flash_2.bat : Batch file when using comm port 2 on PC.
+Flash_3.bat : Batch file when using comm port 3 on PC.
+Flash_4.bat : Batch file when using comm port 4 on PC.
+Flash_5.bat : Batch file when using comm port 5 on PC.
+Flash_6.bat : Batch file when using comm port 6 on PC.
+Flash_7.bat : Batch file when using comm port 7 on PC.
+Flash_8.bat : Batch file when using comm port 8 on PC.
+***.hex : the firmware file to flash to the HamPod (this file name varies depending on your connected devices)
+Other informational text files
+
+3.  Once you extract the files into a directory of your choosing, simply run the appropriate batch file for the comm port number on your PC that you have connected to the HamPod. The batch file contains the command to launch the flash loader  application and also set some necessary parameters for the program. When you start the batch file, the file will open a DOS window, validate the new hex firmware file, and prepare to flash the HamPod but will stop and wait for any key to be pressed on the PC before actually initiating the flashing process. The text written into this DOS window by the flashing application should be readable by most screen readers such as JAWS or Window EYES and will inform you of its progress.
+
+4.  Once the application on the computer pauses and is waiting for a key press, enter the configuration menu on the HamPod with a long press of the [C] key. Scroll through the menu items using the [A] or [B] keys until you reach the "Reset and Flashing Disabled" menu item. Press either the [C] or [D] key to enable this item and you will hear, "Enter to Reset or Star to Flash Firmware". Press the [*] key and the HamPod will enter flash mode with the prompt, "Waiting for Firmware, Any Key to Abort". The HamPod is now waiting and watching for the application on the computer to begin sending the new firmware. At this point, if you press any key on the HamPod, it will exit flash mode and reset itself. To initiate the new firmware transfer from the computer, press any key such as the Space Bar on the computer and it will begin sending the firmware to the HamPod. When you pressed the Space Bar key on the PC, the flash loader application tries to establish a connection with the bootloader within the HamPod and if found, the HamPod will respond with a "Flashing" announcement. This will take about 30 to 45 seconds to complete. DO NOT power off the HamPod while the update is in progress!When finish, the HamPod may restart on its own but sometimes you may need to power cycle the HamPod yourself. The flash loader application on the PC will write a series of period characters to the screen as it transfers the firmware file to the HamPod, When finished, it will report the status of the update and wait for a final key press on the PC to terminate the flash application and close the DOS window.
+
+Note for users of older firmware:
+  If you are using an older version of firmware, this new flashing method will not be available and you must use one of the previous methods of synchronizing the HamPod with the PC by performing an manual reset of the HamPod.  The easiest way to do this that usually works is to start the flash loader application on the computer and press any key when prompted to initiate the firmware download. You then have about 20 seconds to reset the HamPod while the PC application continues to look for the bootloader to start running on the HamPod. So at this point, you need to quickly reset the HamPod by use of the reset button, reset configuration menu item, or removing and applying power to the HamPod. In some cases an erroneous character will be sent to the PC by the HamPod during the reset which might confuse the application running on the computer and it will fail. If this happens, just try the procedure again or use one of the alternative methods to reset the HamPod.
+
+5.  After a successful update, you can verify the new firmware has been installed by requesting the product information from the HamPod as specified in the user manual for your specific connected device.
+6.   Disconnect from the PC and reconnect the HamPod to your equipment and enjoy the new benefits and features of the firmware!
+
+
+Appendix D
+
+MENU OPERATION 
+The following steps are performed on the radio and describe how a menu item is examined or changed.
+1. Press and hold in the [F] key for one second. The Menu Item number and a title for the Menu Mode will appear in the display. 
+2. Rotate the MEM/VFO CH knob to select the Menu Item you wish to work on. 
+3. When you have chosen the desired Menu Item number, rotate the DIAL knob to change the value or condition for the Menu Item. 
+4. When you have made your selection, press and hold in the [F] key for one second to save the new setting and exit to normal operation.
+
+    The FT-857/897 and FT-817, all store their settings in EEPROM along with other radio specific configuration data. If this data is accidentally corrupted, it may result in a "bricked" or damaged radio. Therefore, I chose to not write directly to the EEPROM and use the radio itself to modify these settings. 
+  Tapping the "F" key (just to the right of the three soft keys) under the display will bring up the screen menus and holding the "F" key for about one second will get you into the 91  menu configuration options. 
+The most notable thing about these menus is the fact that the radio will beep when it is at 001 in the configuration menu and also at the first screen menu so you can always work from that known point. That is crucial as you can then follow along on the menu list below by counting clicks of the encoder. 
+There is a HamPod query ([0], hold), that will return the current menu configuration number so you can validate where you are in case you loose count! 
+The issue here is that you need to exit the menu system on the radio in order for the radio to update the EEPROM so it will be a valid number. That is also the case with most settings within the configuration menu. 
+You will need to exit after making a change and saving it, then query with the HamPod to verify the new setting. Unfortunately, there is no way to access the screen text directly. 
+  For example, to change the HF RF Power level:
+From the list below, we see that this is menu number 075. 
+To set power level for the HF band, be sure you are set to
+  On the HamPod, query for the current menu number  to get the known starting point ([0], hold). 
+Press and hold in the [F] key for one second. The Menu Item number and a title for the Menu Mode will appear in the display. 
+Rotate the MEM/VFO CH knob to select Menu 075 by counting clicks. 
+To validate you are actually on menu 075, you may exit the menu system and query with the HamPod. If you do this, be sure to return to the menu system. 
+When you are sure you have chosen Menu 075, rotate the DIAL knob to change the value or condition for the Menu Item. 
+When you have made your selection, press and hold in the [F] key for one second to save the new setting and exit to normal operation. You can then perform the HamPod Power query to validate the new value. 
+
+Menu Number and description list (FT-857/897):
+001 EXT MENU - Enables/Disables the extended Menu Mode. 
+002 144MHz ARS - Activates/deactivates the Automatic Repeater Shift feature when operating on the 144 MHz band. 
+003 430MHz ARS - Activates/deactivates the Automatic Repeater Shift feature when operating on the 430 MHz band. 
+004 AM&FM DIAL - Enabling/disabling the DIAL knob on the AM and FM modes. 
+005 AM MIC GAIN - Adjusts the microphone gain level for the AM mode. 
+006 AM STEP - Selects the tuning steps for the MEM/VFO CH knob on the AM mode. 
+007 APO TIME - Selects the Auto Power Off time (time before power goes off). 
+008 ARTS BEEP - Selects the ARTS beep mode. 
+009 ARTS ID - Enables/disables the CW identifier during ARTS operation. 
+010 ARTS IDW - Stores your callsign into the CW identifier. 
+011 BEACON TEXT 1 - Stores the message for the Beacon. 
+012 BEACON TIME - Selects the interval time (between message and message). 
+013 BEEP TONE - Selects the beep frequency. 
+014 BEEP VOL - Selects the beep volume level. 
+015 CAR LSB R - Sets the Rx Carrier Point for LSB. 
+016 CAR LSB T - Sets the Tx Carrier Point for LSB 
+017 CAR USB R - Sets the Rx Carrier Point for USB 
+018 CAR USB T - Sets the Tx Carrier Point for USB 
+019 CAT RATE - Sets the transceiver’s circuitry for the CAT baud rate to be used. 
+020 CAT/LIN/TUN - Selects the device which is connected to the CAT/LINEAR jack on the rear panel. 
+021 CLAR DIAL SEL - Defines the “control” knob to be used for setting of the clarifier offset frequency. 
+022 CW AUTO MODE - Selects whether the KEY jack shall be “Enabled” or “Disabled” while using the SSB/FM modes. 
+023 CW BFO - Sets the CW carrier oscillator injection side on the CW mode. 
+024 CW DELAY - Sets the receiver recovery time during pseudo-VOX CW semibreak-in operation. 
+025 CW KEY REV - Sets the keyer paddle’s wiring configuration. 
+026 CW PADDLE - Enables/disables CW keying by the microphone’s [UP]/[DWN] keys. 
+027 CW PITCH - Setting of the pitch of the CW sidetone, BFO offset, and CW filter center frequencies. 
+028 CW QSK - Selects the time delay between when the PTT is keyed and the carrier is transmitted during QSK operation when using the internal keyer. 
+029 CW SIDE TONE - Setting of the CW sidetone volume level. 
+030 CW SPEED - Sets the sending speed for the built-in Electronic keyer. 
+031 CW TRAINING - Sends random Morse Code five-character groups via the sidetone. 
+032 CW WEIGHT - Sets the Dot:Dash ratio for the built-in electronic keyer. 
+033 DCS CODE - Setting of the DCS code. 
+034 DCS INV - Selects “Normal” or “Inverted” DCS coding. 
+035 DIAL STEP - Setting of the DIAL knob’s tuning speed. 
+036 DIG DISP - Defines the displayed frequency offset during DIG (USER-L or USER-U) mode operation. 
+037 DIG GAIN - Adjusts the audio input level from terminal equipment during DIG (Digital) mode operation. 
+038 DIG MODE - Selects the mode and sideband in the DIG (Digital) mode. 
+039 DIG SHIFT - Defines the carrier frequency offset during DIG (USER-L or USER-U) mode operation. 
+040 DIG VOX - Sets the gain of the VOX circuitry’s input level for the Dettin
+IG mode. 
+041 DISP COLOR S - elects the illumination color for each operating status. 
+042 DISP CONTRAST   - Setting of the display contrast level. 
+043 DISP INTENSITY Setting of the display brightness level. 
+044 DISP MODE  - Sets up the LCD Lamp mode. 
+045 DSP BPF WIDTH S - etting of the bandwidth for the DSP CW audio filter. 
+046 DSP HPF CUTOFF  - Adjusts the low-cut characteristics of the DSP HPF filter. 
+047 DSP LPF CUTOFF Adjusts the high-cut characteristics of the DSP LPF filter. 
+048 DSP MIC EQ  - Sets the DSP microphone equalization pattern. 
+049 DSP NR LEVEL S - etting of the degree of DSP Noise Reduction. 
+050 EMERGENCY  - Enables Tx/Rx operation on the Alaska Emergency Channel, 5167.5 kHz. 
+051 FM MIC GAIN Adjusts the microphone gain level for the FM mode. 
+052 FM STEP  - Selects the tuning steps for the MEM/VFO CH knob in the FM mode. 
+053 HOME-->VFO E - enables/disables the moving of HOME channel data to the VFO. 
+054 LOCK MODE  - Selects the operation of the front panel’s LOCK key. 
+055 MEM GROUP Enables/disables the memory grouping feature. 
+056 MEM TAG  - Stores Alpha-Numeric “Tags” for the memory channels. 
+057 MEM/VFO DIAL MODE S - elects the function which is engaged when you press the MEM/ VFO CH knob. 
+058 MIC SCAN  - Enables/disables scanning access via the microphone’s [UP]/ [DWN] keys. 
+059 MIC SEL T - he choice of the equipment which connects to the MIC jack. 
+060 MTR ARX SEL  - Select the meter display configuration while the transceiver is receiving. 
+061 MTR ATX SEL S - elects the meter display configuration while the transceiver is transmitting. 
+062 MTR PEAK HOLD  - Enabling/disabling of the “peak hold” function of the meter. 
+063 NB LEVEL S - etting of the blanking level for the IF Noise Blanker. 
+064 OP FILTER 1  - Not available at this time. 
+065 PG A Programming the [A] key (in the Operating Function Row 17) function. 
+066 PG B  - Programming the [B] key (in the Operating Function Row 17) function. 
+067 PG C Programming the [C] key (in the Operating Function Row 17) function. 
+068 PG ACC  - Not available at this time. 
+069 PG P1 N - ot available at this time. 
+070 PG P2  - Not available at this time. 
+071 PKT 1200 Adjusts the audio input level from the TNC during 1200 bps Packet operation. 
+072 PKT 9600  - Adjusts the audio input level from the TNC during 9600 bps Packet operation. 
+073 PKT RATE S - ets the transceiver’s circuitry for the Packet baud rate to be used. 
+074 PROC LEVEL  - Sets the compression level for the AF speech processor in the SSB/AM modes. 
+075 RF POWER Setting of the maximum power level for the current band. 
+076 RPT SHIFT  - Sets the magnitude of the repeater shift. 
+077 SCAN MODE S - elects the desired Scan-Resume mode. 
+078 SCAN RESUME  - Sets the delay time for scanning resumption. 
+079 SPLIT TONE Enables/disables split CTCSS/DCS cording. 
+080 SQL/RF GAIN  - Selects the configuration of the front panel’s SQL/RF knob. 
+081 SSB MIC GAIN Adjusts the microphone gain level for the SSB mode. 
+082 SSB STEP  - Selects the tuning steps for the MEM/VFO CH knob on the SSB mode. 
+083 TONE FREQ S - etting of the CTCSS Tone Frequency. 
+084 TOT TIME  - Select the Automatic Power Off time. 
+085 TUNER/ATAS S - elects the device (FC-30 or ATAS-100/-120) to be controlled via the front panel’s [A](TUNE) key. 
+086 TX IF FILTER  - Selects the Transmit IF filter. 
+087 VOX DELAY S - ets the “hang time” for the VOX circuitry. 
+088 VOX GAIN  - Sets the gain of the VOX circuitry’s input audio detector. 
+089 XVTR A FREQ Allows an arbitrary frequency to be set on the display, to allow direct frequency readout during transverter operation. 
+090 XVTR B FREQ  - Same as above for 089
+091 XVTR SEL - Enables/disables/selects the antenna port to be used for Transverter operation. 
+
+list of the soft keys in the 17 screen menus:
+A/B, A=B, SPL (Split)
+MW (Memory Write), SKIP, TAG (Memory Display Type)
+STO (Store), RCL (Recall), PROC (Processor)
+RPT (Repeater Offset Direction), REV (Reverse), VOX
+TON (CTCSS/DCS Encoder), -/DEC (CTCSS/DCS Decoder), TDCH (Tone Search)
+ARTS (Auto-Range Transponder), SRCH (Smart Search), PMS (Programmable Memory Scan)
+SCN (Scan), PRI (Priority Scan), DW Dual Watch()
+SCOP (Spectrum Scope), WID (visible bandwidth), STEP (channel steps)
+MTR (Meter), - (Meter Function), DISP (Display)
+SPOT (CW Spot), BK (Break In), KYR (Keyer)
+TUNE, DOWN, UP
+NB (Noise Blanker), AGC, - (AGC Speed)
+IPO (PreAmp), ATT (-10db Attenuation), NAR (Narrow FM)
+CFIL (2.4KHz Filter),n/a (Optional Filter 1),n/a (Optional Filter 2)
+PLY1(CW Message 1) , PLY2 (CW Message 2), PLY3 (CW Message 3)
+DNR (DSP Noise Reduction), DNF (DSP Auto Notch), DBF (DSP Bandpass Filter)
+MONI (Monitor), GSPL (Auto Split), ATC (1750Hz Tone Burst)
+
+End of Document

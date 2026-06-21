@@ -1,0 +1,1 @@
+ds30LoaderConsole.exe -f=ICOMICOM.X.production.hex -k=COM8 -r=38400 -d=PIC18F47K40 -p -e -c

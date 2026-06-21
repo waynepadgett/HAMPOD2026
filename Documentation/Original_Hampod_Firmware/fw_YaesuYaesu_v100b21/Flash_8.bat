@@ -1,0 +1,1 @@
+ds30LoaderConsole.exe -f=YaesuYaesu.hex -k=COM8 -r=38400 -d=PIC18F46K22 -p -e -c

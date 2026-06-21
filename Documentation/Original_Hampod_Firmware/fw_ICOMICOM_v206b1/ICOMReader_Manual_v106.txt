@@ -1,0 +1,702 @@
+HamPod ICOM Reader
+Revised 09/06/2023
+Firmware: v1.06with newer additions only in v2.06b1
+
+
+OVERVIEW
+  The HamPod series of Amateur Radio station accessories are stand-alone, micro-processor based text-to-speech devices designed to provide speech output and accessibility to common station equipment such as transceivers, antenna controllers and rotor controllers, SWR/Power meters and other equipment capable of serial data exchange. The voice synthesizer utilizes the popular "DoubleTalk" voice synthesizer and is customizable to your personal preferences.
+
+  The HAMPod ICOM Reader has been specifically designed to work with ICOM transceivers to provide as much capability and accessibility to the radios as possible. With the ICOM Reader you will have access to many parameters of your radio and therefore be able to use your transceivers with a high degree of capability. All without the need for a connected station computer or help from a fellow ham or long-suffering partner!
+
+  There are several options that determine how the HamPod ICOM Reader performs and interacts with your ICOM and all options are stored in EEPROM and retain their settings when powered off. The HamPod ICOM reader can be set to automatically report some changes as you operate your radio or can be configured to be silent and only report information when requested by you with a key press on the HamPod ICOM Readers 16 button keypad. The keypad is used to configure the HamPod ICOM Reader and to request information from your transceiver as well as to conveniently and more efficiently perform direct frequency entry.
+
+
+GENERAL DESCRIPTION
+  The rear of the HamPod has two male DB9 serial ports and a DC power jack. The serial ports are identified as serial port 1 and serial port 2. The connector located next to the power jack is port 1. With the HamPod ICOM Reader, you can connect two ICOM transceivers and switch between them by using the keypad as described later in this manual. Serial port 1 is also used to connect to a computer serial port using a null modem cable to flash the firmware in the HamPod ICOM Reader when an upgrade is available. See Appendix C for upgrade instructions. The power jack accepts 9 to 15 volts dc and has a positive center pin. New versions of the HamPod also have a 3.5mm headphone jack on the right side. There is also a small hole at the lower left corner of the speaker grill which provides access to a reset button inside the enclosure. This hole is located within the very bottom groove of the speaker grill and about one quarter of an inch from the left end of the groove. You can use a paper clip to reach into the box to push this button. The button is about one inch below the top cover. Be careful not to poke through the speaker cone if you happen to be somewhere above the very bottom  groove of the speaker grill area. Cycling power to the HamPod will essentially do the same thing and may be easier. This button will reboot the HamPod ICOM Reader without changing any configuration settings. This does not reset or effect your transceiver.
+Important firmware Update note:
+As of 02/01/2019, the HamPod is now shipping with a new version of the Microchip CPU processor which has twice the flash memory available for firmware. This is needed to accommodate some combinations of firmware builds that require the extra memory space. When downloading firmware from the HamPod.com web site, you need to be sure to get the version for the processor chip currently in your HamPod. Firmware versions that starts with v1.xx is for the older CPU while v2.xx if for the new CPU. Check the manual for your HamPod to see how to access the version number. On most radio firmware, you can do this by attempting to send a frequency of 777 to the radio.
+
+
+CONNECTING THE HamPod ICOM READER
+IMPORTANT!
+A.  Do not apply power to the HamPod until you have connected it to your transceiver. This is because the serial port jacks on the rear of the HamPod are male connectors and it is possible to short one of these pins to the grounded shell while trying to engage the female end of the serial cable into this connector.
+B.  Use a straight through, all pins wired serial cable.
+1. Connect the female end of the supplied serial cable to the RS-232 serial port on the rear of the HamPod using the port configured for ICOM radios as determined by the firmware build you received or loaded.
+2. Connect the other end of the cable to the RS-232 serial connector on the rear of your ICOM transceiver or to a CI-V adapter if needed for your radio.
+3. Connect the supplied 9 volt DC, 800MA wall power unit to the HamPod . This is a center pin positive 2.1mm x 5.5mm coaxial power connector. You may also connect this using your own cable to your shack 12 volt DC power distribution system if desired. There is no on/off switch as the HamPod draws minimal current when not in use.
+
+  The ICOM Reader communicates with an ICOM transceiver at a baud rate of 19,200. When powered up, the ICOM Reader will announce "Ham Pod" and then will look for a connected ICOM radio. When found, the ICOM Reader will report the ICOM identification number of your equipment letting you know it has established a connection with your radio. The ICOM Reader continuously polls for the transceiver at 19,200 baud rate at about once a second.
+
+
+KEYPAD
+  The layout  of the first 12 keys of the 16 button keypad is similar to a standard 12 key telephone keypad with an additional column of 4 keys to the right. The 16 push buttons keys are arranged as 4 rows of 4 columns and each key is capable of two different functions depending on the current mode of the HamPod. They are operated with both a standard push or an extended longer push and hold action. With the addition of a "SHIFT" key, each key can generate up to six unique operations. A synopsis of the switches and their functions are listed in Appendix A for reference. As previously mentioned, the first three columns of keys are identically labeled as a standard 12 key telephone keypad and  are similar in layout to most radio's that are equipped with a numeric keypad. The fourth column of keys are primarily configuration and modifier keys.
+
+  In this document, the key labels are enclosed within square brackets. For reference, left to right, top to bottom, the keys are labeled:
+
+Row 1: [1], [2], [3], [A]
+Row 2: [4], [5], [6], [B]
+Row 3: [7[, [8], [9], [C]
+Row 4: [*], [0], [#], [D]
+
+  The keys are always pushed individually. Never is more than one key pressed simultaneously to perform any function.
+
+  There are seven primary modes of operation for the keypad and are as follows:
+1. Normal Mode. Standard user query operation.
+2. Frequency Entry Mode. Convenient frequency entry for your ICOM.
+3. SETMode. Convenient entry of some data and control levels on supported ICOM models. This key will also rotate through the Quick Band Change mode on models that support changing bands remotely.
+4. Memory Mode. Allows you to view, transfer  to VFO, and clear memory locations.
+5. DStar Mode. On DStar enabled models, allows access to several DStar parameters, an editable text entry buffer, and a quick way to interact with DStar connections. 
+6. DTMF Mode. Use the HamPod keypad to generate touch tone audio. 
+7. Configuration Mode. This allows setup of the HamPod voice parameters as well as ICOM Reader options.
+
+
+1. NORMAL MODE
+Note that for clarity, in this mode, the [A] key (upper right corner key) is also referred to as the [SHIFT] key.
+  In the list below are  the assigned functions for each key. Most keys have two potential functions by either simply pressing the key, or pressing and continue holding the key down for an additional .5 second. If you proceed that key with a press of the [SHIFT] key, we can obtain four possible functions.
+  A note about how the ICOM Reader announces a frequency. To decrease chatter and increase efficiency  when speaking a frequency value, trailing zero beyond the 1 Kilohertz position are not spoken. For example, you will hear seven point two four zero instead of  seven point two four zero dot zero zero zero. Also note that the second decimal point if present, is spoken as "dot" instead of "point". This also helps to better comprehend the frequency being announced.
+
+In normal mode, the keys and their associated functions are listed below. Note that not all functions are supported by every model of ICOM radio. In fact, some older models such as the original IC-756 and IC-775 are very limited. 
+
+[1] - Select VFO A and announce Frequency
+[Set] , [1] - Select Main receiver (IC-7800/7851/9100/9700)
+[1] Hold - Select VFO B and announce Frequency
+[Set] , [1] Hold - Select Sub receiver (IC-7800/7851/9100/9700)
+[SHIFT] , [1] - VOX status, Gain and Anti Gain levels if enabled
+[Set] , [SHIFT] , [1] -   Set VOX status, Gain and Anti Gain levels
+[SHIFT] , [1] Hold - Break in status and Delay level if enabled
+
+[2] - Announce current working VFO frequency
+[2] Hold - Toggle Memory Scan On/Disabled
+[SHIFT] , [2] - Tuning Step
+[Set] , [Shift] , [2] -   Set Tuning Step
+[SHIFT] , [2] Hold - Read RF/Squelch Control setting
+[Set] , [SHIFT] , [2] , Hold - Set RF/Squelch Control (0=Auto, 1=Squelch, 2=RF+Squelch)
+
+[3] - Toggle Split Mode On/Disable
+[3] Hold - Exchange VFO A and VFO b
+[SHIFT] , [3] - Choose Duplex direction (minus, plus, disabled), and announce offset frequency, Alternatively,  disable Dual Watch for IC-775, IC-7610 and IC-7851
+[Set] , [SHIFT] , [3] - Set Duplex Offset frequency
+[SHIFT] , [3] Hold - Turn on Dual Watch for IC-775, IC-7610 and IC-7851
+
+[A] - Shift on/off: This toggles the "Shift" keypad function on and off
+[A] , Hold - Volume Up: Shortcut key to increase volume of the HamPod
+[SHIFT] , [A]   Turns Shift off if currently on
+[SHIFT] , [A] , Hold - Not assigned
+
+[4] - PreAmp status
+[Set] , [4] -   Set PreAmp 1 and PreAmp 2 Status
+[4] , Hold - AGC status (slow, mid, fast) and level (0 to 13)  depending on radio model
+[SHIFT] , [4] - Attenuation status
+[Set] , [Shift] , [4] -   Set Attenuation level
+[SHIFT] , [4] , Hold Not assigned
+
+[5] - Get Repeater, CTCSS, and DTCS Tone status and frequency or code. Duplicate Compression Status Key for IC-7610 and IC-7851
+[Set] , [5] -   Set Repeater Tone
+[5] , Hold - n/a
+[Set] , [5] , Hold - Set CTCSS Squelch Tone
+[SHIFT] , [5] -  n/a
+[Set] , [SHIFT] , [5] - Set Digital Tone Coded Squelch. [A]=On, [B]=Disabled, [C]=Polarity
+[SHIFT] , [5] , Hold - Get Digital Voice Squelch status and code
+[Set] , [SHIFT] , [5] , Hold - Set Digital Voice Squelch status and code
+
+[6] - Read selected Filter Width
+[6] , Hold - Audio Peak Filter 
+[SHIFT] , [6]   Get Filter Number
+[Set] , [SHIFT] , [6]   Set Filter Number
+[SHIFT] , [6] , Hold - Roofing Filter
+
+[B] - Band and/or Set key depending on radio model. When setting some levels, this key toggles it on and off
+[B] , Hold - Volume Down: Shortcut key to decrease volume of the HamPod
+[SHIFT] , [B] - Debug Mode for help with testing. Will speak the data being sent and received from connected device. 
+[SHIFT] , [B] , Hold - Not assigned
+
+[7] - Noise Blanker status and Level
+[Set] , [7] - Set Noise Blanker status and Level
+[7] , Hold - Antenna Tuner status (Off, On, Tuning)
+[SHIFT] , [7] - Antenna Selection Status
+[SHIFT] , [7] , Hold - Voltage and Current (Only available in version 2.xx firmware)
+
+[8] - Noise Reduction status and Level
+[Set] , [8] - Set Noise Reduction status and Level
+[8] , Hold - Mic Gain Level
+[Set] , [8] , Hold - Set Mic Gain Level
+[SHIFT] , [8] - Keyer Speed
+[Set] , [SHIFT] , [8] - Set Keyer Speed
+[SHIFT] , [8] , Hold - Read SSB TX Equalizer Tone setting for IC-7851
+ 
+[9] - Auto Notch  status,Manual Notch status and Frequency if enabled
+[9] , Hold - Power  Level
+[Set] , [9] , Hold - Set Power  Level
+[SHIFT] , [9] - Compression  status and Level
+[Set] , [SHIFT] , [9] - Set Compression  Level. 0-10 for all except 0-100 for 756Pro, Pro2, and pro3
+[SHIFT] , [9] , Hold - Monitor status and Level
+[Set] , [SHIFT] , [9] , Hold - Set Monitor Level
+
+[C] - Frequency Announcement Delay Verbosity on/disable: Enables and disables the automatic delayed announcement of frequency once a VFO encoder control has stopped moving
+[C] , Hold - Configuration Mode: Enters Configuration Mode of the HamPod ICOM Reader
+[SHIFT] , [C]   Place HamPod into Memory Mode (N/A on IC-775)
+[SHIFT] , [C] , Hold - Place HamPod into Memory Mode 2, automatic transfer of memory channel data to VFO (N/A on IC-775)
+
+
+[*] - Read S Meter
+[*] , Hold - Read RF Power Meter
+[SHIFT] , [*] - Read Compression Meter
+[SHIFT] , [*] , Hold - Read ALC Meter
+
+[0] - Read current Mode
+[Set] , [0] - Set current Mode
+[0] , Hold - Toggle Data Mode On/Off on applicable radio's. Will only set Data Mode to D1 on IC-7610 and IC-7851.
+[SHIFT] , [0] - SWR query with ability for user to keep in transmit until a key is pressed. Useful for external antenna tuners. See next key assignment for SWR details.  
+[SHIFT] , [0] , Hold - SWR: Reads SWR reading at antenna 1 port while sending  15 percent power (or 50% if IC-703 ), with internal antenna tuner in bypass. Since the tuner is bypassed, this will result in reading the SWR of your antenna system and not the matched SWR that is achieved by the internal tuner.
+
+[#] - VFO 'A', VFO 'B', or  Current  Select for frequency entry: Pressing this key prepares the ICOM Reader to accept direct frequency entry values. Repeated pressing of this key toggles between VFO 'A', VFO 'B', and the Current VFO.
+[#] , Hold - Currently n/a. Query for current Time from radio (IC-756P2, 756P3, 7000, 7100, 7300 only)
+[Set] , [#] , Hold - Currently n/a. Set current Time on radio. (Must enter all 4 time digits including leading zeros using 24 hour format)
+[SHIFT] , [#] - Last HamPod entered frequency ReCall. When you enter a frequency using the HamPod keypad, that frequency is saved to an internal HamPod memory. You can quickly resend this frequency using this key combination.
+[SHIFT] , [#] , Hold - Save current working frequency to the  internal HamPod memory for quick recall later if desired.
+
+[D] - Verbosity on/disable. Disabling Verbosity will limit labeling of some announcements providing less chatter.
+[D] , Hold - Switch between serial ports 1 and 2 of the HamPod or exit DTMF Mode
+[SHIFT] , [D] - Place HamPod into DStar mode
+[Set] , [Shift] , [D] - Lock Dial (VFO), or Panel Lock
+[SHIFT] , [D] , Hold - Place HamPod into DTMF, Touch Tone mode
+
+
+2. FREQUENCY ENTRY MODE
+Note that for clarity, in this mode, the following keys have alternative labels:
+the [*] key is also referred to as the [DECIMAL POINT] key. 
+The [#[ key is referred to as the [ENTER] key . 
+
+ENTERING A FREQUENCY
+  Pressing the [#] key will prepare the HamPod ICOM Reader to accept a frequency from the keypad. If you have previously entered a frequency, the same VFO will again be the selected VFO for this new entry. Repeated pressing of the [#] key cycles through VFO 'A', VFO 'B', or the Current VFO in preparation for a frequency for that VFO. After choosing a VFO, enter your desired frequency inserting a decimal point where needed and press the [ENTER] key to send it to your radio.
+
+A few special notes here:
+1. A second press of the [DECIMAL POINT] key will clear your entry and return the HamPod ICOM Reader to the normal mode.
+2. Once you initiate a frequency entry, the [D] key functions as a clear key.
+3. If the Keypad Timeout option is enabled, the HamPod ICOM Reader will clear the partial entry and return to normal mode it you exceed the timeout duration.
+4. There are two special frequencies you can enter which will perform the following functions:
+A.  enter a frequency of 777 for any VFO and press the [ENTER] key. This will announce the product information and the firmware version number currently installed.
+B.  enter a frequency of 999 for any VFO and press the [ENTER] key. This will restore the HamPod EEPROM to the factory default settings and perform a reset. You can do this if the settings ever get scrambled or if you just want to restore to the default settings.
+
+
+3. SET MODE (and optionally Quick Band Change Mode)
+  This mode allows some control levels and data to be entered on the HamPod keypad and sent to your ICOM radio. Note that not all functions are supported by every model of ICOM radio. This functionality was primarily added for those users with models that have a limited or touch screen front panel. 
+to enter SetMode on the HamPod:
+[B] will rotate from Set to Band to Off if band stacking registers are available on your ICOM or just between Set and Off if not.
+While in this mode, the [A], [B], and [C] keys assume additional functions.
+1.   To enter SET mode, press the [B] key. On those models that support the ability to change bands remotely, this key will also rotate through the "Band" function.
+2. Choose the available parameter you wish to set such as the Power Level, Mic Gain, Compression level, Repeater Tone, operating Mode, or other setting using the keys as defined in Normal Mode. 
+3. Typically, the [A] and [B] keys increment or decrements, enable or disable, or rotate through the available values for the selected parameter. When setting a value such as power level, enter the desired level or value using the keypad number keys.  
+4. The [C] key is used with parameters that require additional data such as when setting the polarity of a DTCS entry or selecting the VOX gain, anti gain or Delay levels. When entering the frequency for a tone, such as a repeater or CTCSS frequency, you only need to enter a three or four digit value. A decimal point is not required. 
+5. After all data has been selected for the chosen setting, finish the operation with the {#} key. 
+
+Radio functions and controls that can potentially be set from the HamPod on supported models (enable/disable and/or set level):
+PreAmp
+Attenuation
+Compression
+Filter Bandwidth, Filter Number, Filter Shape
+AGC speed and level
+Keyer Speed
+Mic Gain
+Monitor Level
+Noise Blanker
+Noise Reduction
+Operating Mode (note, WFM requires filter #1)
+Power Output Level
+Current Time
+Tones: Repeater, CTCSS, DTS, DV
+VOX Gain, AntiGain and Delay
+Tuning Step size
+RF/Squelch control function
+Duplex Offset Frequency
+Dial (VFO), or Panel Lock (Currently this function is only available on touch screen models: IC-7100, IC-7300, IC-7610, and IC-9700)
+
+
+Details regarding setting PreAmp status:
+PreAmp status is found on key [4]. 
+Once in SetMode, choose the PreAmp status key on the HamPod to enable the ability to modify the status of PreAmp 1 and PreAmp 2 if available on your model.
+[1] : will immediately turn PreAmp 1 on and disable PreAmp 2 if equipped
+[2] : will immediately turn PreAmp 2 on and disable PreAmp 1
+[0] : will disable all PreAmps
+When setting the PreAmp status, the HamPod remains in Set Mode so you can easily experiment with the PreAmp options. You will need to press the [Enter] or [D] keys to exit Set Mode. 
+
+Details regarding setting Attenuation
+Attenuation is found on key [Shift],[4]. 
+Once in SetMode, choose the Attenuation key on the HamPod to select the Attenuation settings for modification.
+[0] - [9] : will set the Attenuation level (2 digit entry maximum, typically 0 to 45)
+[#] : Sends command to radio and exits Set Mode
+Note that you need to know what values are valid for your model. Entering a 0 will usually turn it off. Some models only accept 1 value that will enable the attenuator while more advanced models will accept several. Here are some examples: 703, 706MkII, 7200, 7300, 7410: 20; 746Pro, 7400: 1; 756P2, P3: 6, 12, 18; 7000, 7100: 12; 7610: 0 to 45 in 3db steps; 7851: 0 to 21 in 3 db steps. 
+
+Details regarding setting DSP Filter Width:
+Filter Width is found on key [6]. 
+Once in SetMode, choose the Filter key on the HamPod to select the Filter Width to modify.
+[1] Hold, will immediately attempt to select the Sharp DSP Filter SHAPE
+[2] Hold, will immediately attempt to select the Soft DSP Filter SHAPE
+[0] - [9] : will set the parameter to set the Filter Width (2 digit entry maximum)
+[#] : Sends command to radio
+When setting the DSP Filter Shape, the HamPod remains in Set Mode. You would need to press either [*] or [D] keys to exit, or enter a Filter Width setting.
+Valid Filter Width settings range from 0 to typically 57 on some radios or even higher on newwr models. Acceptable values vary depending on radio model and current Mode selected. Invalid values will announce a failed response and will not change the Filter Width on the radio.
+
+Details regarding setting AGC Speed and Level
+AGC is found on key [4] Hold. 
+Once in SetMode, choose the AGC key on the HamPod to select the AGC settings for modification.
+[1] Hold, will immediately attempt to select the Fast AGC speed
+[2] Hold, will immediately attempt to select the Mid AGC speed
+[3] Hold, will immediately attempt to select the Slow AGC speed
+Note that some models will only allow Fast and Slow AGC speed settings (keys 1 and 2 only).
+[0] - [9] : will set the AGC level for the selected speed (2 digit entry maximum, typically 0 to 13)
+[#] : Sends command to radio and exits Set Mode
+
+Details regarding setting Notch Filter parameters
+Notch is found on key [7]
+Once in SetMode, choose the Notch key on the HamPod to select the Notch settings for modification.
+[A],  will enable either Auto or Manual Notch as selected by the [C] key
+[B],  will disable either Auto or Manual Notch as selected by the [C] key
+[C],  will toggle between Auto and Manual Notch
+[1] Hold, will immediately attempt to select the Wide Manual Notch filter width
+[2] Hold, will immediately attempt to select the Mid Manual Notch filter width
+[3] Hold, will immediately attempt to select the Narrow Manual Notch filter width
+[0] - [9] : will set the Notch filter frequency, (0 to 100)
+[#] : Sends command to radio and exits Set Mode
+Note: When you enter the Set Notch mode, it will default to Auto Notch. You only need to toggle to Manual Notch if you need to enable or disable the Manual Notch filter. Using the keypad to set the Manual Notch frequency and filter width can be done even if Auto Notch is currently selected.
+
+Details regarding setting Tuning Step
+Tuning Step is found on key [Shift],[2]. 
+Once in SetMode, choose the Tuning Step key on the HamPod to select the Tuning Step settings for modification.
+[0] - [9] : will set the Tuning Step level (2 digit entry maximum, typically 0 to 8)
+[#] : Sends command to radio and exits Set Mode
+Note that you need to know what values are valid for your model. Entering a 0 will usually set it to the smallest step size. Some models only accept values up to 5 and typically 8, while some models such as the 7100 and 9100 will accept values up to 12 
+
+Details regarding setting VOX:
+  Previously, the [Shift], [1], Hold key sequence reported the VOX status followed by the QSK/BreakIn status. These are now located on separate keys:
+[SHIFT], [1] : VOX status. 
+[SHIFT], [1], Hold : QSK/BreakIn status. 
+This was done so that VOX status can be modified from the HamPod keypad in Set Mode as accomplished with other radio functions. Once in SetMode, choose the VOX key sequence on the HamPod to select the VOX function to modify. 
+[A] : will enable VOX
+[B] : will disable VOX
+[C] : Will choose between VOX Gain, Anti Gain, and Delay control
+[0] - [9] : will set the value to set the Gain, Anti Gain, or Delay control level
+[#] : Sends command to radio
+Note that you can enable or disable VOX without also needing to set or modify a VOX control level.
+
+Details regarding setting RF/Squelch Control functionality
+RF/Squelch Control is found on key [Shift],[2] Hold. 
+Once in SetMode, choose the RF/Squelch Control key on the HamPod to select the RF/Squelch Control settings for modification.
+[0]=Auto,, [1]=Squelch, [2]=RF+Squelch
+[#] : Sends command to radio and exits Set Mode
+
+Details regarding setting Duplex Offset Frequency
+Duplex Offset Frequency Control is found on key [Shift],[3]. 
+Once in SetMode, choose the Duplex Offset frequency Control key on the HamPod to select the Duplex Offset frequency Control settings for modification.
+Offset frequency is entered in KHz. Up to 4 digits can be entered resulting in 0 to 9,999 KHZ (9.999 MHz). You do not need to enter all four digits. Only the most significant, non-zero digits. 
+The first digit entered is the 1 MHz digit. The second digit is the 100 KHz digit. Third is 10 KHz and fourth is 1 KHz.
+[#] : Sends command to radio and exits Set Mode
+Examples: To enter an offset of 5 MHz, you only need to enter [5]. To enter an offset of 9.4 MHz, enter [9] then [4]. To enter a standard 2 meter offset of 600 KHz, enter [0] then [6]. 
+
+Details regarding setting Dial (VFO), or Panel Lock 
+[1] : Will enable the Dial (VFO) lock 
+Currently this function is only available on touch screen models: IC-7100, IC-7300, IC-7610, and IC-9700
+The Lock function is found on key [Set], [Shift], [D]. 
+Once in SetMode, choose the Lock key [D] on the HamPod to select the Lock settings for modification.
+[0] : will disable Lock
+[1] : Will enable the Dial (VFO) lock 
+[2] : Will enable the Panel lock which includes the dial lock 
+[#] : Sends command to radio and exits Set Mode
+
+Performing a Quick Band Change: 
+  On those models that have Band Stacking Registers and support a remote band change commands, pressing the [B] key a second time  will allow the ability to quickly change bands with a voice prompt
+of "Band". After hearing the "Band" prompt, follow with any of the standard 12 keys for an immediate jump to that corresponding band.  The frequency, mode and filter number will be set from reading the contents of the "latest" Band Stacking Register for that band. On the IC-7100 and IC-9100, in addition to the 12 keys, the [C] and [D] keys are used to jump to the UHF and 1.2G bands. 
+
+
+4. MEMORY MODE
+HamPod Memory Mode overview:
+  There are essentially four or five operations you can perform in Memory Mode: review contents, transfer from memory to VFO, write current VFO to memory, or clear a memory location and on some models, you can create a Memory Channel Name Tag. 
+Please keep in mind, When you invoke Memory Mode on the HamPod, your radio is not switched to either VFO or Memory Mode. It remains in the current mode as when entered. However, if you choose to clear a memory location from the HamPod, the HamPod will put the radio into VFO mode. So in that case, if you entered with the radio in Memory Mode, it will exit into VFO Mode.
+
+HamPod Memory Mode operation:
+  From the normal keypad mode, you enter the Memory Mode by performing a [Shift] [C] key sequence.
+The following key assignments are then available in Memory Mode:
+[A] : Increment the Channel number and announce the channel data.
+[B] : Decrements the Channel number and announce the channel data.
+[0] to [9] : Enter up to a 3 digit Channel number followed by the [#] key to directly access that channel.  If you try to enter an invalid channel number, you will hear an error beep and the invalid HamPod entry will be cleared.
+[0], Hold: Select Memory Bank 0 if available on your model ICOM
+[1], Hold: Select Memory Bank 1 if available on your model ICOM
+[2], Hold: Select Memory Bank 2 if available on your model ICOM
+[3], Hold: Select Memory Bank 3 if available on your model ICOM
+[4], Hold: Select Memory Bank 4 if available on your model ICOM
+[5], Hold: Select Memory Bank 5 if available on your model ICOM
+[0], Hold: Select Memory Bank 0 if available on your model ICOM (IC-9100)
+[C]: Selects memory option to be performed when followed with the [#] key. Select VFO A or VFO B to write memory contents into or, possibly Modify Memory Channel Name with contents of DStar Editable Text Buffer.
+[C], Hold: Save current VFO and related data to currently selected Bank/Channel location
+[*] : Clear any data input in progress or Exit Memory Mode if no data has been entered or has been previously cleared.
+[*], Hold: Clear    currently selected memory Bank/Channel location
+[D] : Clear any data input in progress or Exit Memory Mode if no data has been entered or has been previously cleared (same as [*]).
+Note: Both Save and Clear operations are immediate and do not ask for confirmation.
+
+To transfer the selected memory channel data to a VFO:
+[C] : Will toggle between the A VFO and the B VFO.
+[#] key to perform the transfer once the VFO has been selected and exit Memory Mode to Normal Mode.
+Note that the VFO you selected will be the active VFO upon completion of the transfer.
+The HamPod will exit Memory Mode and return to Normal Mode.
+
+Transferring data from memory channels to VFO:
+  When you enter Memory Mode on the HamPod, you are placed into memory channel review . This allows you to access a memory channel by either directly typing in the channel number or scrolling up and down through the channels. When you access a memory channel, the channel number is announced, then the alpha numeric text label is spoken if available and populated, followed by the RX frequency stored within the channel data. The single letter operating Mode will also be spoken if the HamPod configuration option is set for that. If your ICOM model supports multiple memory banks, a long press of keys [1] through [5] will immediately change to the related bank number. Once you have selected a memory location, you can transfer that memory channel data to a VFO, save the current VFO data into that memory location , or clear that memory location.
+  So to transfer a memory channel to VFO, you first need to select a memory location. Once a bank/channel has been selected, and VFO has been chosen to receive the transfer, you can copy that memory channel data to either the A VFO or the B VFO. The VFO you select for the transfer will be the current VFO once the function is completed and the HamPod will exit to Normal Mode.
+Notes:
+  The memory channel data is not transferred to the VFO until you first select a VFO to write it to. So continuously pressing the [#] key before assigning a VFO will only continue to repeatedly announce the selected channel data.
+Throughout this process, the radio remains in VFO Mode
+There are usually some Memory Channels available above 99. These are typically scan edge # and Call channels.
+
+Saving the current VFO data to memory:
+  Again, choose a memory location to save the current VFO data into and perform the Save operation with a long press of the [C] key.  The VFO will be stored into memory and the HamPod will exit back into Normal Mode. Note this command is immediate and there is no further option to confirm or cancel. Note that on an IC-9100, all data saved to memory can only be written into bank zero. 
+ 
+Clearing the selected memory location:
+  Once again, choose a memory location you wish to clear. Perform the Clear operation with a long press of the [*] key.  The memory location will be cleared and the HamPod will exit back into Normal Mode. Note that like the Save function, this command is immediate and has no further option to confirm or cancel. Also note the radio will be placed into VFO Mode even if it was in Memory Mode on entry.
+
+Adding or Changing a Memory Channel Name Tag:
+      You also have the ability to name a memory channel with an alpha name tag. This is a bit involved but can be done if needed or desired.
+  Since support for DStar was added to the HamPod for capable ICOM radio models, it was necessary to be able to create text strings for various DStar Callsigns and parameters. Since the DStar editable text buffer is available to create a text string, it made sense to allow you to be able to assign that string to a memory channel to give it a logical name. You do not need a DStar capable radio to do this. You only need a model that supports the ability to add an alpha text string as a name tag to a Memory Channel. 
+To Assign a Text String from the DStar Editable Text Buffer to a Memory Channel:
+  First enter DStar mode on the HamPod. See the section below on DStar Mode and how to use the Editable Text Buffer. 
+  Enter your name text string into the editable buffer. You must have a lower case letter "m" in the first position followed by the text you want as the channel name. The lower case "m" is required to validate your desire for the entry to be used as a Memory Channel Name by first checking for that character. If that is found, the
+rest of the text is written to the selected memory channel name. Text is read out of that buffer until either a null byte is encountered or the maximum number of bytes have been read for the current radio model. Different radios have different length memory channel name fields. For example, the IC-7100 allows for up to 16 characters while many others allow for only 9.
+  Once you get your name text into the DStar buffer, exit DStar mode.
+  Go into memory mode on the HamPod and select the channel you want to modify.
+  The [C] key will now scroll through three choices, "To VFO A", "To VFO B", and "Modify Name".
+  Choose "Modify Name", then press the [#] key to write the buffer text to the memory channel name.
+
+ 
+5. DStar MODE
+  In DStar Mode, the HamPod has a simple editable buffer that you can load with text and is called the "DStar Text Buffer". Typically you load callsigns, or text message strings that are then written into the radio to populate one of three available DStar associated fields. 
+These fields are:
+ 1. "My Callsign". This field holds up to 12 characters. The first 8 characters are usually populated with your callsign. The last 4 characters can contain a short note such as for example, your name or radio model. 
+2. "TX Callsign". This is a 24 character field which is internally subdivided into 3, 8 character callsigns. These 3 callsigns are loaded into the following radio DStar callsign fields titled: "UR Callsign", "RPT1", and "RPT2".
+3. "TX Message". This is a 20 character field that you can fill with any text message you like. 
+For convenience, this DStar Text Buffer is also automatically loaded with callsign data when in HamPod Memory Mode and you transfer a DV memory channel with DStar data to the radio. This is populated for convenience so you can easily modify some portion of this data to send back to the radio and therefore do not need to duplicate the entire field. 
+  Also within the HamPod are two  duplicate text buffers that are temporary storage areas that are used to hold text that can be used in a couple ways. 
+The first duplicate buffer is 24 bytes in length and is automatically loaded with the 3 DStar callsigns when using the HamPod in Memory Mode and scrolling through the memory channels or when transferring a DV memory channel to the radio and the memory channel contains DStar callsign data. This data can then easily be copy to the editable DStar Text Buffer for modification and sent back to the radio if desired. 
+The second buffer is 8 bytes long and is used to hold the "UR Callsign" portion of the 24 byte DV callsign data and is populated when you transfer a DV memory channel to the radio. This callsign data can then be conveniently restored to the radio with use of a "DStar Hot Key" as noted below which is useful if you wish to relink to a remote location again. 
+  Also in HamPod DStar Mode, you can choose to read any of the 3 DStar fields from the radio for inspection and that data is written to the duplicate buffer to make it available for editing if needed. 
+
+HamPod DStar Mode Key Assignments:
+[1] , Hold : Read the contents of the editable DStar Text Buffer
+[2] , Hold : Read the contents of the editable DStar Text Buffer letter by letter including spaces
+[A] : Writes any previously selected character into the editable DStar Text Buffer at the current position and advances one position speaking the character there 
+[B] : Moves back one character position in Text Entry Buffer
+[B] , Hold : Convert character at current position in Text Entry Buffer to lower case
+Note: DStar Hotkeys are 4, 5, 6, 7, 8, 9, and modify the first 8 characters "UR Callsign" in the editable DStar Text Buffer as noted next:
+[4] , Hold : Writes one "L" character into the eighth position of HamPod DStar Text Buffer and sends to "TX Callsign" field in radio for Linking 
+[5] , Hold : Write "CQCQCQ  " into first 8 characters of HamPod DStar Text Buffer and sends to "TX Callsign" field in radio for talking 
+[6] , Hold : Write "       U" (seven spaces and the letter "U"), into first 8 characters of HamPod DStar Text Buffer and sends to "TX Callsign" field in radio for UnLinking 
+[7] , Hold : Restore UR Callsign into first 8 characters of HamPod DStar Text Buffer and sends to "TX Callsign" field in radio (good for reLinking)
+[8] , Hold : Write "       E" (seven spaces and the letter "E"), into first 8 characters of HamPod DStar Text Buffer and sends to "TX Callsign" field in radio for an Echo test 
+[9] , Hold : Write "       I" (seven spaces and the letter "I"), into first 8 characters of HamPod DStar Text Buffer and sends to "TX Callsign" field in radio for an information request 
+[C] : Chooses which DStar parameter (My Callsign, TX Callsign, or TX Message) to read from, or write to radio
+[C] , Hold : Copy My Callsign, TX Callsign, or TX Message data into editable DStar Text Buffer if previously read from radio
+[*] : Clear current character in Text Entry Buffer replacing it with a null character
+[*] Hold : Clear entire editable Text Entry Buffer
+[0] Hold : Request and speak current RX Message from radio
+[#] : read parameter data from radio as selected with the [C] key
+[#] , Hold : Write editable text buffer to radio DStar field as selected with the [C] key 
+[Shift] , [D] : Enter DStar Mode
+[D] : Exit DStar Mode
+[0] to [9] select character to write into Text Entry Buffer if followed with [A] key
+
+Notes on text entry into the editable Text Entry Buffer:
+  Stepping forward with the [A] key is how you write characters into the editable buffer. It will either advance one position and speak the next character or if you have selected a character to be written, will write that character into the current position over-writing any current data then advance one position and speak that next character. 
+The [B] key will move backwards through the buffer speaking the character at the new position. Stepping backwards is non destructive.  
+  You can also convert a letter to lower case while in the DStar text editor with a long press of the [B] key. If you need several lower case letters, the easiest way to do this is to enter all your text, then move backwards over each letter and do a long [B] key while on that letter. There is no need
+for an upper case key because you can just enter the letter again since it is originally input as an upper case character. 
+  Pressing the [*] key will write a null byte into the current position. This null byte signals the end of data to be written to the radio. So if you had a string of say 10 characters and used the [*] key when on the fifth character, only the first 4 characters will be written to the radio. 
+  Currently there is no way to insert or delete a character. You can only clear, convert to lower case, or over-write the current character. The zero key will step through the zero characters and some additional punctuation. Some fields require a fixed number of bytes such as the "My Callsign" field which is 12 bytes long. You can enter fewer characters and the HamPod will automatically pad the string to 12 bytes. If you enter more than 12, only the first 12 bytes will be sent. The TX Callsign field is 24 bytes in length. It is sub divided into 3 groups of 8 bytes. It typically holds 3 callsigns, UR Callsign, RPT1, and RPT2. When entering callsigns into this field, make sure you allocate 8 bytes per callsign. 
+
+Example to read the Callsign currently stored in radio from the "My Callsign" field:
+1. Enter DStar Mode: [Shift] [D]
+2. Use the [C] key to select the "My Callsign" parameter
+3. Press the [#] key to read data from the radio
+4. [D] key to exit DStar Mode
+
+Example to write your Callsign into the "My Callsign" field within your radio:
+1. Enter DStar Mode: [Shift] [D]
+2. Enter your Callsign into the editable Text Entry Buffer: keys [0] to [9] using the [A] key to advance for each selected character
+3. You can review the text you've entered by either of two methods:
+Use the [A] and [B] keys to step forward and backward through the buffer., or
+[1] Hold, to speak the contents of the buffer or [2] Hold, to read letter by letter
+4. Use the [C] key to select the "My Callsign" parameter
+5. Press and hold the [#] key to write contents of the editable Text Entry Buffer to the "My Callsign" parameter within the radio. If successful, the HamPod will automatically query for this to be read back from the radio to confirm correct data was written. 
+6. [D] key to exit DStar Mode
+
+Example of typical DStar repeater session:
+1. Enter HamPod Memory Mode: [Shift] [C]
+2. Go to the memory channel that contains the data for the DStar repeater or hot spot that you wish to connect to. Typically this contains a "UR Callsign" field loaded with callsign text with the eighth character being the letter "L" for linking
+3. Transfer this memory channel to VFO A, (the [C] key followed by the [#] key) 
+4. Key your radio to link to the repeater
+5. Enter DStar Mode: [Shift] [D]
+6. Send "CQCQCQ  " to the radio so you can now talk through the repeater (key [5] Hold)
+7. When finished, send the unlink command to the repeater (key [6] Hold to send "       U" to the radio then key your radio to unlink)
+Done, but there are two additional things you can do:
+8. While linked, you can perform an "Echo" test with the repeater (using key 8] Hold, but don't forget to return the radio to repeater talk mode with "CQCQCQ  " (step 6), if you wish to communicate through the repeater
+9. If desired to link again, restore the callsign to the radio using key [7] Hold, then key the radio to relink
+
+
+6. DTMF MODE
+You can now place the HamPod into DTMF Mode to generate touch  tones . You can then place the microphone near the HamPod when you need to send tones to activate remote equipment. 
+
+[Shift], [D], Hold : enter DTMF Mode
+[All Keys] : Generate related touch tones
+[D], Hold : Exit DTMF Mode
+
+
+7. CONFIGURATION MODE
+  This mode allows changes to the various voice settings as well as modifying the options which effect how the  HamPod operates and interacts with your ICOM transceiver. To enter Configuration Mode, press and hold the [C] key for 1 second. When you enter the configuration menu, you are placed at the option you last viewed when you previously exited the configuration menu.
+
+In Configuration Mode the keypad switches perform the following functions:
+[A]: Step forward through the configuration options.
+[B]: Step backward through the configuration options.
+[C]: Increment the parameter values.
+[D]: Decrements the parameter values.
+These are circular menus and will cycle through once  the first or last choice has been passed.
+
+To exit and save your changes, press and hole the [C] key for 1 second. The settings are stored in EEPROM and will remain even when power is removed.
+
+To exit without saving your changes, press and hold the [D] key for 1 second. Any changes you may have made will not be stored in EEPROM but those changes will still remain in effect until you power off or reset the HamPod. If the key timeout function is active and you don't press a key before the timeout occurs, you will exit configuration mode without saving to EEPROM.
+
+
+HamPod ICOM READER CONFIGURATION OPTIONS
+1. Key beep: enable or disable. This sounds a beep when a key is pressed.
+
+2. Key Timeout Duration: disable / 5 - 30 Seconds:  When disabled, no key time out will occur. When set to 5 - 30, in both Frequency and Configuration Modes, this sets a time out  period when a key is pressed which will return the HamPod to Normal Mode if another key is not pressed before the set time out period expires.
+
+3. Verbosity: on/disable Some keys and controls on the transceiver generate serial data when manipulated by the user and if this option is enabled, the HamPod ICOM Reader will automatically announce that data as you operate the radio. This might be useful at times but can get pretty chatty. This option also adds some additional speech labels to various readings. Note that automatic Announcement of VFO frequency when changing frequency by use of the VFO encoder controls are not controlled by this option. 
+
+4. Frequency Announcement: on/disable When enabled, this will announce the VFO frequency if changed with an encoder and the frequency has stopped changing after the time delay period expires. This is useful when you are tuning the band and want to automatically hear the frequency after you have stopped tuning for a specified period of time.
+
+5. Frequency Announcement Delay: 12-50 in .1 second steps This setting sets the period of time before the frequency will be automatically announced after manual tuning has stopped. The setting range is adjustable between 1.2 seconds to 5.0 seconds. Note that the time delay setting is only approximate because of timing issues between the program and the radio.
+
+6. AF and RF Announcement: on/disable When both this option and verbosity are enabled, the ICOM Reader will announce the values for the AF and RF encoders whenever you manipulate them. There are occasions when you want verbosity on but don't want to hear the values for these controls since they are used often and the values are usually irrelevant anyway. So you can disable the readout for these controls while still allowing other controls and actions that are enabled with the verbosity option to continue to announce.
+
+7. Frequency Plus Mode: on/disable When enabled and you perform a keypad query for the VFO frequency of choice, an additional letter will be appended to the read out depicting the current operating mode for that VFO. The possible letters are:
+"L" for LSB
+"U" for USB
+"C" for CW
+"CR" for CW Reverse,
+"R" for RTTY
+"RR" for RTTY Reversed
+"F" for FM
+"W" for Wide FM
+"A" for AM
+"S" for Synchronous AM detection
+"P" for PSK
+"PR" for PSK Reversed
+"DV" for Digital Voice
+
+7. Communications Timeout: 5-20 This is an internal HamPod value that dictates how long the ICOM Reader will wait for a response from the transceiver before generating a time out error message. Smaller values allows slightly better performance but can result in more time outs occurring than if larger values are selected. Choose the smallest number that works reliably with your setup
+
+8.ICOM ID:  Select your ICOM transceiver ID number for serial communications. The suggested default is  Acquired From Radio . These ID numbers are expressed in hex format. The range is 00 through A0, and "Acquired From Radio".
+
+9. DTMF Tone Duration:  (200Milliseconds) The range is from 100 to 500 Milliseconds. This sets how long the tone will sound when pressing a key while in DTMF mode.
+
+10. Power On To Port:  (default is port 1) Selects which serial port is active when the HamPod is powered on.
+
+11. Reset or Flash: Used to reset the HamPod or prepare for flashing. When at this option, you can press either the [C] or [D] keys to alternate between enabling or disabling the opportunity to reset or flash. When the HamPod informs you to "Enter to Reset", you can then press the [Enter] key to initiate the reset. If you do choose to reset, the HamPod will perform a 3 second countdown before performing the reset process. This is useful when you want to coordinate the reset with the application running on your PC for the purpose of updating the firmware. This reset only occurs to the HamPod and not the transceiver. You are also given the option to press the [*] key to cause the HamPod to set itself up for flashing. See appendix C for additional flashing instructions.
+
+HamPod  DoubleTalk VOICE PARAMETERS
+  There are nine parameters which effect the voice synthesizer output.
+Volume: 0 to 9. Default is 5.
+Speed: 0 to 13. Default is 5.
+Pitch: 0 to 99. Default is 50.
+Articulation: 0 to 9. Default is 3.
+Expression: 0 to 9. Default is 3.
+Reverb: 0 to 9. Default is 0.
+Formant Frequency: 0 to 99. Default is 50.
+Tone: 0 to 2. Default is 1.
+Voice: 0 to 10. Default is 0.
+
+The last parameter in the above list is the "Voice" parameter and are predefined voice configurations. Please note that many of these predefined "Voices" will override some of the voice parameters such as pitch, tone, and reverb settings that you may have already modified and will be changed when you select one of these alternate "Voices".
+
+A list of all configuration parameters and their range of acceptable values are found in Appendix B.
+
+
+   APPENDIX A
+
+ICOM Reader Key Pad Assignments
+
+  There are up to 4 possible assignments to most keys. To invoke these actions you do one of the following:
+1.  Perform a normal press of the desired key.
+2.  Press and continue to hold the desired key for an additional .5 second.
+3.  Press the Shift key followed by a normal press of the desired key.
+4.  Press Shift then press and hold the desired key for an additional .5 second.
+
+
+Key assignments are listed below:
+[1] - Select VFO A and announce Frequency
+[Set] , [1] - Select Main receiver (IC-7800/7851/9100/9700)
+[1] Hold - Select VFO B and announce Frequency
+[Set] , [1] Hold - Select Sub receiver (IC-7800/7851/9100/9700)
+[SHIFT] , [1]   VOX status, Gain and Anti Gain levels if enabled
+[Set] , [SHIFT] , [1] -   Set VOX status, Gain and Anti Gain levels
+[SHIFT] , [1] Hold - Break in status and Delay level if enabled
+
+[2] - Announce current working VFO frequency
+[2] Hold - Toggle Memory Scan On/Disabled
+[SHIFT] , [2] - Tuning Step
+[Set] , [Shift] , [2] -   Set Tuning Step
+[SHIFT] , [2] Hold - Read RF/Squelch Control setting
+[Set] , [SHIFT] , [2] , Hold - Set RF/Squelch Control (0=Auto, 1=Squelch, 2=RF+Squelch)
+
+[3] - Toggle Split Mode On/Disable
+[3] Hold - Exchange VFO A and VFO b
+[SHIFT] , [3] - Choose Duplex direction (minus, plus, disabled), and announce offset frequency, Alternatively,  disable Dual Watch for IC-775, IC-7610 and IC-7851
+[Set] , [SHIFT] , [3] - Set Duplex Offset frequency
+[SHIFT] , [3] Hold - Turn on Dual Watch for IC-775, IC-7610 and IC-7851
+
+[A] - Shift on/off: This toggles the "Shift" keypad function on and off
+[A] , Hold - Volume Up: Shortcut key to increase volume of the HamPod
+[SHIFT] , [A]   Turns Shift off if currently on
+[SHIFT] , [A] , Hold - Not assigned
+
+[4] - PreAmp status
+[Set] , [4] -   Set PreAmp 1 and PreAmp 2 Status
+[4] , Hold - AGC status (slow, mid, fast) and level (0 to 13)  depending on radio model
+[SHIFT] , [4] - Attenuation status
+[Set] , [Shift] , [4] -   Set Attenuation level
+[SHIFT] , [4] , Hold Not assigned
+
+[5] - Get Repeater, CTCSS, and DTCS Tone status and frequency or code. Duplicate Compression Status Key for IC-7610 and IC-7851
+[Set] , [5] -   Set Repeater Tone
+[5] , Hold - n/a
+[Set] , [5] , Hold - Set CTCSS Squelch Tone
+[SHIFT] , [5] -  n/a
+[Set] , [SHIFT] , [5] - Set Digital Tone Coded Squelch. [A]=On, [B]=Disabled, [C]=Polarity
+[SHIFT] , [5] , Hold - Get Digital Voice Squelch status and code
+[Set] , [SHIFT] , [5] , Hold - Set Digital Voice Squelch status and code
+
+[6] - Read selected Filter Width
+[6] , Hold - Audio Peak Filter
+[SHIFT] , [6] - Get Filter Number
+[Set] , [SHIFT] , [6]   Set Filter Number
+[SHIFT] , [6] , Hold - Roofing Filter
+
+[B] - Band and/or Set key depending on radio model. When setting some levels, this key toggles it on and off
+[B] , Hold - Volume Down: Shortcut key to decrease volume of the HamPod
+[SHIFT] , [B] - Debug Mode for help with testing. Will speak the data being sent and received from connected device. 
+[SHIFT] , [B] , Hold - Not assigned
+
+[7] - Noise Blanker status and Level
+[Set] , [7] - Set Noise Blanker status and Level
+[7] , Hold - Antenna Tuner status (Off, On, Tuning)
+[SHIFT] , [7] - Antenna Selection Status
+[SHIFT] , [7] , Hold - Voltage and Current (Only available in version 2.xx firmware)
+
+[8] - Noise Reduction status and Level
+[Set] , [8] - Set Noise Reduction status and Level
+[8] , Hold - Mic Gain Level
+[Set] , [8] , Hold - Set Mic Gain Level
+[SHIFT] , [8] - Keyer Speed
+[Set] , [SHIFT] , [8] - Set Keyer Speed
+[SHIFT] , [8] , Hold - Read SSB TX Equalizer Tone setting for IC-7851
+ 
+[9] - Auto Notch  status,Manual Notch status and Frequency if enabled
+[9] , Hold - Power  Level
+[Set] , [9] , Hold - Set Power  Level
+[SHIFT] , [9] - Compression  status and Level
+[Set] , [SHIFT] , [9] - Set Compression  Level. 0-10 for all except 0-100 for 756Pro, Pro2, and pro3
+[SHIFT] , [9] , Hold - Monitor status and Level
+[Set] , [SHIFT] , [9] , Hold - Set Monitor Level
+
+[C] - Frequency Announcement Delay Verbosity on/disable: Enables and disables the automatic delayed announcement of frequency once a VFO encoder control has stopped moving
+[C] , Hold - Configuration Mode: Enters Configuration Mode of the HamPod ICOM Reader
+[SHIFT] , [C]   Place HamPod into Memory Mode (N/A on IC-775)
+[SHIFT] , [C] , Hold - Place HamPod into Memory Mode 2, automatic transfer of memory channel data to VFO (N/A on IC-775)
+
+[*] - Read S Meter
+[*] , Hold - Read RF Power Meter
+[SHIFT] , [*] - Read Compression Meter
+[SHIFT] , [*] , Hold - Read ALC Meter
+
+[0] - Read current Mode
+[Set] , [0] - Set current Mode
+[0] , Hold - Toggle Data Mode On/Off on applicable radio's. Will only set Data Mode to D1 on IC-7610 and IC-7851.
+[SHIFT] , [0] - SWR query with ability for user to keep in transmit until a key is pressed. Useful for external antenna tuners. See next key assignment for SWR details.  
+[SHIFT] , [0] , Hold - SWR: Reads SWR reading at antenna 1 port while sending  15 percent power (or 50% if IC-703 ), with internal antenna tuner in bypass. Since the tuner is bypassed, this will result in reading the SWR of your antenna system and not the matched SWR that is achieved by the internal tuner.
+
+[#] - VFO 'A', VFO 'B', or  Current  Select for frequency entry: Pressing this key prepares the ICOM Reader to accept direct frequency entry values. Repeated pressing of this key toggles between VFO 'A', VFO 'B', and the Current VFO.
+[#] , Hold - Query for current Time from radio (IC-756P2, 756P3, 7000, 7100, 7300 only)
+[Set] , [#] , Hold - Set current Time on radio. (Must enter all 4 time digits including leading zeros using 24 hour format)
+[SHIFT] , [#] - Last HamPod entered frequency ReCall. When you enter a frequency using the HamPod keypad, that frequency is saved to an internal HamPod memory. You can quickly resend this frequency using this key combination.
+[SHIFT] , [#] , Hold - Save current working frequency to the  internal HamPod memory for quick recall later if desired.
+
+[D] - Verbosity on/disable. Disabling Verbosity will limit labeling of some announcements providing less chatter.
+[D] , Hold - Switch between serial ports 1 and 2 of the HamPod or exit DTMF Mode
+[SHIFT] , [D] - Place HamPod into DStar mode
+[Set] , [Shift] , [D] - Lock Dial (VFO), or Panel Lock
+[SHIFT] , [D] , Hold - Place HamPod into DTMF, Touch Tone mode
+
+
+APPENDIX B
+
+Configuration parameter and value ranges:
+
+Volume: 0-9
+Speed: 0-13
+Pitch: 0-99
+Articulation: 0-9
+Expression: 0-9
+Reverb: 0-9
+Formant Frequency: 0-99
+Tone: 0-2
+Voice: 0-10
+Key Beep: on/disable
+Key Timeout Duration: disable / 5 - 30 Seconds
+Verbosity: on/disable
+Frequency Announcement: on/disable
+Frequency Announcement Delay: 12-50 in .1 second steps
+AF and RF announcement: on/disable (not used)
+Frequency Plus Mode: on/disable
+Communications Timeout: 5-20
+ICOM ID on Port 1: (if ICOM connected):  00 to A0 (hex values, A0 = acquired from radio)
+ICOM ID on Port 2 (if ICOM connected):  00 to A0 (hex values, A0 = acquired from radio)
+Power On To Port: 1-2
+Reset or Flash: Used to reset the HamPod or prepare it for flashing
+
+
+APPENDIX C
+
+FIRMWARE UPGRADE OVERVIEW
+The procedure to flash the firmware is standard practice as with other devices that utilize a bootloader. There are basically two components used for this procedure:
+1.  The bootloader which is already resident within your HamPod.
+2.  A Windows based computer running an application that communicates with the bootloader and sends the new firmware to the HamPod.
+
+The bootloader is a special application that resides within the HamPod and runs every time the device is either reset or  powered on. This special application looks for a unique command sequence over serial port 1 of the HamPod which is connected to your computer which is running the companion Windows flash loader  application. Once the bootloader begins, you have approximately 1.5 seconds to initiate the flash loader application running on the computer. During that first 1.5 second window of opportunity,the bootloader is in control of the HamPod and is looking for a connection from the computer over the serial port. When a valid connection is established between the HamPod and the application running on the computer, the flash loader application then sends the new firmware to the HamPod. If no connection can be established, the bootloader times out and the HamPod starts running as usual.
+
+  An improved method to flash the HamPod has been added to the configuration menu. This greatly simplifies the required timing synchronization  between the HamPod and the flashing application running on the computer.
+All previous methods for flashing the HamPod still exist but this new method is much easier to perform since it automatically restarts the HamPod for you.
+
+The following steps will walk you through the flashing process:
+1.  Important! You must use a null modem serial cable for this connection. Connect a null modem serial cable between serial port 1 of the HamPod (the connector nearest the DC Power jack), and a serial comm port on your personal computer. The comm port on your computer can be any serial port from COM1: to COM8:. The existing straight wired serial cable provided with your HamPod can be used provided you also use the included null modem adapter in addition to this cable.
+ 2.  Download and extract the ZIP archive update  firmware file to any directory of your choosing on your computer. You may over write any existing files with a new firmware update if you have previously performed this update before. This file can be found from the appropriate page on the HamPod web site at the following URL:
+http://www.HAMPod.com
+
+The files contained within the ZIP archive are:
+ds30LoaderConsole.exe : The command line flash loader application.
+Flash_1.bat : Batch file when using comm port 1 on PC.
+Flash_2.bat : Batch file when using comm port 2 on PC.
+Flash_3.bat : Batch file when using comm port 3 on PC.
+Flash_4.bat : Batch file when using comm port 4 on PC.
+Flash_5.bat : Batch file when using comm port 5 on PC.
+Flash_6.bat : Batch file when using comm port 6 on PC.
+Flash_7.bat : Batch file when using comm port 7 on PC.
+Flash_8.bat : Batch file when using comm port 8 on PC.
+***.hex : the firmware file to flash to the HamPod (this file name varies depending on your connected devices)
+Other informational text files
+
+3.  Once you extract the files into a directory of your choosing, simply run the appropriate batch file for the comm port number on your PC that you have connected to the HamPod. The batch file contains the command to launch the flash loader  application and also set some necessary parameters for the program. When you start the batch file, the file will open a DOS window, validate the new hex firmware file, and prepare to flash the HamPod but will stop and wait for any key to be pressed on the PC before actually initiating the flashing process. The text written into this DOS window by the flashing application should be readable by most screen readers such as JAWS or Window EYES and will inform you of its progress.
+
+4.  Once the application on the computer pauses and is waiting for a key press, enter the configuration menu on the HamPod with a long press of the [C] key. Scroll through the menu items using the [A] or [B] keys until you reach the "Reset and Flashing Disabled" menu item. Press either the [C] or [D] key to enable this item and you will hear, "Enter to Reset or Star to Flash Firmware". Press the [*] key and the HamPod will enter flash mode with the prompt, "Waiting for Firmware, Any Key to Abort". The HamPod is now waiting and watching for the application on the computer to begin sending the new firmware. At this point, if you press any key on the HamPod, it will exit flash mode and reset itself. To initiate the new firmware transfer from the computer, press any key such as the Space Bar on the computer and it will begin sending the firmware to the HamPod. When you pressed the Space Bar key on the PC, the flash loader application tries to establish a connection with the bootloader within the HamPod and if found, the HamPod will respond with a "Flashing" announcement. This will take about 30 to 45 seconds to complete. DO NOT power off the HamPod while the update is in progress!When finish, the HamPod may restart on its own but sometimes you may need to power cycle the HamPod yourself. The flash loader application on the PC will write a series of period characters to the screen as it transfers the firmware file to the HamPod, When finished, it will report the status of the update and wait for a final key press on the PC to terminate the flash application and close the DOS window.
+
+Note for users of older firmware:
+  If you are using an older version of firmware, this new flashing method will not be available and you must use one of the previous methods of synchronizing the HamPod with the PC by performing an manual reset of the HamPod.  The easiest way to do this that usually works is to start the flash loader application on the computer and press any key when prompted to initiate the firmware download. You then have about 20 seconds to reset the HamPod while the PC application continues to look for the bootloader to start running on the HamPod. So at this point, you need to quickly reset the HamPod by use of the reset button, reset configuration menu item, or removing and applying power to the HamPod. In some cases an erroneous character will be sent to the PC by the HamPod during the reset which might confuse the application running on the computer and it will fail. If this happens, just try the procedure again or use one of the alternative methods to reset the HamPod.
+
+5.  After a successful update, you can verify the new firmware has been installed by requesting the product information from the HamPod as specified in the user manual for your specific connected device.
+6.   Disconnect from the PC and reconnect the HamPod to your equipment and enjoy the new benefits and features of the firmware!
+

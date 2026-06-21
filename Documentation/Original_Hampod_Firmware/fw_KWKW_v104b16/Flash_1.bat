@@ -1,0 +1,1 @@
+ds30LoaderConsole.exe -f=KWKW.hex -k=COM1 -r=38400 -d=PIC18F46K22 -p -e -c

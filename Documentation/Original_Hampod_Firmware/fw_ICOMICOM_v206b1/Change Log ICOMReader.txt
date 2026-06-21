@@ -1,0 +1,97 @@
+Firmware Version Change Log
+
+ICOMReader :
+v2.06b1
+Added ability to toggle Data Mode on/off on applicable radios
+Will only set Data Mode D1 on IC-7610 and IC-7851. 
+v2.06
+Fixed several issues with IC-9700 including clock, memory access, DStar, and quick band change functions
+Added command to select Main or Sub receiver for IC-7800/7851/9100/9700
+Added a debug mode to help with testing
+
+v2.05b42
+Added Quick Band Change function for 9700
+Set SWR power level to 15 watts or 50% on IC-703
+
+v1.05 b41
+Added ability to set and clear VFO and front panel locks
+
+v1.05 b40
+Fixed Tuning Step values for IC-9700
+Fixed memory channel alpha tag length to 16 characters for IC-9700. 
+
+v1.05 b38
+Added preliminary support for IC-910(H)
+
+v1.05 b37
+Fixed addressing for future large memory firmware builds.
+ 
+v1.05 b36b2
+When stopping Memory Scan, now auto copies Mem Channel data to VFO
+
+v1.05 
+Added set Duplex Offset frequency function
+Combined Split (On/Disable), onto one toggle key
+Combined Duplex Direction (Minus/Plus/Disable), onto one toggle key
+Added Scan function for current memory bank on supported models.
+Added new query for Antenna Tuner status (Disabled, On, Tuning). [7], Hold. 
+Added new memory mode 2: automatic memory channel data to VFO transfer [Shift] , [C] Hold
+Added read/set RF/Squelch Control setting
+Added support for IC-746 (non Pro)
+Added ability within SWR query to hold in transmit until a key is pressed to continue. Used to wait for external antenna tuner to complete tuning. 
+Added DStar Mode support for IC-7100 and IC-9100.
+	Added ability to create an alpha name and assign to a memory channel
+	Fixed Text-To-Speech input buffer overrun error
+
+Added support for new IC-7610
+Added Voltage and Current query for IC-7610
+Added "Set" function for VOX Delay
+Added "Set" function for PreAmp 1 and 2
+Added "Set" function for AGC Speed and Level
+Added "Set" function for Attenuation on/off and level if applicable
+Added DTMF Tone Duration configuration option
+Restructured Notch query code and added Notch filter Width query
+				Added "Set" function for Notch filter settings
+So now, radio functions and controls that can potentially be set from the HamPod on supported models (enable/disable and/or set level):
+PreAmp (Preamp 1 and Preamp 2)
+Attenuation
+Compression
+Filter Bandwidth, Filter Number, Filter Shape
+AGC speed and level
+Keyer Speed
+Mic Gain
+Monitor Level
+Noise Blanker
+Noise Reduction
+Operating Mode
+Power Output Level
+Current Time
+Tones: Repeater, CTCSS, DTS, DV
+VOX Gain, AntiGain and Delay
+Tuning Step size
+
+Fixed identification of IC-775 and several commands (b25)
+Fixed bug with the "Failed" error message (b26)
+Disabling "Automatic Frequency Announcement" now immediately stops it
+
+v1.04 Added support for IC-7100 and IC-7300.
+	Added DTMF Mode to generate touch tones from HamPod keypad.
+	Added Memory support to read, write and Clear memory locations. 
+	Added Set function for VOX to enable/disable, adjust Gain and Anti Gain levels.
+	Added query and Set function for current Filter Number, Filter Shape, and Filter Bandwidth.
+	Added query and Set function for current Time (IC-756P2, 756P3, 7000, 7100, 7300)
+	Fix Filter Number being set to default when setting operating mode from HamPod.
+	Set level input range for Compression is now 0 to 10
+	Added query for current Time from radio (IC-756P2, 756P3, 7000, 7100, 7300 models only)
+	Added support for IC-7851
+	IC-7851 has duplicate Compression Status Key on [5]
+	Now saves and restores Mode and Filter with HamPod Frequency Save and Recall keystrokes
+
+v1.03 Added Quick Band Change feature for supporting models.
+	Added ability to set operating Mode with the Set function.
+
+v1.02 Customized support for IC-718
+
+v1.01 Customized support for IC-706MkIIG
+
+v1.00 Initial release

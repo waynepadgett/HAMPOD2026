@@ -156,9 +156,11 @@ Architecture details, specifications, and lookup materials.
 
 ### Reference Libraries
 
-| Directory | Description |
-|-----------|-------------|
-| [Original_Hampod_Docs/](Original_Hampod_Docs/) | Original ICOMReader manuals |
+| Directory / Document | Description |
+|----------------------|-------------|
+| [Hamlib API Reference](Reference/hamlib-api.md) | Hamlib C API function reference (rig, rotator, amplifier, utilities) |
+| [Original_Hampod_Docs/](Original_Hampod_Docs/) | Original ICOMReader/K3Reader/KenwoodReader/Yaesu manuals (ICOMReader_Manual_Add_On.txt, ICOMReader_Manual_v106.txt, K3Reader_Manual_v120.txt, KenwoodReader_Manual_v104.txt, Yaesu_FT8X7_Manual.txt, Yaesu_Manual_100.txt) |
+| [Original_Hampod_Firmware/](Original_Hampod_Firmware/) | Original Hampod firmware binaries: fw_ICOMICOM_v106b1, fw_ICOMICOM_v206b1, fw_K3K3_v120, fw_K3K3_v220, fw_KWKW_v104b16, fw_KWKW_v204b16, fw_YaesuYaesu_v100b21, fw_YaesuYaesu_v200b21 |
 | [Old_NanoPi_Docs/](Old_NanoPi_Docs/) | Legacy NanoPi documentation |
 | [Hardware_Files/](Hardware_Files/) | Schematics, PCB designs |
 | [Formal_methods_tangent/](Formal_methods_tangent/) | Formal specification experiments |

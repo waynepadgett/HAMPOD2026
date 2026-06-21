@@ -1,0 +1,20 @@
+Firmware Version Change Log
+
+Kenwood:
+
+v1.04b16 Fixed Memory Channel Number upper limit for TS-590S
+v1.04b15 Fixed jump table bug for v2.xx large Memory builds
+v1.04b14 Fixed Memory Channel Number upper limits
+v1.04b12 Added support for TS-990S
+
+v1.04 Added Auto Information mode so now reports frequency and other parameters automatically if enabled. 
+
+v1.03 Added Memory Mode to read memory Bank and Channel data and copy to VFO.
+
+v1.02 Now only VFO C can be selected if TS-2000
+Added unique voice text for Config menu to now say VS3 Volume
+
+v1.01 Added quick keypad frequency save function
+
+v1.00 Initial release.
+

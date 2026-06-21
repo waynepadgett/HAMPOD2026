@@ -1,0 +1,15 @@
+Firmware Version Change Log
+
+Yaesu:
+
+vX.00b21 Added APF status and Frequency on FTDX5000 and FTDX101
+vX.00b20 Fixed Contour status and Frequency on FTDX101
+vX.00b18 Fixed Operating Modes & 4800 to 38400 baud change on initialization for FTDX101
+vX.00b17 Fixed S meter for FTDX101
+vX.00b15 Added additional key for reading and setting APF
+vX.00b14 Added Set capability for AGC
+vX.00b13 Fixed power scaling to 200 watts for FTDX5000
+vX.00b10 Added some support for FTDX101D and FTDX101MP
+vX00b11 Fix bug in Auto Frequency Announcement
+vX.00b12 Updated Jump Table code with PCLATU
+vX.00b13 Fixed output power reading for FTTDX5000

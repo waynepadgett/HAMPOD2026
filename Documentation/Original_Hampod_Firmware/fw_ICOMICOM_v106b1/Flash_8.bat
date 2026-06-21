@@ -1,0 +1,1 @@
+ds30StudioConsole.exe -f=ICOMICOM.hex -k=COM8 -r=38400 -d=PIC18F46K22 -p -e -c

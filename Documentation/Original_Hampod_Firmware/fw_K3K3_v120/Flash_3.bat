@@ -1,0 +1,1 @@
+ds30StudioConsole.exe -f=K3K3.hex -k=COM3 -r=38400 -d=PIC18F46K22 -p -e -c
