@@ -1,8 +1,27 @@
 # HAMPOD Documentation Changelog
 
-> **Last Updated:** 2026-06-20
+> **Last Updated:** 2026-06-21
 
 This file tracks all changes to the Documentation/ directory.
+
+---
+
+## [2026-06-21] Set_Mode_Correction_Plan.md — Verified Against Code
+
+### Changed
+- `Planning/Set_Mode_Correction_Plan.md` — Rewrote stale sections after code audit
+- Executive Summary table: 5 of 6 discrepancies verified as already fixed (beeps, Set announcement, [*] key)
+- Phase 1 (Audio Feedback): All 4 steps marked ✅ Complete with file/line refs
+- Phase 2 (Software Integration): All 3 steps marked ✅ Complete with call counts per file
+- Phase 3.1: Diff replaced with verification note — `[*]` already calls `set_mode_exit()`
+- Git Strategy: Restructured to show completed commits vs remaining items
+- Verification Checklist: 12 of 17 items checked as done
+- Estimated Effort: Revised from 6-10h to ~2h remaining
+
+### Remaining
+- Phase 3.3: `test_set_mode.c` still needs to be created
+- Phase 4: Frequency announcement "dot" vs "point" still needs fix
+- Phase 5: Integration test script and doc review still pending
 
 ---
 
