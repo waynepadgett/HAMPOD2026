@@ -49,16 +49,25 @@ Active plans, in-progress work, and completed phases.
 
 ### Active Work
 
-| Document | Status | Description |
-|----------|--------|-------------|
-| [Fresh_Start_Master_Plan.md](Planning/Fresh_Start_Master_Plan.md) | 🔄 In Progress | Master phase tracker |
-| [Phase_3_Set_Mode_Plan.md](Planning/Phase_3_Set_Mode_Plan.md) | 🔄 In Progress | Consolidated plan — code done, tests + frequency format remain |
-| [Multiple_Synthesizers_Plan.md](Planning/Multiple_Synthesizers_Plan.md) | 🔄 Partial | Missing Flite engine + dispatch layer |
-| [Startup_Device_Plan.md](Planning/Startup_Device_Plan.md) | 🔄 Partial | Missing change detection (Phase 3) |
-| [TTS_Caching_Plan.md](Planning/TTS_Caching_Plan.md) | 🔄 Partial | Missing warmup script |
-| [Memory_Leak_Investigation.md](Planning/Memory_Leak_Investigation.md) | 🔄 Partial | Monitoring only, no confirmed fix |
-| [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | 🔄 In Progress | Living doc — updated as tests are added |
-| [Refactor_Todos.md](Planning/Refactor_Todos.md) | 🔴 Not Started | Code clarity checklist |
+
+#### Scratch TODO notes
+dad will work on next:
+- test doyles new features and make punch list
+then new feat:
+- add status state flag for current radio's manufacturer b/c radios within manufacturer family usually have similar features. wants to make the key function handling check what radio manufacture so u can branch out to do 1 thing if kenwood and a diff thing if other etc. 
+
+
+| Priority | Plan | What's Left | Effort |
+|----------|------|-------------|--------|
+| **P0** | [Silent_Killer_Bug_Hunt.md](Planning/Silent_Killer_Bug_Hunt.md) | Check `dmesg`/syslog after every restart for segfaults. Enable core dumps. Add signal handler to `main.c`. Reproduce with stress test. | M |
+| **P0** | [Phase_3_Set_Mode_Plan.md](Planning/Phase_3_Set_Mode_Plan.md) | Create `test_set_mode.c` (8 test cases). Fix frequency "dot" format in `normal_mode.c` + `frequency_mode.c`. Update `Currently_Implemented_Keys.md`. | S |
+| **P1** | [TTS_Caching_Plan.md](Planning/TTS_Caching_Plan.md) | Create `warmup_tts_cache.sh` script for common phrases. Implement LRU eviction (currently hard cap). | S/M |
+| **P1** | [Startup_Device_Plan.md](Planning/Startup_Device_Plan.md) | Implement USB device enumeration (`hal_usb_util.c`). Add change detection for keypad/speaker port swaps. | L |
+| **P1** | [Memory_Leak_Investigation.md](Planning/Memory_Leak_Investigation.md) | Analyze monitoring data to identify leak source. Memory usage growing from 215MB→237MB over 15min in logs. | XL |
+| **P1** | [Multiple_Synthesizers_Plan.md](Planning/Multiple_Synthesizers_Plan.md) | Implement `hal_tts_flite.c`. Create engine dispatch layer. | L |
+| **P2** | [Refactor_Todos.md](Planning/Refactor_Todos.md) | Radio layer helpers, config unit tests, dead code removal, script/path consistency. See plan for full list. | XL |
+| **P2** | [Regression_Testing_Plan.md](Planning/Regression_Testing_Plan.md) | Living doc — add tests as features complete. No immediate action. | — |
+| **P2** | [Fresh_Start_Master_Plan.md](Planning/Fresh_Start_Master_Plan.md) | Meta-tracker — update when phases complete. No direct work. | — |
 
 ### Completed Phases
 
