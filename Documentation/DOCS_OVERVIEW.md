@@ -97,7 +97,7 @@ How-to documentation for setup, operation, and contribution.
 | [CLI_Help.md](Guides/CLI_Help.md) | Command-line interface usage |
 | [Debugging.md](Guides/Debugging.md) | Debug logging, diagnostics, troubleshooting |
 | [Multiple_Modes_Guide.md](Guides/Multiple_Modes_Guide.md) | How modes work together |
-| [Key_Mapping_Reference.md](Guides/Key_Mapping_Reference.md) | Quick reference for all key bindings |
+| [Currently_Implemented_Keys.md](Reference/Currently_Implemented_Keys.md) | Quick reference for all key bindings |
 | [Merge_SOP.md](Guides/Merge_SOP.md) | Full merge standard operating procedure |
 | [Merge_SOP_Short.md](Guides/Merge_SOP_Short.md) | Condensed merge checklist |
 | [SOP_Merge_Transcript.md](Guides/SOP_Merge_Transcript.md) | Training transcript for merge process |
@@ -194,6 +194,18 @@ Operational scripts in `Documentation/scripts/`:
 | `fix_beep_format.sh` | Fix beep audio format |
 | `test_and_deploy.ps1` | Windows deploy helper |
 | `deploy_and_run_imitation.ps1` | Windows test deploy |
+
+### Deprecated Tests
+
+| Script | Notes |
+|--------|-------|
+| `deprecated_tests/Regression_Imitation_Software.sh` | Deprecated — use regression scripts above |
+| `deprecated_tests/Regression_Frequency_Mode.sh` | Deprecated — use regression scripts above |
+| `deprecated_tests/Regression_Normal_Mode.sh` | Deprecated — use regression scripts above |
+| `deprecated_tests/Regression_HAL_Integration.sh` | Deprecated — use regression scripts above |
+| `deprecated_tests/remote_install.sh` | Deprecated — use `install_hampod.sh` |
+| `deprecated_tests/remote_install.ps1` | Deprecated — use `install_hampod.sh` |
+| `deprecated_tests/run_remote_test.sh` | Deprecated — use regression scripts above |
 
 ### Regression Tests
 

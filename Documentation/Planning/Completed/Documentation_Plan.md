@@ -14,7 +14,6 @@
 The 2026-06-20 refactor completed most documentation organization:
 
 - `Documentation/DOCS_OVERVIEW.md` — central index of all docs
-- `Documentation/CHANGELOG.md` — tracks refactor changes
 - `Documentation/Guides/` — 9 how-to guides (modes, CLI, debugging, merge SOP, etc.)
 - `Documentation/Reference/` — architecture, specs, comparisons
 - `Documentation/Planning/` — active and completed plans
